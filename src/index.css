@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #0D0F14;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0C10;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A3040;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3A4050;
+}
+
+/* Date input dark styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+select option {
+  background-color: #1E2330;
+  color: white;
+}

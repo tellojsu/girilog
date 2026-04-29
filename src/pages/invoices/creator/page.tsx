@@ -1,0 +1,797 @@
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import AppLayout from '@/components/feature/AppLayout';
+import LineItemsEditor from './components/LineItemsEditor';
+import InvoicePreview from './components/InvoicePreview';
+import StatusBadge from '@/components/base/StatusBadge';
+import { supabase } from '@/lib/supabase';
+import { Client, LineItem, Invoice, Settings, InvoiceStatus } from '@/types/girilog';
+
+interface FormState {
+  clientId: string;
+  clientName: string;
+  clientEmail: string;
+  clientAddress: string;
+  issueDate: string;
+  dueDate: string;
+  taxRate: string;
+  discountAmount: string;
+  notes: string;
+  status: Invoice['status'];
+}
+
+const today = new Date().toISOString().split('T')[0];
+const thirtyDays = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+
+const DEFAULT_FORM: FormState = {
+  clientId: '',
+  clientName: '',
+  clientEmail: '',
+  clientAddress: '',
+  issueDate: today,
+  dueDate: thirtyDays,
+  taxRate: '0',
+  discountAmount: '0',
+  notes: '',
+  status: 'draft',
+};
+
+function LoadingSkeleton() {
+  return (
+    <div className="flex gap-6 animate-pulse">
+      <div className="flex-1 space-y-4">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="bg-[#0A0C10] border border-[#1E2330] rounded-xl p-5">
+            <div className="h-4 bg-[#1E2330] rounded w-32 mb-4" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-9 bg-[#1E2330] rounded-lg" />
+              <div className="h-9 bg-[#1E2330] rounded-lg" />
+              <div className="h-9 bg-[#1E2330] rounded-lg" />
+              <div className="h-9 bg-[#1E2330] rounded-lg" />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="w-[420px] shrink-0 hidden lg:block">
+        <div className="h-[600px] bg-[#0A0C10] border border-[#1E2330] rounded-xl" />
+      </div>
+    </div>
+  );
+}
+
+export default function InvoiceCreator() {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEdit = Boolean(id);
+
+  const [clients, setClients] = useState<Client[]>([]);
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [lineItems, setLineItems] = useState<LineItem[]>([
+    { description: '', quantity: 1, unit_price: 0, amount: 0 },
+  ]);
+  const [form, setForm] = useState<FormState>(DEFAULT_FORM);
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [autoNumber, setAutoNumber] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [activeTab, setActiveTab] = useState<'form' | 'preview'>('form');
+  const [isDirty, setIsDirty] = useState(false);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
+  const [clientSearch, setClientSearch] = useState('');
+  const originalRef = useRef<{ form: FormState; lineItems: LineItem[]; invoiceNumber: string } | null>(null);
+
+  // Warn on browser tab close / refresh when dirty
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+  // Safe navigate — shows modal if dirty
+  const safeNavigate = useCallback((path: string) => {
+    if (isDirty) {
+      setPendingNav(path);
+      setShowDiscardModal(true);
+    } else {
+      navigate(path);
+    }
+  }, [isDirty, navigate]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const [{ data: clientsData }, { data: settingsData }] = await Promise.all([
+        supabase.from('girilog_clients').select('*').order('name'),
+        supabase.from('girilog_settings').select('*').limit(1).maybeSingle(),
+      ]);
+      if (clientsData) setClients(clientsData as Client[]);
+
+      if (isEdit && id) {
+        const [{ data: inv }, { data: items }] = await Promise.all([
+          supabase.from('girilog_invoices').select('*').eq('id', id).maybeSingle(),
+          supabase.from('girilog_line_items').select('*').eq('invoice_id', id).order('id'),
+        ]);
+
+        if (inv) {
+          // Look up the client to apply their current tax/rate config
+          const matchedClient = inv.client_id
+            ? (clientsData as Client[] | null)?.find(c => c.id === inv.client_id) ?? null
+            : null;
+
+          const resolvedTaxRate = matchedClient
+            ? (matchedClient.tax_enabled ? String(matchedClient.default_tax_rate ?? 0) : '0')
+            : String(inv.tax_rate ?? settingsData?.default_tax_rate ?? 0);
+
+          const loadedForm: FormState = {
+            clientId: String(inv.client_id || ''),
+            clientName: inv.client_name || '',
+            clientEmail: inv.client_email || '',
+            clientAddress: inv.client_address || '',
+            issueDate: inv.issue_date || today,
+            dueDate: inv.due_date || thirtyDays,
+            taxRate: resolvedTaxRate,
+            discountAmount: String(inv.discount_amount || 0),
+            notes: inv.notes || '',
+            status: inv.status as Invoice['status'],
+          };
+
+          // Apply client hourly rate to any line items that have unit_price 0
+          const rawItems: LineItem[] = items && items.length > 0
+            ? (items as LineItem[])
+            : [{ description: '', quantity: 1, unit_price: 0, amount: 0 }];
+
+          const loadedItems: LineItem[] = matchedClient?.default_hourly_rate != null
+            ? rawItems.map(item =>
+                item.unit_price === 0
+                  ? { ...item, unit_price: matchedClient.default_hourly_rate as number, amount: item.quantity * (matchedClient.default_hourly_rate as number) }
+                  : item
+              )
+            : rawItems;
+
+          setInvoiceNumber(inv.invoice_number);
+          setForm(loadedForm);
+          setLineItems(loadedItems);
+          // Store originals for dirty check
+          originalRef.current = {
+            form: loadedForm,
+            lineItems: loadedItems,
+            invoiceNumber: inv.invoice_number,
+          };
+        }
+      } else {
+        // New invoice — start with no client, number will be set when client is picked
+        const defaultForm = {
+          ...DEFAULT_FORM,
+          taxRate: String(settingsData?.default_tax_rate ?? 0),
+        };
+        setInvoiceNumber('INV-???-0001');
+        setForm(defaultForm);
+        setAutoNumber(true);
+        originalRef.current = null;
+      }
+
+      if (settingsData) setSettings(settingsData as Settings);
+      setLoading(false);
+    };
+    fetchData();
+  }, [id, isEdit]);
+
+  // Track dirty state
+  useEffect(() => {
+    if (!isEdit || !originalRef.current) {
+      // For new invoices, dirty if anything filled in
+      const hasContent = form.clientName || lineItems.some(i => i.description) || form.notes;
+      setIsDirty(Boolean(hasContent));
+      return;
+    }
+    const orig = originalRef.current;
+    const formChanged = JSON.stringify(form) !== JSON.stringify(orig.form);
+    const itemsChanged = JSON.stringify(lineItems) !== JSON.stringify(orig.lineItems);
+    const numChanged = invoiceNumber !== orig.invoiceNumber;
+    setIsDirty(formChanged || itemsChanged || numChanged);
+  }, [form, lineItems, invoiceNumber, isEdit]);
+
+  const setField = useCallback((field: keyof FormState, value: string) => {
+    setForm(f => ({ ...f, [field]: value }));
+  }, []);
+
+  const selectClient = useCallback(async (client: Client) => {
+    setForm(f => ({
+      ...f,
+      clientId: String(client.id),
+      clientName: client.name,
+      clientEmail: client.email || '',
+      clientAddress: client.address || '',
+      // Apply client tax config
+      taxRate: client.tax_enabled ? String(client.default_tax_rate ?? 0) : '0',
+    }));
+    // Pre-fill hourly rate on blank line items
+    if (client.default_hourly_rate != null) {
+      setLineItems(items =>
+        items.map(item =>
+          item.unit_price === 0
+            ? { ...item, unit_price: client.default_hourly_rate as number, amount: item.quantity * (client.default_hourly_rate as number) }
+            : item
+        )
+      );
+    }
+    setShowClientDropdown(false);
+    setClientSearch('');
+    // Auto-generate invoice number for this client
+    if (autoNumber) {
+      const { count } = await supabase
+        .from('girilog_invoices')
+        .select('id', { count: 'exact', head: true })
+        .eq('client_id', client.id);
+      const next = String((count ?? 0) + 1).padStart(4, '0');
+      const slug = client.short_code || String(client.id);
+      setInvoiceNumber(`INV-${slug}-${next}`);
+    }
+  }, [autoNumber]);
+
+  const clearClient = useCallback(() => {
+    setForm(f => ({ ...f, clientId: '', clientName: '', clientEmail: '', clientAddress: '' }));
+  }, []);
+
+  const subtotal = lineItems.reduce((s, i) => s + i.amount, 0);
+  const taxRate = parseFloat(form.taxRate) || 0;
+  const discountAmount = parseFloat(form.discountAmount) || 0;
+  const taxAmount = subtotal * (taxRate / 100);
+  const total = subtotal + taxAmount - discountAmount;
+
+  const handleSave = async (statusOverride?: Invoice['status']) => {
+    setSaving(true);
+    setSaveMsg(null);
+    const finalStatus = statusOverride || form.status;
+
+    try {
+      const payload = {
+        invoice_number: invoiceNumber,
+        client_id: form.clientId ? parseInt(form.clientId) : null,
+        client_name: form.clientName || null,
+        client_email: form.clientEmail || null,
+        client_address: form.clientAddress || null,
+        status: finalStatus,
+        issue_date: form.issueDate,
+        due_date: form.dueDate || null,
+        subtotal,
+        tax_rate: taxRate,
+        tax_amount: taxAmount,
+        discount_amount: discountAmount,
+        total,
+        notes: form.notes || null,
+        updated_at: new Date().toISOString(),
+      };
+
+      let invoiceId: number;
+
+      if (isEdit && id) {
+        const { error } = await supabase.from('girilog_invoices').update(payload).eq('id', id);
+        if (error) throw error;
+        invoiceId = parseInt(id);
+        await supabase.from('girilog_line_items').delete().eq('invoice_id', invoiceId);
+      } else {
+        const { data, error } = await supabase
+          .from('girilog_invoices')
+          .insert({ ...payload, created_at: new Date().toISOString() })
+          .select('id')
+          .single();
+        if (error) throw error;
+        invoiceId = data.id;
+      }
+
+      const validItems = lineItems.filter(i => i.description.trim());
+      if (validItems.length > 0) {
+        await supabase.from('girilog_line_items').insert(
+          validItems.map(i => ({
+            invoice_id: invoiceId,
+            description: i.description,
+            quantity: i.quantity,
+            unit_price: i.unit_price,
+            amount: i.amount,
+          }))
+        );
+      }
+
+      setIsDirty(false);
+      setSaveMsg({ text: isEdit ? 'Changes saved!' : 'Invoice created!', ok: true });
+      setTimeout(() => navigate(`/invoices/${invoiceId}`), 700);
+    } catch {
+      setSaveMsg({ text: 'Failed to save. Try again.', ok: false });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDiscard = () => {
+    setIsDirty(false);
+    setShowDiscardModal(false);
+    const dest = pendingNav ?? (isEdit ? `/invoices/${id}` : '/invoices');
+    setPendingNav(null);
+    navigate(dest);
+  };
+
+  const filteredClients = clients.filter(c =>
+    !clientSearch || c.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
+    (c.email || '').toLowerCase().includes(clientSearch.toLowerCase())
+  );
+
+  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors font-mono';
+  const labelClass = 'block text-xs text-[#6B7280] font-mono uppercase tracking-wider mb-1.5';
+
+  return (
+    <>
+      <AppLayout
+        title={
+          loading
+            ? (isEdit ? 'Loading Invoice...' : 'New Invoice')
+            : (isEdit ? `Editing ${invoiceNumber}` : 'New Invoice')
+        }
+        subtitle={
+          isEdit
+            ? (isDirty ? 'Unsaved changes' : 'No changes')
+            : 'Fill in the details below'
+        }
+        actions={
+          <div className="flex items-center gap-2">
+            {/* Dirty indicator */}
+            {isDirty && !saving && (
+              <span className="text-xs font-mono text-[#F59E0B] flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] inline-block" />
+                Unsaved
+              </span>
+            )}
+            {saveMsg && (
+              <span className={`text-xs font-mono ${saveMsg.ok ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+                {saveMsg.ok ? <><i className="ri-checkbox-circle-line mr-1" /></> : <><i className="ri-error-warning-line mr-1" /></>}
+                {saveMsg.text}
+              </span>
+            )}
+
+            {/* Discard / Back */}
+            {isEdit && (
+              <button
+                onClick={() => safeNavigate(`/invoices/${id}`)}
+                className="px-3 py-2 text-sm text-[#6B7280] hover:text-white border border-[#2A3040] hover:border-[#3A4050] rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+              >
+                {isDirty ? 'Discard' : '← Back'}
+              </button>
+            )}
+
+            <button
+              onClick={() => handleSave('draft')}
+              disabled={saving || loading}
+              className="px-4 py-2 text-sm font-medium text-[#6B7280] hover:text-white border border-[#2A3040] hover:border-[#3A4050] rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40"
+            >
+              Save Draft
+            </button>
+            <button
+              onClick={() => handleSave(isEdit ? form.status : 'pending')}
+              disabled={saving || loading}
+              className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40"
+            >
+              {saving ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <i className={isEdit ? 'ri-save-line text-sm' : 'ri-send-plane-line text-sm'} />
+                </div>
+              )}
+              {isEdit ? 'Save Changes' : 'Send Invoice'}
+            </button>
+          </div>
+        }
+      >
+        {/* Edit mode banner */}
+        {isEdit && !loading && (
+          <div className="flex items-center gap-3 bg-[#F59E0B]/5 border border-[#F59E0B]/20 rounded-xl px-4 py-3 mb-5">
+            <div className="w-5 h-5 flex items-center justify-center shrink-0">
+              <i className="ri-edit-box-line text-[#F59E0B] text-sm" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-xs text-[#F59E0B] font-mono font-medium">Editing invoice </span>
+              <span className="text-xs text-white font-mono font-bold">{invoiceNumber}</span>
+              <span className="text-xs text-[#6B7280] font-mono"> · Current status: </span>
+              <StatusBadge status={form.status as InvoiceStatus} size="sm" />
+            </div>
+            <button
+              onClick={() => safeNavigate(`/invoices/${id}`)}
+              className="text-xs text-[#6B7280] hover:text-white font-mono transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              View invoice →
+            </button>
+          </div>
+        )}
+
+        {/* Mobile Tab Toggle */}
+        <div className="flex lg:hidden mb-4 bg-[#0A0C10] border border-[#1E2330] rounded-lg p-1">
+          <button
+            onClick={() => setActiveTab('form')}
+            className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'form' ? 'bg-[#10B981] text-white' : 'text-[#6B7280]'}`}
+          >
+            Form
+          </button>
+          <button
+            onClick={() => setActiveTab('preview')}
+            className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'preview' ? 'bg-[#10B981] text-white' : 'text-[#6B7280]'}`}
+          >
+            Preview
+          </button>
+        </div>
+
+        {loading ? (
+          <LoadingSkeleton />
+        ) : (
+          <div className="flex gap-6">
+            {/* ── Form Panel ── */}
+            <div className={`flex-1 min-w-0 space-y-4 ${activeTab === 'preview' ? 'hidden lg:block' : ''}`}>
+
+              {/* ── Step 1: Client ── */}
+              <div className={`bg-[#0A0C10] border rounded-xl p-5 transition-colors ${
+                form.clientId ? 'border-[#10B981]/30' : 'border-[#1E2330]'
+              }`}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold font-mono shrink-0 ${
+                      form.clientId ? 'bg-[#10B981] text-white' : 'bg-[#1E2330] text-[#6B7280]'
+                    }`}>1</div>
+                    Client
+                  </h3>
+                  {form.clientId && (
+                    <button
+                      onClick={clearClient}
+                      className="text-xs text-[#6B7280] hover:text-[#EF4444] font-mono transition-colors cursor-pointer flex items-center gap-1 whitespace-nowrap"
+                    >
+                      <i className="ri-close-line text-xs" /> Clear
+                    </button>
+                  )}
+                </div>
+
+                {/* Selected client pill */}
+                {form.clientId ? (
+                  <div className="flex items-center gap-3 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl px-4 py-3 mb-4">
+                    <div className="w-9 h-9 rounded-xl bg-[#10B981]/15 flex items-center justify-center shrink-0">
+                      <span className="text-xs font-bold text-[#10B981] font-mono">
+                        {(clients.find(c => String(c.id) === form.clientId)?.name || form.clientName || '??').slice(0, 2).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-white">{clients.find(c => String(c.id) === form.clientId)?.name || form.clientName}</div>
+                      {form.clientEmail && <div className="text-xs text-[#6B7280] font-mono truncate">{form.clientEmail}</div>}
+                    </div>
+                    <div className="w-5 h-5 flex items-center justify-center ml-auto shrink-0">
+                      <i className="ri-checkbox-circle-fill text-[#10B981]" />
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Client Selector */}
+                <div className="relative mb-4">
+                  <label className={labelClass}>{form.clientId ? 'Change client' : 'Select existing client'}</label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => { setShowClientDropdown(d => !d); setClientSearch(''); }}
+                      className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between hover:border-[#10B981]/50 transition-colors cursor-pointer"
+                    >
+                      <span className="text-[#4B5563]">
+                        {showClientDropdown ? 'Search clients...' : (form.clientId ? 'Switch to a different client...' : 'Pick a client to get started...')}
+                      </span>
+                      <div className="w-4 h-4 flex items-center justify-center">
+                        <i className={`${showClientDropdown ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} text-[#6B7280]`} />
+                      </div>
+                    </button>
+                  </div>
+
+                  {showClientDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-[#1A1F2E] border border-[#2A3040] rounded-xl overflow-hidden z-20 shadow-2xl">
+                      <div className="p-2 border-b border-[#2A3040]">
+                        <div className="relative">
+                          <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 flex items-center justify-center">
+                            <i className="ri-search-line text-xs text-[#4B5563]" />
+                          </div>
+                          <input
+                            type="text"
+                            value={clientSearch}
+                            onChange={e => setClientSearch(e.target.value)}
+                            placeholder="Search clients..."
+                            className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-7 pr-3 py-1.5 text-xs text-white placeholder-[#4B5563] font-mono focus:outline-none focus:border-[#10B981]/50"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {filteredClients.map(client => (
+                          <button
+                            key={client.id}
+                            onClick={() => selectClient(client)}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-[#2A3040] transition-colors cursor-pointer flex items-center gap-3 ${String(client.id) === form.clientId ? 'bg-[#10B981]/10' : ''}`}
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center shrink-0">
+                              <span className="text-[10px] font-bold text-[#10B981] font-mono">
+                                {client.name.slice(0, 2).toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-sm text-white truncate">{client.name}</div>
+                              {client.email && <div className="text-xs text-[#4B5563] font-mono truncate">{client.email}</div>}
+                            </div>
+                            {String(client.id) === form.clientId && (
+                              <div className="w-4 h-4 flex items-center justify-center ml-auto shrink-0">
+                                <i className="ri-check-line text-[#10B981] text-sm" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                        {filteredClients.length === 0 && (
+                          <div className="px-3 py-4 text-xs text-[#4B5563] font-mono text-center">
+                            {clientSearch ? 'No clients match' : 'No clients yet'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Manual client fields — always visible */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Client Name</label>
+                    <input
+                      type="text"
+                      value={form.clientName}
+                      onChange={e => setField('clientName', e.target.value)}
+                      placeholder="Acme Corp"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Client Email</label>
+                    <input
+                      type="email"
+                      value={form.clientEmail}
+                      onChange={e => setField('clientEmail', e.target.value)}
+                      placeholder="billing@acme.com"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className={labelClass}>Client Address</label>
+                    <textarea
+                      value={form.clientAddress}
+                      onChange={e => setField('clientAddress', e.target.value)}
+                      placeholder={"123 Main St, City, State ZIP"}
+                      rows={2}
+                      className={`${inputClass} resize-none`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Step 2: Invoice Details ── */}
+              <div className="bg-[#0A0C10] border border-[#1E2330] rounded-xl p-5">
+                <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-[#1E2330] flex items-center justify-center text-[10px] font-bold font-mono text-[#6B7280] shrink-0">2</div>
+                  Invoice Details
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Invoice Number</label>
+                    <input
+                      type="text"
+                      value={invoiceNumber}
+                      onChange={e => { setInvoiceNumber(e.target.value); setAutoNumber(false); }}
+                      className={inputClass}
+                    />
+                    {!isEdit && autoNumber && (
+                      <p className="text-[10px] text-[#4B5563] font-mono mt-1">
+                        {form.clientId ? 'Auto-generated for this client' : 'Select a client to generate number'}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Status</label>
+                    <select
+                      value={form.status}
+                      onChange={e => setField('status', e.target.value)}
+                      className={`${inputClass} cursor-pointer appearance-none`}
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="pending">Pending</option>
+                      <option value="paid">Paid</option>
+                      <option value="overdue">Overdue</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Issue Date</label>
+                    <input
+                      type="date"
+                      value={form.issueDate}
+                      onChange={e => setField('issueDate', e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Due Date</label>
+                    <input
+                      type="date"
+                      value={form.dueDate}
+                      onChange={e => setField('dueDate', e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Step 3: Line Items ── */}
+              <div className="bg-[#0A0C10] border border-[#1E2330] rounded-xl p-5">
+                <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-[#1E2330] flex items-center justify-center text-[10px] font-bold font-mono text-[#6B7280] shrink-0">3</div>
+                  Line Items
+                </h3>
+                <LineItemsEditor items={lineItems} onChange={setLineItems} />
+              </div>
+
+              {/* ── Step 4: Notes & Totals ── */}
+              <div className="bg-[#0A0C10] border border-[#1E2330] rounded-xl p-5">
+                <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-[#1E2330] flex items-center justify-center text-[10px] font-bold font-mono text-[#6B7280] shrink-0">4</div>
+                  Notes &amp; Totals
+                </h3>
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Notes */}
+                  <div>
+                    <h4 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <div className="w-4 h-4 flex items-center justify-center">
+                        <i className="ri-sticky-note-line text-[#10B981] text-sm" />
+                      </div>
+                      Notes
+                    </h4>
+                    <textarea
+                      value={form.notes}
+                      onChange={e => setField('notes', e.target.value)}
+                      placeholder="Payment terms, thank you message..."
+                      rows={5}
+                      maxLength={500}
+                      className={`${inputClass} resize-none`}
+                    />
+                    <p className="text-[10px] text-[#4B5563] font-mono mt-1 text-right">
+                      {form.notes.length}/500
+                    </p>
+                  </div>
+
+                  {/* Totals */}
+                  <div>
+                    <h4 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <div className="w-4 h-4 flex items-center justify-center">
+                        <i className="ri-calculator-line text-[#10B981] text-sm" />
+                      </div>
+                      Totals
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between py-2 border-b border-[#1E2330]">
+                        <span className="text-xs text-[#6B7280] font-mono">Subtotal</span>
+                        <span className="text-sm font-mono text-white">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)}
+                        </span>
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap w-16">Tax %</span>
+                          <input
+                            type="number"
+                            value={form.taxRate}
+                            onChange={e => setField('taxRate', e.target.value)}
+                            min="0" max="100" step="0.5"
+                            className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-[#10B981]/50 text-right"
+                          />
+                          <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap">
+                            = {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(taxAmount)}
+                          </span>
+                        </div>
+                        {form.clientId && (() => {
+                          const cl = clients.find(c => String(c.id) === form.clientId);
+                          return cl ? (
+                            <p className="text-[10px] font-mono pl-[76px] text-[#4B5563]">
+                              {cl.tax_enabled
+                                ? `From client config (${cl.default_tax_rate}%) — override above`
+                                : 'Client has no tax — set above to override'}
+                            </p>
+                          ) : null;
+                        })()}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap w-16">Disc. $</span>
+                        <input
+                          type="number"
+                          value={form.discountAmount}
+                          onChange={e => setField('discountAmount', e.target.value)}
+                          min="0" step="0.01"
+                          className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-[#10B981]/50 text-right"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between pt-3 border-t border-[#1E2330]">
+                        <span className="text-sm font-semibold text-white font-mono">Total</span>
+                        <span className="text-xl font-bold font-mono text-[#10B981]">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Preview Panel ── */}
+            <div className={`w-[420px] shrink-0 ${activeTab === 'form' ? 'hidden lg:block' : ''}`}>
+              <div className="sticky top-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs text-[#6B7280] font-mono uppercase tracking-wider">Live Preview</span>
+                  <span className="text-xs text-[#4B5563] font-mono">Updates as you type</span>
+                </div>
+                <InvoicePreview
+                  invoiceNumber={invoiceNumber}
+                  clientName={form.clientName}
+                  clientEmail={form.clientEmail}
+                  clientAddress={form.clientAddress}
+                  issueDate={form.issueDate}
+                  dueDate={form.dueDate}
+                  lineItems={lineItems}
+                  taxRate={taxRate}
+                  discountAmount={discountAmount}
+                  notes={form.notes}
+                  businessName={settings?.business_name || 'GiriLog Studio'}
+                  businessEmail={settings?.business_email || ''}
+                  businessAddress={settings?.business_address || ''}
+                  logoUrl={settings?.logo_url || ''}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </AppLayout>
+
+      {/* Discard Changes Modal */}
+      {showDiscardModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => {
+            setShowDiscardModal(false);
+            setPendingNav(null);
+          }} />
+          <div className="relative bg-[#0A0C10] border border-[#1E2330] rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/10 flex items-center justify-center shrink-0">
+                <i className="ri-error-warning-line text-[#F59E0B] text-lg" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">Discard changes?</h3>
+                <p className="text-xs text-[#6B7280] mt-0.5">Your unsaved edits will be lost.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDiscardModal(false);
+                  setPendingNav(null);
+                }}
+                className="flex-1 py-2 text-sm text-[#6B7280] hover:text-white border border-[#1E2330] hover:border-[#2A3040] rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+              >
+                Keep Editing
+              </button>
+              <button
+                onClick={handleDiscard}
+                className="flex-1 py-2 text-sm font-medium bg-[#F59E0B] hover:bg-amber-500 text-white rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+              >
+                Discard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
