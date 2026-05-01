@@ -4,8 +4,25 @@ frontend:
     preBuild:
       commands:
         - npm install
-        - echo "VITE_PUBLIC_SUPABASE_URL=$VITE_PUBLIC_SUPABASE_URL" >> .env
-        - echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$VITE_PUBLIC_SUPABASE_ANON_KEY" >> .env
+        - echo "Fetching secrets from SSM..."
+        - |
+          for secret in $(aws ssm get-parameters-by-path \
+            --path /amplify/shared/dk3035wrc31dv/ \
+            --with-decryption \
+            --region us-west-2 \
+            --query "Parameters[*].{Name:Name}" \
+            --output text); do
+              key=$(basename "$secret")
+              value=$(aws ssm get-parameter \
+                --name "$secret" \
+                --with-decryption \
+                --region us-west-2 \
+                --query "Parameter.Value" \
+                --output text)
+              echo "exporting $key"
+              echo "$key=$value" >> .env
+              export "$key=$value"
+          done
     build:
       commands:
         - npm run build
