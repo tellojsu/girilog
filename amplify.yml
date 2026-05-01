@@ -3,60 +3,29 @@ frontend:
   phases:
     preBuild:
       commands:
+        - export NEXT_TELEMETRY_DISABLED=1
         - npm install
         - echo "Fetching secrets from SSM..."
         - |
-          # Ensure we are in the right directory
-          echo "Current directory: $(pwd)"
-          
-          # Try both the shared path and the branch-specific path from logs
-          SHARED_PATH="/amplify/shared/dk3035wrc31dv"
-          BRANCH_PATH="/amplify/dk3035wrc31dv/main"
-          REGION="us-west-2"
-          
-          fetch_ssm_params() {
-            local path=$1
-            echo "Searching for parameters in: $path"
-            aws ssm get-parameters-by-path \
-              --path "$path/" \
-              --with-decryption \
-              --region "$REGION" \
-              --query "Parameters[*].Name" \
-              --output text
-          }
+          for secret in $(aws ssm get-parameters-by-path \
+            --path /amplify/shared/dk3035wrc31dv/ \
+            --with-decryption \
+            --region us-west-2 \
+            --query "Parameters[*].{Name:Name}" \
+            --output text); do
 
-          PARAM_NAMES_SHARED=$(fetch_ssm_params "$SHARED_PATH")
-          PARAM_NAMES_BRANCH=$(fetch_ssm_params "$BRANCH_PATH")
-          
-          PARAM_NAMES="$PARAM_NAMES_SHARED $PARAM_NAMES_BRANCH"
-          
-          if [ -z "$(echo $PARAM_NAMES | tr -d ' ')" ]; then
-            echo "WARNING: No parameters found in either $SHARED_PATH or $BRANCH_PATH"
-          fi
-
-          for secret in $PARAM_NAMES; do
               key=$(basename "$secret")
               value=$(aws ssm get-parameter \
                 --name "$secret" \
                 --with-decryption \
-                --region "$REGION" \
+                --region us-west-2 \
                 --query "Parameter.Value" \
                 --output text)
-              
-              echo "Exporting $key to .env"
+
+              echo "exporting $key"
               echo "$key=$value" >> .env
-              # Also export to environment for the current shell session
               export "$key=$value"
           done
-          
-          # Debug: check if .env was created and list variables (masked)
-          if [ -f .env ]; then
-            echo ".env file created successfully."
-            echo "Variables in .env:"
-            sed 's/=.*$/=******/' .env
-          else
-            echo "ERROR: .env file was not created!"
-          fi
     build:
       commands:
         - npm run build
