@@ -8,7 +8,7 @@ frontend:
         - echo "Fetching secrets from SSM..."
         - |
           for secret in $(aws ssm get-parameters-by-path \
-            --path /amplify/shared/dk3035wrc31dv/ \
+            --path /amplify/dk3035wrc31dv/main-branch-ac4c1efd09/ \
             --with-decryption \
             --region us-west-2 \
             --query "Parameters[*].{Name:Name}" \
