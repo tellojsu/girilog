@@ -65,7 +65,8 @@ GiriLog is a clean, professional invoice management web application targeting de
 ### Table: girilog_settings
 | Field | Type | Description |
 |-------|------|-------------|
-| id | INT | Always 1 (singleton) |
+| id | BIGSERIAL | Primary key |
+| user_id | UUID | FK → auth.users (Unique) |
 | business_name | TEXT | Company name |
 | business_email | TEXT | Contact email |
 | business_address | TEXT | Address |
@@ -74,9 +75,12 @@ GiriLog is a clean, professional invoice management web application targeting de
 | invoice_prefix | TEXT | e.g. "INV-" |
 | default_tax_rate | NUMERIC | Default tax % |
 | currency | TEXT | Default currency |
+| annual_revenue_goal | NUMERIC | Yearly goal |
 
 ## 5. Backend / Third-party Integration Plan
 - Supabase: Auth (user login/signup/password reset) + Database (all data storage)
+- Multi-user isolation: All tables include `user_id` and have Row Level Security (RLS) enabled.
+- User Initialization: A database trigger (`on_auth_user_created`) automatically initializes `girilog_settings` for new users.
 - Stripe: Not needed
 - Shopify: Not needed
 - react-pdf: PDF generation for invoice download

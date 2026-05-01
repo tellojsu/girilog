@@ -117,10 +117,9 @@ export default function AuthPage() {
             <h1 className="text-2xl font-bold text-white mb-1">{heading}</h1>
             <p className="text-sm text-[#6B7280] font-mono mb-6">{sub}</p>
 
-            {/* Social login — hidden on forgot password */}
-            {mode !== 'forgot' && (
+            {/* Social login hidden for now */}
+            {/* {mode !== 'forgot' && (
               <div className="space-y-3 mb-6">
-                {/* Google */}
                 <button
                   type="button"
                   onClick={() => handleOAuth('google')}
@@ -140,7 +139,6 @@ export default function AuthPage() {
                   Continue with Google
                 </button>
 
-                {/* Apple */}
                 <button
                   type="button"
                   onClick={() => handleOAuth('apple')}
@@ -157,14 +155,13 @@ export default function AuthPage() {
                   Continue with Apple
                 </button>
 
-                {/* Divider */}
                 <div className="relative flex items-center gap-3 pt-1">
                   <div className="flex-1 h-px bg-[#1E2330]" />
                   <span className="text-xs text-[#4B5563] font-mono">or continue with email</span>
                   <div className="flex-1 h-px bg-[#1E2330]" />
                 </div>
               </div>
-            )}
+            )} */}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

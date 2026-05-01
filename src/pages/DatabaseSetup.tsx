@@ -133,6 +133,30 @@ BEGIN
         CREATE POLICY "Users can manage their own settings" ON public.girilog_settings FOR ALL USING (auth.uid() = user_id);
     EXCEPTION WHEN duplicate_object THEN NULL;
     END;
+
+    -- 5. User Initialization Trigger
+    CREATE OR REPLACE FUNCTION public.handle_new_user()
+    RETURNS trigger
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $inner$
+    BEGIN
+      BEGIN
+        INSERT INTO public.girilog_settings (user_id, business_name, business_email, invoice_prefix, currency)
+        VALUES (new.id, 'My Business', new.email, 'INV-', 'USD')
+        ON CONFLICT (user_id) DO NOTHING;
+      EXCEPTION WHEN OTHERS THEN
+        RAISE WARNING 'Could not create initial settings for user %: %', new.id, SQLERRM;
+      END;
+      RETURN new;
+    END;
+    $inner$;
+
+    DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+    CREATE TRIGGER on_auth_user_created
+      AFTER INSERT ON auth.users
+      FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 END;
 $$;`;
 
