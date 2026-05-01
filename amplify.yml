@@ -4,6 +4,8 @@ frontend:
     preBuild:
       commands:
         - npm install
+        - echo "VITE_PUBLIC_SUPABASE_URL=$VITE_PUBLIC_SUPABASE_URL" >> .env
+        - echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$VITE_PUBLIC_SUPABASE_ANON_KEY" >> .env
     build:
       commands:
         - npm run build
