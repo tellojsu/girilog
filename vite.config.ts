@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "node:path";
@@ -82,5 +83,16 @@ export default defineConfig({
   server: {
     port: 3000,
     host: "0.0.0.0",
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      include: ["src/**/*"],
+      exclude: ["node_modules/", "src/test/setup.ts", "src/**/*.test.ts", "src/**/*.d.ts"],
+    },
   },
 });
