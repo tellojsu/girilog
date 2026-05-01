@@ -20,9 +20,12 @@ export default function ClientsPage() {
 
   const fetchData = async () => {
     setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
     const [clientsRes, invoicesRes] = await Promise.all([
-      supabase.from('girilog_clients').select('*').order('name'),
-      supabase.from('girilog_invoices').select('*').order('created_at', { ascending: false }),
+      supabase.from('girilog_clients').select('*').eq('user_id', user.id).order('name'),
+      supabase.from('girilog_invoices').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     ]);
 
     const clientList = (clientsRes.data || []) as Client[];

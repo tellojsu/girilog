@@ -1,5 +1,6 @@
 export interface Client {
   id: number;
+  user_id: string;
   name: string;
   email: string | null;
   phone: string | null;
@@ -16,6 +17,7 @@ export interface Client {
 export interface LineItem {
   id?: number;
   invoice_id?: number;
+  user_id?: string;
   description: string;
   quantity: number;
   unit_price: number;
@@ -24,6 +26,7 @@ export interface LineItem {
 
 export interface Invoice {
   id: number;
+  user_id: string;
   invoice_number: string;
   client_id: number | null;
   client_name: string | null;
@@ -45,6 +48,7 @@ export interface Invoice {
 
 export interface Settings {
   id: number;
+  user_id: string;
   business_name: string;
   business_email: string;
   business_address: string;

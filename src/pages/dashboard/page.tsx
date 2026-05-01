@@ -16,18 +16,22 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const currentYear = new Date().getFullYear();
       const [invoiceRes, settingsRes] = await Promise.all([
         supabase
           .from('girilog_invoices')
           .select('*')
+          .eq('user_id', user.id)
           .gte('created_at', `${currentYear}-01-01`)
           .lte('created_at', `${currentYear}-12-31T23:59:59`)
           .order('created_at', { ascending: false }),
         supabase
           .from('girilog_settings')
           .select('annual_revenue_goal, currency')
-          .eq('id', 1)
+          .eq('user_id', user.id)
           .maybeSingle(),
       ]);
       if (invoiceRes.data) setInvoices(invoiceRes.data as Invoice[]);

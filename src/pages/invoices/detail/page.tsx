@@ -26,10 +26,13 @@ export default function InvoiceDetail() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const [{ data: inv }, { data: items }, { data: s }] = await Promise.all([
-        supabase.from('girilog_invoices').select('*').eq('id', id!).maybeSingle(),
-        supabase.from('girilog_line_items').select('*').eq('invoice_id', id!),
-        supabase.from('girilog_settings').select('*').eq('id', 1).maybeSingle(),
+        supabase.from('girilog_invoices').select('*').eq('id', id!).eq('user_id', user.id).maybeSingle(),
+        supabase.from('girilog_line_items').select('*').eq('invoice_id', id!).eq('user_id', user.id),
+        supabase.from('girilog_settings').select('*').eq('user_id', user.id).maybeSingle(),
       ]);
       if (inv) setInvoice(inv as Invoice);
       if (items) setLineItems(items as LineItem[]);
@@ -42,16 +45,30 @@ export default function InvoiceDetail() {
   const updateStatus = async (status: InvoiceStatus) => {
     if (!invoice) return;
     setUpdatingStatus(true);
-    await supabase.from('girilog_invoices').update({ status, updated_at: new Date().toISOString() }).eq('id', invoice.id);
-    setInvoice(i => i ? { ...i, status } : i);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('girilog_invoices')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', invoice.id)
+        .eq('user_id', user.id);
+      setInvoice(i => i ? { ...i, status } : i);
+    }
     setShowStatusMenu(false);
     setUpdatingStatus(false);
   };
 
   const handleDelete = async () => {
     if (!invoice) return;
-    await supabase.from('girilog_invoices').delete().eq('id', invoice.id);
-    navigate('/invoices');
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('girilog_invoices')
+        .delete()
+        .eq('id', invoice.id)
+        .eq('user_id', user.id);
+      navigate('/invoices');
+    }
   };
 
   if (loading) {

@@ -32,10 +32,13 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const fetchSettings = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data } = await supabase
         .from('girilog_settings')
         .select('*')
-        .limit(1)
+        .eq('user_id', user.id)
         .maybeSingle();
       if (data) {
         setSettings(data as Settings);
@@ -54,21 +57,40 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaveState('saving');
     try {
-      const { error } = await supabase
-        .from('girilog_settings')
-        .update({
-          business_name: settings.business_name,
-          business_email: settings.business_email,
-          business_phone: settings.business_phone,
-          business_address: settings.business_address,
-          logo_url: settings.logo_url,
-          invoice_prefix: settings.invoice_prefix,
-          default_tax_rate: settings.default_tax_rate,
-          currency: settings.currency,
-          annual_revenue_goal: annualGoal,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', (settings as Settings).id);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const payload = {
+        user_id: user.id,
+        business_name: settings.business_name,
+        business_email: settings.business_email,
+        business_phone: settings.business_phone,
+        business_address: settings.business_address,
+        logo_url: settings.logo_url,
+        invoice_prefix: settings.invoice_prefix,
+        default_tax_rate: settings.default_tax_rate,
+        currency: settings.currency,
+        annual_revenue_goal: annualGoal,
+        updated_at: new Date().toISOString(),
+      };
+
+      let error;
+      if (settings.id) {
+        const res = await supabase
+          .from('girilog_settings')
+          .update(payload)
+          .eq('id', settings.id)
+          .eq('user_id', user.id);
+        error = res.error;
+      } else {
+        const res = await supabase
+          .from('girilog_settings')
+          .insert(payload)
+          .select()
+          .single();
+        error = res.error;
+        if (res.data) setSettings(res.data as Settings);
+      }
 
       if (error) throw error;
       setSaveState('saved');

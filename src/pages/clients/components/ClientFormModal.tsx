@@ -90,7 +90,11 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
 
     setSaving(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const payload = {
+        user_id: user.id,
         name: form.name.trim(),
         company: form.company.trim() || null,
         email: form.email.trim() || null,

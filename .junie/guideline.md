@@ -1,55 +1,32 @@
-# GiriLog Development Guidelines
+# GiriLog Development Guidelines for Junie
 
-Welcome to **GiriLog**, an open-source invoice management tool. To maintain code quality and consistency across contributions, please follow these guidelines.
+Welcome to **GiriLog**, an open-source invoice management tool. These guidelines are optimized for Junie (AI) to ensure consistency, speed, and reliability.
 
-## 🛠 Tech Stack
-- **Framework**: [React 19](https://react.dev/) (with Vite)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Backend/Auth**: [Supabase](https://supabase.com/)
-- **Routing**: [React Router v7](https://reactrouter.com/)
-- **Internationalization**: [i18next](https://www.i18next.com/)
+## 🛠 Tech Stack & Essential Rules
+- **Framework**: React 19 (Vite)
+- **⚡ AUTO-IMPORTS**: DO NOT manually import React hooks (`useState`, `useEffect`, `useMemo`, etc.), React Router hooks (`useNavigate`, `useLocation`, etc.), or `useTranslation`. They are globally available via `unplugin-auto-import`.
+- **Styling**: Tailwind CSS. Always use the "Dark Terminal" aesthetic:
+  - Backgrounds: `bg-[#0D0F14]` (deep), `bg-[#0A0C10]` (panels).
+  - Borders: `border-[#1E2330]`, `border-[#2A3040]`.
+  - Accents: Emerald (`#10B981`) for success/primary, Amber (`#F59E0B`) for warnings.
+- **Icons**: Use **Remix Icon** (e.g., `<i className="ri-save-line" />`) instead of Lucide React where possible to match existing UI.
+- **Backend**: Supabase. Client is at `@/lib/supabase`.
+- **Types**: Always check `@/types/girilog` before defining new interfaces.
 
 ## 📂 Project Structure
-- `src/components/base`: Reusable, atomic UI components (e.g., `StatusBadge`).
-- `src/components/feature`: Layout and high-level feature components (e.g., `AppLayout`).
-- `src/pages`: Page-level components organized by route.
-- `src/lib`: Shared utilities and service clients (e.g., `supabase.ts`).
-- `src/router`: Route definitions.
+- `src/components/base`: Atomic UI (Badges, Buttons).
+- `src/components/feature`: Complex UI (AuthGuard, Layouts).
+- `src/pages/[feature]`: Page components. Complex pages often have a `components/` sub-folder.
+- `src/hooks`: Custom shared logic (e.g., `usePDFDownload`).
 
-## 💻 Coding Standards
-### 1. TypeScript
-- Use functional components with arrow functions.
-- Define interfaces for props and data models.
-- Prefer `type` for simple aliases and `interface` for object shapes.
+## 💻 AI Implementation Guidelines
+- **Data Fetching**: Use `supabase` client directly in `useEffect` or event handlers.
+- **Error Handling**: Use `try/catch` for Supabase operations. Show user-friendly messages via local state (e.g., `setSaveMsg`).
+- **Form State**: For complex forms, use a single `form` state object instead of multiple `useState` calls.
+- **Dirty Checking**: Implement "unsaved changes" warnings for editor pages using `isDirty` state and `beforeunload` listeners.
+- **Performance**: Use `useCallback` for functions passed to complex components.
 
-### 2. Styling (Tailwind CSS)
-- Follow the project's "Dark Terminal" aesthetic:
-  - Primary colors: Emerald (`emerald-500`, `emerald-600`).
-  - Backgrounds: `zinc-900`, `zinc-950`.
-  - Borders/Accents: `zinc-800`.
-- Use responsive utility classes where necessary.
-
-### 3. State Management
-- Use React hooks (`useState`, `useMemo`, `useCallback`) for local state.
-- Leverage Supabase for persistent data.
-
-### 4. Internationalization
-- Use `useTranslation` hook from `react-i18next`.
-- Add new strings to the appropriate localization files (if applicable).
-
-## 🌍 Open Source Contributions
-### Environment Variables
-- Never commit `.env` or `.env.local` files.
-- If you add new environment variables, update `.env.example`.
-- Ensure `src/lib/supabase.ts` (or relevant config) validates required variables at runtime.
-
-### Commits & PRs
-- Use descriptive commit messages (e.g., `feat: add client history table`).
-- Keep PRs focused on a single feature or bug fix.
-- Ensure `npm run lint` and `npm run type-check` pass before submitting.
-
-## 🚀 Getting Started
-1. Copy `.env.example` to `.env.local`.
-2. Fill in your Supabase credentials.
-3. Run `npm install` and `npm run dev`.
+## 🌍 Contributions & Environment
+- **Env Vars**: `VITE_PUBLIC_SUPABASE_URL` and `VITE_PUBLIC_SUPABASE_ANON_KEY` are mandatory.
+- **Commits**: Follow conventional commits (e.g., `feat:`, `fix:`, `refactor:`).
+- **Validation**: Run `npm run type-check` to catch hidden TS errors before submitting.

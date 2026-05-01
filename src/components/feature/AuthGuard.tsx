@@ -1,6 +1,7 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { checkDatabaseHealth } from '@/lib/db-setup';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -14,11 +15,19 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return;
       if (!data.session) {
         navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`, { replace: true });
+        return;
       }
+
+      // Check database health after session is confirmed
+      const health = await checkDatabaseHealth();
+      if (!health.ok && health.error === 'Tables are missing' && location.pathname !== '/db-setup') {
+        navigate('/db-setup', { replace: true });
+      }
+
       setChecking(false);
     });
 

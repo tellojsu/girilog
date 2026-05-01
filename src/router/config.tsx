@@ -9,8 +9,13 @@ import InvoiceDetail from '../pages/invoices/detail/page';
 import SettingsPage from '../pages/settings/page';
 import ClientsPage from '../pages/clients/page';
 import AuthGuard from '../components/feature/AuthGuard';
+import DatabaseSetup from '../pages/DatabaseSetup';
 
 const routes: RouteObject[] = [
+  {
+    path: '/db-setup',
+    element: <DatabaseSetup />,
+  },
   {
     path: '/',
     element: <HomePage />,

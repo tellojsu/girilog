@@ -105,16 +105,19 @@ export default function InvoiceCreator() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const [{ data: clientsData }, { data: settingsData }] = await Promise.all([
-        supabase.from('girilog_clients').select('*').order('name'),
-        supabase.from('girilog_settings').select('*').limit(1).maybeSingle(),
+        supabase.from('girilog_clients').select('*').eq('user_id', user.id).order('name'),
+        supabase.from('girilog_settings').select('*').eq('user_id', user.id).maybeSingle(),
       ]);
       if (clientsData) setClients(clientsData as Client[]);
 
       if (isEdit && id) {
         const [{ data: inv }, { data: items }] = await Promise.all([
-          supabase.from('girilog_invoices').select('*').eq('id', id).maybeSingle(),
-          supabase.from('girilog_line_items').select('*').eq('invoice_id', id).order('id'),
+          supabase.from('girilog_invoices').select('*').eq('id', id).eq('user_id', user.id).maybeSingle(),
+          supabase.from('girilog_line_items').select('*').eq('invoice_id', id).eq('user_id', user.id).order('id'),
         ]);
 
         if (inv) {
@@ -250,7 +253,11 @@ export default function InvoiceCreator() {
     const finalStatus = statusOverride || form.status;
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const payload = {
+        user_id: user.id,
         invoice_number: invoiceNumber,
         client_id: form.clientId ? parseInt(form.clientId) : null,
         client_name: form.clientName || null,
@@ -271,10 +278,18 @@ export default function InvoiceCreator() {
       let invoiceId: number;
 
       if (isEdit && id) {
-        const { error } = await supabase.from('girilog_invoices').update(payload).eq('id', id);
+        const { error } = await supabase
+          .from('girilog_invoices')
+          .update(payload)
+          .eq('id', id)
+          .eq('user_id', user.id);
         if (error) throw error;
         invoiceId = parseInt(id);
-        await supabase.from('girilog_line_items').delete().eq('invoice_id', invoiceId);
+        await supabase
+          .from('girilog_line_items')
+          .delete()
+          .eq('invoice_id', invoiceId)
+          .eq('user_id', user.id);
       } else {
         const { data, error } = await supabase
           .from('girilog_invoices')
@@ -289,6 +304,7 @@ export default function InvoiceCreator() {
       if (validItems.length > 0) {
         await supabase.from('girilog_line_items').insert(
           validItems.map(i => ({
+            user_id: user.id,
             invoice_id: invoiceId,
             description: i.description,
             quantity: i.quantity,

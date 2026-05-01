@@ -44,10 +44,14 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
   useEffect(() => {
     const fetchInvoices = async () => {
       setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data } = await supabase
         .from('girilog_invoices')
         .select('*')
         .eq('client_id', client.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       if (data) setInvoices(data as Invoice[]);
       setLoading(false);
@@ -62,10 +66,17 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
   const handleDelete = async () => {
     if (!deleteConfirm) { setDeleteConfirm(true); return; }
     setDeleting(true);
-    const { error } = await supabase.from('girilog_clients').delete().eq('id', client.id);
-    if (!error) {
-      onDeleted(client.id);
-      onClose();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { error } = await supabase
+        .from('girilog_clients')
+        .delete()
+        .eq('id', client.id)
+        .eq('user_id', user.id);
+      if (!error) {
+        onDeleted(client.id);
+        onClose();
+      }
     }
     setDeleting(false);
   };

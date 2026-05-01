@@ -1,0 +1,104 @@
+-- GiriLog Database Schema Initialization
+-- This script creates the necessary tables and enables Row Level Security (RLS)
+
+-- 1. Clients Table
+CREATE TABLE IF NOT EXISTS public.girilog_clients (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID NOT NULL DEFAULT auth.uid(),
+    name TEXT NOT NULL,
+    company TEXT,
+    email TEXT,
+    phone TEXT,
+    address TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 2. Invoices Table
+CREATE TABLE IF NOT EXISTS public.girilog_invoices (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID NOT NULL DEFAULT auth.uid(),
+    invoice_number TEXT NOT NULL,
+    client_id BIGINT REFERENCES public.girilog_clients(id) ON DELETE SET NULL,
+    client_name TEXT,
+    status TEXT NOT NULL DEFAULT 'draft',
+    issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    due_date DATE,
+    subtotal NUMERIC NOT NULL DEFAULT 0,
+    tax_rate NUMERIC NOT NULL DEFAULT 0,
+    tax_amount NUMERIC NOT NULL DEFAULT 0,
+    discount_amount NUMERIC NOT NULL DEFAULT 0,
+    total NUMERIC NOT NULL DEFAULT 0,
+    currency TEXT NOT NULL DEFAULT 'USD',
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 3. Line Items Table
+CREATE TABLE IF NOT EXISTS public.girilog_line_items (
+    id BIGSERIAL PRIMARY KEY,
+    invoice_id BIGINT NOT NULL REFERENCES public.girilog_invoices(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL DEFAULT auth.uid(),
+    description TEXT NOT NULL,
+    quantity NUMERIC NOT NULL DEFAULT 1,
+    unit_price NUMERIC NOT NULL DEFAULT 0,
+    amount NUMERIC NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 4. Settings Table
+CREATE TABLE IF NOT EXISTS public.girilog_settings (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID NOT NULL UNIQUE DEFAULT auth.uid(),
+    business_name TEXT,
+    business_email TEXT,
+    business_address TEXT,
+    business_phone TEXT,
+    logo_url TEXT,
+    invoice_prefix TEXT DEFAULT 'INV-',
+    default_tax_rate NUMERIC DEFAULT 0,
+    currency TEXT DEFAULT 'USD',
+    annual_revenue_goal NUMERIC DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE public.girilog_clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.girilog_invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.girilog_line_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.girilog_settings ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+
+-- Clients
+CREATE POLICY "Users can manage their own clients" ON public.girilog_clients
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Invoices
+CREATE POLICY "Users can manage their own invoices" ON public.girilog_invoices
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Line Items
+CREATE POLICY "Users can manage their own line items" ON public.girilog_line_items
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Settings
+CREATE POLICY "Users can manage their own settings" ON public.girilog_settings
+    FOR ALL USING (auth.uid() = user_id);
+
+-- RPC Function for on-the-fly initialization (requires manual setup in Supabase Dashboard)
+/*
+CREATE OR REPLACE FUNCTION public.initialize_girilog_schema()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    -- Paste the table creation SQL here if you want to support client-side one-click initialization
+    -- Note: SECURITY DEFINER runs this as the database owner, bypassing RLS but allowing table creation.
+END;
+$$;
+*/

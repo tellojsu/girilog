@@ -53,10 +53,13 @@ export default function AnnualGoalTracker({
     const parsed = parseFloat(inputVal.replace(/[^0-9.]/g, ''));
     if (isNaN(parsed) || parsed < 0) return;
     setSaving(true);
-    await supabase
-      .from('girilog_settings')
-      .update({ annual_revenue_goal: parsed })
-      .eq('id', 1);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('girilog_settings')
+        .update({ annual_revenue_goal: parsed })
+        .eq('user_id', user.id);
+    }
     onGoalSaved(parsed);
     setSaving(false);
     setEditing(false);
