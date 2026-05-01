@@ -6,23 +6,46 @@ frontend:
         - npm install
         - echo "Fetching secrets from SSM..."
         - |
-          for secret in $(aws ssm get-parameters-by-path \
-            --path /amplify/shared/dk3035wrc31dv/ \
+          # Ensure we are in the right directory
+          echo "Current directory: $(pwd)"
+          SSM_PATH="/amplify/shared/dk3035wrc31dv"
+          REGION="us-west-2"
+          
+          # Fetch parameter names
+          PARAM_NAMES=$(aws ssm get-parameters-by-path \
+            --path "$SSM_PATH/" \
             --with-decryption \
-            --region us-west-2 \
-            --query "Parameters[*].{Name:Name}" \
-            --output text); do
+            --region "$REGION" \
+            --query "Parameters[*].Name" \
+            --output text)
+          
+          if [ -z "$PARAM_NAMES" ]; then
+            echo "WARNING: No parameters found in SSM path $SSM_PATH"
+          fi
+
+          for secret in $PARAM_NAMES; do
               key=$(basename "$secret")
               value=$(aws ssm get-parameter \
                 --name "$secret" \
                 --with-decryption \
-                --region us-west-2 \
+                --region "$REGION" \
                 --query "Parameter.Value" \
                 --output text)
-              echo "exporting $key"
+              
+              echo "Exporting $key to .env"
               echo "$key=$value" >> .env
+              # Also export to environment for the current shell session
               export "$key=$value"
           done
+          
+          # Debug: check if .env was created and list variables (masked)
+          if [ -f .env ]; then
+            echo ".env file created successfully."
+            echo "Variables in .env:"
+            sed 's/=.*$/=******/' .env
+          else
+            echo "ERROR: .env file was not created!"
+          fi
     build:
       commands:
         - npm run build
