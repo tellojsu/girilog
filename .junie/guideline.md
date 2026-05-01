@@ -26,7 +26,26 @@ Welcome to **GiriLog**, an open-source invoice management tool. These guidelines
 - **Dirty Checking**: Implement "unsaved changes" warnings for editor pages using `isDirty` state and `beforeunload` listeners.
 - **Performance**: Use `useCallback` for functions passed to complex components.
 
+## 🧪 Testing Guidelines
+- **Mandatory**: Tests MUST be written or updated for every fix and feature. Do not submit code without verifying it with tests.
+- **Framework**: Vitest + React Testing Library.
+- **Mocking Patterns**:
+  - **Supabase**: Use the "Thenable Builder" pattern to mock chained calls.
+    ```typescript
+    const qb = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      then: vi.fn((resolve) => resolve({ data: [], error: null })),
+    };
+    vi.mock('@/lib/supabase', () => ({
+      supabase: { from: vi.fn(() => qb), auth: { getUser: vi.fn() } }
+    }));
+    ```
+  - **React Router**: Use `MemoryRouter` for page-level tests. Mock `useNavigate` if redirection logic needs verification.
+- **Scope**: Focus on page-level data flow and user interactions. Mock complex child components (like Charts) to keep tests fast and focused.
+
 ## 🌍 Contributions & Environment
 - **Env Vars**: `VITE_PUBLIC_SUPABASE_URL` and `VITE_PUBLIC_SUPABASE_ANON_KEY` are mandatory.
 - **Commits**: Follow conventional commits (e.g., `feat:`, `fix:`, `refactor:`).
-- **Validation**: Run `npm run type-check` to catch hidden TS errors before submitting.
+- **Validation**: Run `npm run type-check` AND `npm run test` before submitting.
