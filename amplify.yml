@@ -3,7 +3,6 @@ frontend:
   phases:
     preBuild:
       commands:
-        - export NEXT_TELEMETRY_DISABLED=1
         - npm install
         - echo "Fetching secrets from SSM..."
         - |
