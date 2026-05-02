@@ -193,11 +193,11 @@ export default function InvoiceDetail() {
         </div>
       }
     >
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-3xl mx-auto py-12 px-4 bg-[#0A0C10]/50 rounded-3xl border border-[#1E2330]/50 shadow-inner">
         {/* Hidden full-width clone used for PDF capture */}
         <div
           id="invoice-preview-capture"
-          style={{ position: 'absolute', left: '-9999px', top: 0, width: '794px', background: '#fff' }}
+          style={{ position: 'absolute', left: '-9999px', top: 0, width: '794px', background: '#fff', visibility: 'hidden' }}
           aria-hidden="true"
         >
           <InvoicePreview

@@ -14,6 +14,10 @@ export function usePDFDownload() {
       const element = document.getElementById(elementId);
       if (!element) throw new Error('Element not found');
 
+      // Temporarily show element for capture if it's visibility:hidden
+      const originalVisibility = element.style.visibility;
+      element.style.visibility = 'visible';
+
       // Temporarily make it full-width for capture
       const originalStyle = element.getAttribute('style') || '';
       element.style.width = '794px'; // A4 width in px at 96dpi
@@ -26,12 +30,26 @@ export function usePDFDownload() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        logging: false,
+        logging: true,
         width: 794,
+        windowWidth: 1200, // Use a larger window width to avoid wrapping in clone
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById(elementId);
+          if (clonedElement) {
+            clonedElement.style.position = 'relative';
+            clonedElement.style.left = '0';
+            clonedElement.style.width = '794px';
+            clonedElement.style.visibility = 'visible';
+            clonedElement.style.display = 'block';
+            clonedElement.style.margin = '0';
+            clonedElement.style.padding = '0';
+          }
+        }
       });
 
       // Restore original style
       element.setAttribute('style', originalStyle);
+      element.style.visibility = originalVisibility;
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({

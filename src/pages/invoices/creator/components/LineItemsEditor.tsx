@@ -1,4 +1,5 @@
 import { LineItem, Client } from '@/types/girilog';
+import { useState } from 'react';
 
 interface LineItemsEditorProps {
   items: LineItem[];
@@ -11,6 +12,8 @@ function formatCurrency(amount: number) {
 }
 
 export default function LineItemsEditor({ items, onChange, client }: LineItemsEditorProps) {
+  const [showPaste, setShowPaste] = useState(false);
+  const [pasteData, setPasteData] = useState('');
   const showDate = client?.show_date ?? false;
   const showProject = client?.show_project ?? false;
   const projects = client?.projects ?? [];
@@ -45,6 +48,51 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
     onChange(items.filter((_, i) => i !== index));
   };
 
+  const processPaste = () => {
+    if (!pasteData.trim()) return;
+
+    const lines = pasteData.trim().split('\n');
+    const newItems: LineItem[] = lines.map(line => {
+      // Split by tab first, then comma if no tabs found
+      const parts = line.includes('\t') ? line.split('\t') : line.split(',');
+
+      const dateStr = parts[0]?.trim() || '';
+      const qtyStr = parts[1]?.trim() || '1';
+      const project = parts[2]?.trim() || null;
+      const description = parts[3]?.trim() || '';
+
+      const quantity = parseFloat(qtyStr) || 1;
+      const unitPrice = client?.default_hourly_rate ?? 0;
+
+      // Try to parse date M/D/YY or M/D/YYYY to YYYY-MM-DD
+      let formattedDate = new Date().toISOString().split('T')[0];
+      if (dateStr) {
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+          formattedDate = d.toISOString().split('T')[0];
+        }
+      }
+
+      return {
+        date: formattedDate,
+        quantity,
+        unit_price: unitPrice,
+        project,
+        description,
+        amount: quantity * unitPrice
+      };
+    });
+
+    onChange([...items, ...newItems]);
+    setPasteData('');
+    setShowPaste(false);
+  };
+
+  // Calculate summary values
+  const totalHours = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const subtotal = items.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const avgPrice = items.length > 0 ? subtotal / totalHours : 0;
+
   // Calculate column spans
   // Total 12 cols.
   // We distribute them based on visibility of optional columns.
@@ -55,7 +103,9 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
   // Use a map for Tailwind col-span classes to ensure they are picked up by the compiler
   const spanMap: { [key: number]: string } = {
     4: 'col-span-4',
+    5: 'col-span-5',
     6: 'col-span-6',
+    7: 'col-span-7',
     8: 'col-span-8'
   };
 
@@ -64,19 +114,19 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
   return (
     <div>
       {/* Header */}
-      <div className="grid grid-cols-12 gap-2 mb-2">
-        {showDate && <div className="col-span-2 text-[10px] text-[#6B7280] font-mono uppercase tracking-wider">Date</div>}
-        {showProject && <div className="col-span-2 text-[10px] text-[#6B7280] font-mono uppercase tracking-wider">Project</div>}
-        <div className={`${descSpanClass} text-[10px] text-[#6B7280] font-mono uppercase tracking-wider`}>Description</div>
-        <div className="col-span-1 text-[10px] text-[#6B7280] font-mono uppercase tracking-wider text-right">Qty</div>
-        <div className="col-span-1 text-[10px] text-[#6B7280] font-mono uppercase tracking-wider text-right">Price</div>
-        <div className="col-span-2 text-[10px] text-[#6B7280] font-mono uppercase tracking-wider text-right">Total</div>
+      <div className="grid grid-cols-12 gap-4 mb-2">
+        {showDate && <div className="col-span-2 text-[10px] text-black font-mono uppercase tracking-wider">Date</div>}
+        {showProject && <div className="col-span-2 text-[10px] text-black font-mono uppercase tracking-wider">Project</div>}
+        <div className={`${descSpanClass} text-[10px] text-black font-mono uppercase tracking-wider`}>Description</div>
+        <div className="col-span-1 text-[10px] text-black font-mono uppercase tracking-wider text-right pr-2">Qty</div>
+        <div className="col-span-1 text-[10px] text-black font-mono uppercase tracking-wider text-right pr-2">Price</div>
+        <div className="col-span-2 text-[10px] text-black font-mono uppercase tracking-wider text-right">Total</div>
       </div>
 
       {/* Items */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={index} className="grid grid-cols-12 gap-2 items-center group">
+          <div key={index} className="grid grid-cols-12 gap-4 items-center group">
             {showDate && (
               <div className="col-span-2">
                 <input
@@ -110,7 +160,7 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
                 className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-[11px] text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 pr-2">
               <input
                 type="number"
                 value={item.quantity}
@@ -120,7 +170,7 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
                 className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-1 py-2 text-[11px] text-white font-mono text-right focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 pr-2">
               <div className="relative">
                 <input
                   type="number"
@@ -146,16 +196,79 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
         ))}
       </div>
 
-      {/* Add Item */}
-      <button
-        onClick={addItem}
-        className="mt-3 flex items-center gap-2 text-sm text-primary hover:text-[#34D399] font-mono transition-colors cursor-pointer whitespace-nowrap"
-      >
-        <div className="w-4 h-4 flex items-center justify-center">
-          <i className="ri-add-line text-sm" />
+      {/* Summary Row */}
+      {items.length > 0 && (
+        <div className="grid grid-cols-12 gap-4 mt-4 pt-3 border-t border-[#1E2330]">
+          {(showDate || showProject) && <div className={`${showDate && showProject ? 'col-span-4' : 'col-span-2'}`} />}
+          <div className={descSpanClass}>
+            <div className="text-[10px] text-[#6B7280] font-mono uppercase tracking-wider">Totals</div>
+          </div>
+          <div className="col-span-1 text-right pr-2">
+            <div className="text-[11px] font-mono text-white font-bold">{totalHours}</div>
+            <div className="text-[8px] text-[#6B7280] font-mono uppercase mt-0.5">Hours</div>
+          </div>
+          <div className="col-span-1 text-right pr-2">
+            <div className={`text-[11px] font-mono font-bold ${avgPrice < 0 ? 'text-danger' : 'text-white'}`}>
+              {new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(avgPrice)}
+            </div>
+            <div className="text-[8px] text-[#6B7280] font-mono uppercase mt-0.5">Avg</div>
+          </div>
+          <div className="col-span-2 text-right">
+            <div className={`text-[12px] font-mono font-bold ${subtotal < 0 ? 'text-danger' : 'text-primary'}`}>
+              {formatCurrency(subtotal)}
+            </div>
+            <div className="text-[8px] text-[#6B7280] font-mono uppercase mt-0.5">Subtotal</div>
+          </div>
         </div>
-        Add line item
-      </button>
+      )}
+
+      {/* Add Item */}
+      <div className="flex items-center gap-4 mt-3">
+        <button
+          onClick={addItem}
+          className="flex items-center gap-2 text-sm text-primary hover:text-[#34D399] font-mono transition-colors cursor-pointer whitespace-nowrap"
+        >
+          <div className="w-4 h-4 flex items-center justify-center">
+            <i className="ri-add-line text-sm" />
+          </div>
+          Add line item
+        </button>
+
+        <button
+          onClick={() => setShowPaste(!showPaste)}
+          className="flex items-center gap-2 text-[11px] text-secondary hover:text-white font-mono transition-colors cursor-pointer whitespace-nowrap"
+        >
+          <div className="w-4 h-4 flex items-center justify-center">
+            <i className="ri-file-list-3-line text-sm" />
+          </div>
+          Paste from CSV
+        </button>
+      </div>
+
+      {showPaste && (
+        <div className="mt-3 p-3 bg-[#1E2330] border border-[#2A3040] rounded-lg">
+          <div className="text-[10px] text-secondary font-mono mb-2 uppercase tracking-wider flex justify-between items-center">
+            <span>Paste your CSV/TSV data (Date, Hours, Project, Description)</span>
+            <button onClick={() => setShowPaste(false)} className="hover:text-white">Close</button>
+          </div>
+          <textarea
+            value={pasteData}
+            onChange={(e) => setPasteData(e.target.value)}
+            placeholder="4/6/26	1	Project Name	Task description..."
+            className="w-full h-24 bg-[#0F1219] border border-[#2A3040] rounded-lg p-2 text-[11px] text-white font-mono focus:outline-none focus:border-primary/50"
+            autoFocus
+          />
+          <div className="mt-2 flex justify-end">
+            <button
+              onClick={processPaste}
+              disabled={!pasteData.trim()}
+              className="px-3 py-1 bg-primary/10 text-primary hover:bg-primary/20 rounded text-[11px] font-mono transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Process and Add
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

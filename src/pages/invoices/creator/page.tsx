@@ -737,7 +737,7 @@ export default function InvoiceCreator() {
                         <div className="w-4 h-4 flex items-center justify-center">
                           <i className="ri-calculator-line text-primary text-sm" />
                         </div>
-                        Totals
+                        Adjustments
                       </h4>
                     <div className="flex items-center gap-2">
                       {form.clientId && !clients.find(c => String(c.id) === form.clientId)?.tax_enabled && !showTaxOverride && (
@@ -763,13 +763,6 @@ export default function InvoiceCreator() {
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between py-2 border-b border-[#1E2330]">
-                      <span className="text-xs text-[#6B7280] font-mono">Subtotal</span>
-                      <span className={`text-sm font-mono ${subtotal < 0 ? 'text-danger' : 'text-white'}`}>
-                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)}
-                      </span>
-                    </div>
-                    
                     {(() => {
                       const selectedClient = clients.find(c => String(c.id) === form.clientId);
                       const isTaxVisible = (selectedClient?.tax_enabled !== false) || showTaxOverride;
@@ -838,10 +831,13 @@ export default function InvoiceCreator() {
             {/* ── Preview Panel ── */}
             {showPreview && (
               <div className={`w-[420px] shrink-0 ${activeTab === 'form' ? 'hidden lg:block' : ''}`}>
-                <div className="sticky top-6">
-                  <div className="flex items-center justify-between mb-3">
+                <div className="sticky top-6 p-4 bg-[#0A0C10]/50 rounded-2xl border border-[#1E2330]/50 shadow-inner">
+                  <div className="flex items-center justify-between mb-4">
                     <span className="text-xs text-[#6B7280] font-mono uppercase tracking-wider">Live Preview</span>
-                    <span className="text-xs text-secondary font-mono">Updates as you type</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      <span className="text-[10px] text-secondary font-mono">Live</span>
+                    </div>
                   </div>
                     <InvoicePreview
                       invoiceNumber={invoiceNumber}
