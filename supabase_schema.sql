@@ -64,6 +64,17 @@ CREATE TABLE IF NOT EXISTS public.girilog_settings (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Ensure missing columns exist (for existing tables)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_settings' AND column_name='business_address') THEN
+        ALTER TABLE public.girilog_settings ADD COLUMN business_address TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_settings' AND column_name='annual_revenue_goal') THEN
+        ALTER TABLE public.girilog_settings ADD COLUMN annual_revenue_goal NUMERIC DEFAULT 0;
+    END IF;
+END $$;
+
 -- Enable RLS
 ALTER TABLE public.girilog_clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.girilog_invoices ENABLE ROW LEVEL SECURITY;
@@ -196,6 +207,17 @@ BEGIN
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    -- Ensure missing columns exist (for existing tables)
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_settings' AND column_name='business_address') THEN
+            ALTER TABLE public.girilog_settings ADD COLUMN business_address TEXT;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_settings' AND column_name='annual_revenue_goal') THEN
+            ALTER TABLE public.girilog_settings ADD COLUMN annual_revenue_goal NUMERIC DEFAULT 0;
+        END IF;
+    END $$;
 
     -- Enable RLS
     ALTER TABLE public.girilog_clients ENABLE ROW LEVEL SECURITY;

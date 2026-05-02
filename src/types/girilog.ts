@@ -57,6 +57,9 @@ export interface Settings {
   invoice_prefix: string;
   default_tax_rate: number;
   currency: string;
+  annual_revenue_goal: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export type InvoiceStatus = 'draft' | 'pending' | 'paid' | 'overdue';

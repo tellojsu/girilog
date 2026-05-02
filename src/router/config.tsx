@@ -13,7 +13,7 @@ import DatabaseSetup from '../pages/DatabaseSetup';
 
 const routes: RouteObject[] = [
   {
-    path: '/db-setup',
+    path: '/setup',
     element: <DatabaseSetup />,
   },
   {

@@ -14,6 +14,17 @@ function inputClass(focused?: boolean) {
   return `w-full bg-[#0D0F14] border ${focused ? 'border-[#10B981]/50' : 'border-[#1E2330]'} rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors`;
 }
 
+function formatPhoneNumber(value: string) {
+  if (!value) return value;
+  const phoneNumber = value.replace(/[^\d]/g, '');
+  const phoneNumberLength = phoneNumber.length;
+  if (phoneNumberLength < 4) return phoneNumber;
+  if (phoneNumberLength < 7) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  }
+  return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+}
+
 export default function SettingsPage() {
   const [annualGoal, setAnnualGoal] = useState<number>(0);
   const [settings, setSettings] = useState<Partial<Settings>>({
@@ -25,6 +36,7 @@ export default function SettingsPage() {
     invoice_prefix: 'INV-',
     default_tax_rate: 0,
     currency: 'USD',
+    annual_revenue_goal: 0,
   });
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<SaveState>('idle');
@@ -41,7 +53,11 @@ export default function SettingsPage() {
         .eq('user_id', user.id)
         .maybeSingle();
       if (data) {
-        setSettings(data as Settings);
+        const settingsData = data as Settings;
+        if (settingsData.business_phone) {
+          settingsData.business_phone = formatPhoneNumber(settingsData.business_phone);
+        }
+        setSettings(settingsData);
         setAnnualGoal(Number((data as Record<string, unknown>).annual_revenue_goal) || 0);
       }
       setLoading(false);
@@ -61,38 +77,55 @@ export default function SettingsPage() {
       if (!user) throw new Error('User not authenticated');
 
       const payload = {
-        user_id: user.id,
         business_name: settings.business_name,
         business_email: settings.business_email,
         business_phone: settings.business_phone,
         business_address: settings.business_address,
         logo_url: settings.logo_url,
         invoice_prefix: settings.invoice_prefix,
-        default_tax_rate: settings.default_tax_rate,
+        default_tax_rate: Number(settings.default_tax_rate),
         currency: settings.currency,
-        annual_revenue_goal: annualGoal,
-        updated_at: new Date().toISOString(),
+        annual_revenue_goal: Number(annualGoal),
       };
+
+      console.log('[DEBUG_LOG] Payload to save:', payload);
 
       let error;
       if (settings.id) {
         const res = await supabase
           .from('girilog_settings')
-          .update(payload)
+          .update({
+            ...payload,
+            updated_at: new Date().toISOString(),
+          })
           .eq('id', settings.id)
           .eq('user_id', user.id);
         error = res.error;
+        console.log('[DEBUG_LOG] Update response:', res);
       } else {
         const res = await supabase
           .from('girilog_settings')
-          .insert(payload)
+          .insert({
+            ...payload,
+            user_id: user.id,
+          })
           .select()
           .single();
-        error = res.error;
-        if (res.data) setSettings(res.data as Settings);
+      error = res.error;
+      console.log('[DEBUG_LOG] Insert response:', res);
+      if (res.data) {
+        const settingsData = res.data as Settings;
+        if (settingsData.business_phone) {
+          settingsData.business_phone = formatPhoneNumber(settingsData.business_phone);
+        }
+        setSettings(settingsData);
       }
+    }
 
-      if (error) throw error;
+      if (error) {
+        console.error('[DEBUG_LOG] Error saving settings:', error);
+        throw error;
+      }
       setSaveState('saved');
       setTimeout(() => setSaveState('idle'), 3000);
     } catch {
@@ -112,8 +145,10 @@ export default function SettingsPage() {
       invoice_prefix: 'INV-',
       default_tax_rate: 0,
       currency: 'USD',
+      annual_revenue_goal: 0,
     };
     setSettings(prev => ({ ...prev, ...defaults }));
+    setAnnualGoal(0);
     setResetConfirm(false);
     setSaveState('idle');
   };
@@ -214,8 +249,8 @@ export default function SettingsPage() {
             <input
               type="tel"
               value={settings.business_phone || ''}
-              onChange={e => handleChange('business_phone', e.target.value)}
-              placeholder="+1 (555) 000-0000"
+              onChange={e => handleChange('business_phone', formatPhoneNumber(e.target.value))}
+              placeholder="(555) 000-0000"
               className={inputClass()}
             />
           </SettingsField>
