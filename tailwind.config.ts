@@ -11,7 +11,7 @@ export default {
           secondary: '#cceeff',
             temp1: '#4f46e5',
             danger: '#f97316',
-            temp3: '#bf8ad6',
+            caution: '#bf8ad6',
             temp4: '#cceeff',
         },
       keyframes: {

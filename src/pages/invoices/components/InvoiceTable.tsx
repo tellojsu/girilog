@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Invoice, InvoiceStatus } from '@/types/girilog';
 import StatusBadge from '@/components/base/StatusBadge';
@@ -8,6 +9,7 @@ interface InvoiceTableProps {
   sortField: string;
   sortDir: 'asc' | 'desc';
   onSort: (field: string) => void;
+  onDelete?: (id: number) => void;
 }
 
 function formatCurrency(amount: number) {
@@ -30,8 +32,9 @@ const columns = [
   { key: 'status', label: 'Status' },
 ];
 
-export default function InvoiceTable({ invoices, loading, sortField, sortDir, onSort }: InvoiceTableProps) {
+export default function InvoiceTable({ invoices, loading, sortField, sortDir, onSort, onDelete }: InvoiceTableProps) {
   const navigate = useNavigate();
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const SortIcon = ({ field }: { field: string }) => {
     if (sortField !== field) return <i className="ri-arrow-up-down-line text-secondary text-xs ml-1" />;
@@ -111,12 +114,58 @@ export default function InvoiceTable({ invoices, loading, sortField, sortDir, on
                 <StatusBadge status={inv.status as InvoiceStatus} />
               </td>
               <td className="px-4 py-4 text-right">
-                <button
-                  onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}`); }}
-                  className="opacity-0 group-hover:opacity-100 text-xs text-[#6B7280] hover:text-white font-mono transition-all cursor-pointer whitespace-nowrap px-2 py-1 rounded hover:bg-[#1E2330]"
-                >
-                  Open →
-                </button>
+                <div className="flex items-center justify-end gap-1">
+                  {deleteConfirmId === inv.id ? (
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-danger font-mono font-medium uppercase">Sure?</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete?.(inv.id);
+                          setDeleteConfirmId(null);
+                        }}
+                        className="p-1.5 bg-danger hover:bg-[#ea580c] text-white rounded-md transition-colors cursor-pointer"
+                        title="Confirm Delete"
+                      >
+                        <i className="ri-check-line text-xs" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmId(null);
+                        }}
+                        className="p-1.5 bg-[#1E2330] border border-[#2A3040] text-secondary hover:text-white rounded-md transition-colors cursor-pointer"
+                        title="Cancel"
+                      >
+                        <i className="ri-close-line text-xs" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}`); }}
+                        className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition-all cursor-pointer"
+                        title="View Invoice"
+                      >
+                        <i className="ri-eye-line text-base" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}/edit`); }}
+                        className="p-1.5 text-caution hover:bg-caution/10 rounded-md transition-all cursor-pointer"
+                        title="Edit Invoice"
+                      >
+                        <i className="ri-edit-line text-base" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(inv.id); }}
+                        className="p-1.5 text-danger hover:bg-danger/10 rounded-md transition-all cursor-pointer"
+                        title="Delete Invoice"
+                      >
+                        <i className="ri-delete-bin-line text-base" />
+                      </button>
+                    </>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

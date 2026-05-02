@@ -17,10 +17,26 @@ export default function InvoiceList() {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [sortField, setSortField] = useState('created_at');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [search, setSearch] = useState(() => localStorage.getItem('invoice_list_search') || '');
+  const [statusFilter, setStatusFilter] = useState(() => localStorage.getItem('invoice_list_status_filter') || 'all');
+  const [sortField, setSortField] = useState(() => localStorage.getItem('invoice_list_sort_field') || 'created_at');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(() => (localStorage.getItem('invoice_list_sort_dir') as 'asc' | 'desc') || 'desc');
+
+  useEffect(() => {
+    localStorage.setItem('invoice_list_search', search);
+  }, [search]);
+
+  useEffect(() => {
+    localStorage.setItem('invoice_list_status_filter', statusFilter);
+  }, [statusFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('invoice_list_sort_field', sortField);
+  }, [sortField]);
+
+  useEffect(() => {
+    localStorage.setItem('invoice_list_sort_dir', sortDir);
+  }, [sortDir]);
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -45,6 +61,21 @@ export default function InvoiceList() {
     } else {
       setSortField(field);
       setSortDir('asc');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('girilog_invoices')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (!error) {
+      setInvoices(prev => prev.filter(inv => inv.id !== id));
     }
   };
 
@@ -141,6 +172,7 @@ export default function InvoiceList() {
           sortField={sortField}
           sortDir={sortDir}
           onSort={handleSort}
+          onDelete={handleDelete}
         />
       </div>
 
