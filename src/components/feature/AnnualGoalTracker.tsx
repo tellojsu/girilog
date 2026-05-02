@@ -91,8 +91,10 @@ export default function AnnualGoalTracker({ className }: AnnualGoalTrackerProps)
   const totalAll = totalSent + totalOutstanding;
 
   const paidPct = goal > 0 ? Math.min((totalPaidInvoices / goal) * 100, 100) : 0;
-  const pendingPct = goal > 0 ? Math.min((totalPending / goal) * 100, 100 - paidPct) : 0;
-  const overduePct = goal > 0 ? Math.min((totalOverdue / goal) * 100, 100 - paidPct - pendingPct) : 0;
+  const overduePct = goal > 0 ? Math.min((totalOverdue / goal) * 100, 100 - paidPct) : 0;
+  const pendingPct = goal > 0 ? Math.min((totalPending / goal) * 100, 100 - paidPct - overduePct) : 0;
+  const draftPct = goal > 0 ? Math.min((totalDraft / goal) * 100, 100 - paidPct - overduePct - pendingPct) : 0;
+  const allPct = goal > 0 ? Math.min((totalAll / goal) * 100, 100) : 0;
 
   const now = new Date();
   const dayOfYear = Math.floor((now.getTime() - new Date(currentYear, 0, 0).getTime()) / 86400000);
@@ -226,7 +228,7 @@ export default function AnnualGoalTracker({ className }: AnnualGoalTrackerProps)
             {goal > 0 && (
               <div className="text-right">
                 <div className="text-2xl font-bold font-mono text-primary">
-                  {Math.round(paidPct)}%
+                  {((totalPaidInvoices / goal) * 100).toFixed(1)}%
                 </div>
                 <div className="text-xs text-[#6B7280] font-mono">paid</div>
               </div>
@@ -239,16 +241,28 @@ export default function AnnualGoalTracker({ className }: AnnualGoalTrackerProps)
               <div className="relative mb-3">
                 <div className="h-3 bg-[#1E2330] rounded-full overflow-hidden relative">
                   <div
-                    className="absolute inset-y-0 left-0 bg-primary transition-all duration-700 ease-out rounded-full"
+                    className={`absolute inset-y-0 left-0 bg-primary transition-all duration-700 ease-out rounded-l-full ${
+                      overduePct === 0 && pendingPct === 0 && draftPct === 0 ? 'rounded-r-full' : ''
+                    }`}
                     style={{ width: `${paidPct}%` }}
                   />
                   <div
-                    className="absolute inset-y-0 bg-[#F59E0B]/60 transition-all duration-700 ease-out"
-                    style={{ left: `${paidPct}%`, width: `${pendingPct}%` }}
+                    className={`absolute inset-y-0 bg-[#EF4444]/50 transition-all duration-700 ease-out ${
+                      overduePct > 0 && pendingPct === 0 && draftPct === 0 ? 'rounded-r-full' : ''
+                    }`}
+                    style={{ left: `${paidPct}%`, width: `${overduePct}%` }}
                   />
                   <div
-                    className="absolute inset-y-0 bg-[#EF4444]/50 transition-all duration-700 ease-out"
-                    style={{ left: `${paidPct + pendingPct}%`, width: `${overduePct}%` }}
+                    className={`absolute inset-y-0 bg-[#F59E0B] transition-all duration-700 ease-out ${
+                      pendingPct > 0 && draftPct === 0 ? 'rounded-r-full' : ''
+                    }`}
+                    style={{ left: `${paidPct + overduePct}%`, width: `${pendingPct}%` }}
+                  />
+                  <div
+                    className={`absolute inset-y-0 bg-[#F59E0B]/50 transition-all duration-700 ease-out ${
+                      draftPct > 0 ? 'rounded-r-full' : ''
+                    }`}
+                    style={{ left: `${paidPct + overduePct + pendingPct}%`, width: `${draftPct}%` }}
                   />
                 </div>
                 <div

@@ -100,28 +100,6 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
     x: toX(d.month), y: toY(d.sent + d.pending),
   }));
 
-  // Pending-only segment: starts from the last sent point and continues upward
-  // This creates the "continuation" effect — amber picks up exactly where green ends
-  const lastSentPoint = sentPoints[sentPoints.length - 1];
-  const pendingSegmentPoints = lastSentPoint
-    ? [
-        lastSentPoint,
-        ...combinedPoints.slice(sentPoints.length - 1).slice(1).map((p, i) => ({
-          x: combinedPoints[sentPoints.length - 1 + i + 1]?.x ?? p.x,
-          y: combinedPoints[sentPoints.length - 1 + i + 1]?.y ?? p.y,
-        })),
-      ]
-    : [];
-
-  // Build a path that is green up to current month's sent value,
-  // then amber from that point up to sent+pending
-  // We draw them as two separate paths sharing the junction point
-  const pendingExtensionPoints = cumulativeData.slice(0, visibleMonths).map(d => ({
-    x: toX(d.month),
-    y: toY(d.sent + d.pending),
-    hasPending: d.pending > 0,
-  }));
-
   const goalPoints = goal > 0
     ? Array.from({ length: 12 }, (_, i) => ({ x: toX(i), y: toY((goal / 11) * i) }))
     : [];
@@ -133,11 +111,6 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
   // Area between baseline and sent line (green fill)
   const sentAreaPath = sentPoints.length > 0
     ? `${sentPath} L ${sentPoints[sentPoints.length - 1].x} ${PAD.top + chartH} L ${PAD.left} ${PAD.top + chartH} Z`
-    : '';
-
-  // Area between sent line and combined line (amber fill — the pending "stack")
-  const pendingBandPath = combinedPoints.length > 0 && sentPoints.length > 0
-    ? `${combinedPath} L ${sentPoints[sentPoints.length - 1].x} ${sentPoints[sentPoints.length - 1].y} ${[...sentPoints].reverse().map((p, i) => (i === 0 ? '' : `L ${p.x} ${p.y}`)).join(' ')} Z`
     : '';
 
   const yTicks = [0, 0.25, 0.5, 0.75, 1].map(f => ({
@@ -251,36 +224,10 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
             <path d={sentAreaPath} fill="url(#sentGrad)" />
           )}
 
-          {/* Pending band fill (amber on top of sent) */}
-          {pendingBandPath && (
-            <path d={pendingBandPath} fill="url(#pendingBandGrad)" />
-          )}
-
           {/* Sent line */}
           {sentPath && (
             <path d={sentPath} fill="none" stroke="var(--color-primary, #10B981)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           )}
-
-          {/* Pending extension line — amber segment continuing from the green line's tip */}
-          {pendingExtensionPoints.some(p => p.hasPending) && (() => {
-            // Build a path only through months that have pending > 0,
-            // anchored at the sent value for months with no pending (so it starts flush)
-            const pts = pendingExtensionPoints.map((p, i) => ({
-              x: p.x,
-              y: cumulativeData[i].pending > 0 ? p.y : toY(cumulativeData[i].sent),
-            }));
-            const extPath = buildPath(pts);
-            return (
-              <path
-                d={extPath}
-                fill="none"
-                stroke="#F59E0B"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            );
-          })()}
 
           {/* Dots on sent line */}
           {sentPoints.map((p, i) => (
@@ -294,21 +241,21 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
             />
           ))}
 
-          {/* Dots on combined line (only where pending > 0) */}
-          {pendingExtensionPoints.map((p, i) => {
-            const hasPending = cumulativeData[i]?.pending > 0;
-            if (!hasPending) return null;
+          {/* Outstanding dot (only for current month if pending > 0) */}
+          {(() => {
+            const d = cumulativeData[currentMonth];
+            if (!d || d.pending === 0) return null;
             return (
               <circle
-                key={`c${i}`}
-                cx={p.x} cy={p.y}
-                r={i === currentMonth ? 4 : 2}
+                cx={toX(currentMonth)}
+                cy={toY(d.sent + d.pending)}
+                r={4}
                 fill="#F59E0B"
                 stroke="#0A0C10"
                 strokeWidth="1.5"
               />
             );
-          })}
+          })()}
 
           {/* Tooltip vertical line */}
           {tooltip && (
@@ -371,8 +318,8 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
           <span className="text-xs text-[#6B7280] font-mono">Sent</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-5 h-0.5 bg-[#F59E0B] rounded" />
-          <span className="text-xs text-[#6B7280] font-mono">Pending</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+          <span className="text-xs text-[#6B7280] font-mono">Outstanding</span>
         </div>
         {goal > 0 && (
           <div className="flex items-center gap-1.5">
