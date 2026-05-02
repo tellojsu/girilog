@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import Dashboard from '../pages/dashboard/page';
 import { MemoryRouter } from 'react-router-dom';
+import { InvoiceStatusEnum } from '@/types/girilog';
 
 // Mock supabase
 const mockGetUser = vi.fn();
@@ -60,8 +61,8 @@ describe('Dashboard Page', () => {
   it('renders dashboard with data', async () => {
     const currentYear = new Date().getFullYear();
     const mockInvoices = [
-      { id: '1', status: 'paid', total: 100, issue_date: `${currentYear}-01-01`, created_at: new Date().toISOString() },
-      { id: '2', status: 'pending', total: 50, issue_date: `${currentYear}-01-01`, created_at: new Date().toISOString() },
+      { id: '1', status: InvoiceStatusEnum.Paid, total: 100, issue_date: `${currentYear}-01-01`, created_at: new Date().toISOString() },
+      { id: '2', status: InvoiceStatusEnum.Sent, total: 50, issue_date: `${currentYear}-01-01`, created_at: new Date().toISOString() },
     ];
     const mockSettings = { annual_revenue_goal: 5000, currency: 'USD' };
 
@@ -73,7 +74,7 @@ describe('Dashboard Page', () => {
       qb.lte = vi.fn().mockReturnValue(qb);
       qb.order = vi.fn().mockReturnValue(qb);
       qb.maybeSingle = vi.fn();
-      
+
       // Make it a thenable
       qb.then = (resolve: any) => {
         if (table === 'girilog_invoices') {
@@ -90,7 +91,7 @@ describe('Dashboard Page', () => {
       } else if (table === 'girilog_settings') {
         qb.maybeSingle.mockImplementation(() => Promise.resolve({ data: mockSettings, error: null }));
       }
-      
+
       return qb;
     });
 

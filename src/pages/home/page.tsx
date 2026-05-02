@@ -16,7 +16,7 @@ const FEATURES = [
   {
     icon: 'ri-bar-chart-2-line',
     title: 'Revenue Tracking',
-    desc: 'Visual dashboard showing sent vs pending revenue, annual goals, and monthly trends at a glance.',
+    desc: 'Visual dashboard showing paid vs sent revenue, annual goals, and monthly trends at a glance.',
   },
   {
     icon: 'ri-send-plane-line',
@@ -117,12 +117,12 @@ function DemoRevenueChart() {
         <div className="flex items-center gap-4">
           <div className="text-right">
             <div className="text-xs text-[#10B981] font-mono font-semibold">$31,500</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Sent</div>
+            <div className="text-[10px] text-[#4B5563] font-mono">Paid</div>
           </div>
           <div className="w-px h-6 bg-[#1E2330]" />
           <div className="text-right">
             <div className="text-xs text-[#F59E0B] font-mono font-semibold">$12,400</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Pending</div>
+            <div className="text-[10px] text-[#4B5563] font-mono">Sent</div>
           </div>
           <div className="w-px h-6 bg-[#1E2330]" />
           <div className="text-right">
@@ -433,7 +433,7 @@ export default function HomePage() {
               {[
                 { label: 'Total Invoiced', val: '$48,200', change: '+12%', color: 'text-white' },
                 { label: 'Paid', val: '$31,500', change: '+8%', color: 'text-[#10B981]' },
-                { label: 'Pending', val: '$12,400', change: '4 invoices', color: 'text-[#F59E0B]' },
+                { label: 'Sent', val: '$12,400', change: '4 invoices', color: 'text-[#F59E0B]' },
                 { label: 'Overdue', val: '$4,300', change: '2 invoices', color: 'text-[#EF4444]' },
               ].map(s => (
                 <div key={s.label} className="bg-[#0D0F14] border border-[#1E2330] rounded-xl p-4">

@@ -71,7 +71,7 @@ export default function Sidebar() {
         </button>
         <div className="flex items-center gap-2 px-3 py-1">
           <div className="w-2 h-2 rounded-full bg-[#10B981]" />
-          <span className="text-xs text-[#4B5563] font-mono">v1.0.0 · connected</span>
+          <span className="text-xs text-[#4B5563] font-mono">v0.9.0 · connected</span>
         </div>
       </div>
     </aside>

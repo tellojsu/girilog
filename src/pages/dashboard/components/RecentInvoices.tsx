@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Invoice, STATUS_CONFIG } from '@/types/girilog';
+import { Invoice, STATUS_CONFIG, InvoiceStatusEnum } from '@/types/girilog';
 import StatusBadge from '@/components/base/StatusBadge';
 
 interface RecentInvoicesProps {
@@ -42,10 +42,10 @@ function groupByClient(invoices: Invoice[]): ClientGroup[] {
       clientName,
       invoices: invs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 3),
       total: invs.reduce((s, i) => s + Number(i.total), 0),
-      paid: invs.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total), 0),
-      pending: invs.filter(i => i.status === 'pending').reduce((s, i) => s + Number(i.total), 0),
-      overdue: invs.filter(i => i.status === 'overdue').reduce((s, i) => s + Number(i.total), 0),
-      draft: invs.filter(i => i.status === 'draft').reduce((s, i) => s + Number(i.total), 0),
+      paid: invs.filter(i => i.status === InvoiceStatusEnum.Paid).reduce((s, i) => s + Number(i.total), 0),
+      pending: invs.filter(i => i.status === InvoiceStatusEnum.Sent).reduce((s, i) => s + Number(i.total), 0),
+      overdue: invs.filter(i => i.status === InvoiceStatusEnum.Overdue).reduce((s, i) => s + Number(i.total), 0),
+      draft: invs.filter(i => i.status === InvoiceStatusEnum.Draft).reduce((s, i) => s + Number(i.total), 0),
     }))
     .sort((a, b) => b.total - a.total);
 }
@@ -70,10 +70,10 @@ function ClientInitial({ name }: { name: string }) {
 
 function StatusDots({ group }: { group: ClientGroup }) {
   const items = [
-    { status: 'paid' as const, value: group.paid },
-    { status: 'pending' as const, value: group.pending },
-    { status: 'overdue' as const, value: group.overdue },
-    { status: 'draft' as const, value: group.draft },
+    { status: InvoiceStatusEnum.Paid, value: group.paid },
+    { status: InvoiceStatusEnum.Sent, value: group.pending },
+    { status: InvoiceStatusEnum.Overdue, value: group.overdue },
+    { status: InvoiceStatusEnum.Draft, value: group.draft },
   ].filter(i => i.value > 0);
 
   return (
@@ -98,7 +98,7 @@ function ClientAccordion({ group }: { group: ClientGroup }) {
   const navigate = useNavigate();
 
   const hasOverdue = group.overdue > 0;
-  const allPaid = group.invoices.every(i => i.status === 'paid');
+  const allPaid = group.invoices.every(i => i.status === InvoiceStatusEnum.Paid);
 
   return (
     <div className="border-b border-[#1E2330] last:border-b-0">

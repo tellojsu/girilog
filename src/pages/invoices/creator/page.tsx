@@ -7,7 +7,7 @@ import LineItemsEditor from './components/LineItemsEditor';
 import InvoicePreview from './components/InvoicePreview';
 import StatusBadge from '@/components/base/StatusBadge';
 import { supabase } from '@/lib/supabase';
-import { Client, LineItem, Invoice, Settings, InvoiceStatus } from '@/types/girilog';
+import { Client, LineItem, Invoice, Settings, InvoiceStatusEnum } from '@/types/girilog';
 
 interface FormState {
   clientId: string;
@@ -19,7 +19,7 @@ interface FormState {
   taxRate: string;
   discountAmount: string;
   notes: string;
-  status: Invoice['status'];
+  status: InvoiceStatusEnum;
 }
 
 const today = new Date().toISOString().split('T')[0];
@@ -35,7 +35,7 @@ const DEFAULT_FORM: FormState = {
   taxRate: '0',
   discountAmount: '0',
   notes: '',
-  status: 'draft',
+  status: InvoiceStatusEnum.Draft,
 };
 
 function LoadingSkeleton() {
@@ -275,7 +275,7 @@ export default function InvoiceCreator() {
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount - discountAmount;
 
-  const handleSave = async (statusOverride?: Invoice['status']) => {
+  const handleSave = async (statusOverride?: InvoiceStatusEnum) => {
     setSaving(true);
     setSaveMsg(null);
     const finalStatus = statusOverride || form.status;
@@ -410,14 +410,14 @@ export default function InvoiceCreator() {
             )}
 
             <button
-              onClick={() => handleSave('draft')}
+              onClick={() => handleSave(InvoiceStatusEnum.Draft)}
               disabled={saving || loading}
               className="px-4 py-2 text-sm font-medium text-[#6B7280] hover:text-white border border-[#2A3040] hover:border-[#3A4050] rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40"
             >
-              Save Draft
+              Save WIP
             </button>
             <button
-              onClick={() => handleSave(isEdit ? form.status : 'pending')}
+              onClick={() => handleSave(isEdit ? form.status : InvoiceStatusEnum.Sent)}
               disabled={saving || loading}
               className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40"
             >
@@ -634,8 +634,8 @@ export default function InvoiceCreator() {
                       onChange={e => setField('status', e.target.value)}
                       className={`${inputClass} cursor-pointer appearance-none`}
                     >
-                      <option value="draft">Draft</option>
-                      <option value="pending">Pending</option>
+                      <option value="draft">WIP</option>
+                      <option value="pending">Sent</option>
                       <option value="paid">Paid</option>
                       <option value="overdue">Overdue</option>
                     </select>

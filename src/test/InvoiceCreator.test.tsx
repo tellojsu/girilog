@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import InvoiceCreator from '../pages/invoices/creator/page';
+import { InvoiceStatusEnum } from '@/types/girilog';
 
 const mockClients = [{ id: 'client-1', name: 'Test Client' }];
 const mockInvoice = {
@@ -11,7 +12,7 @@ const mockInvoice = {
   client_name: 'Test Client',
   issue_date: '2023-01-01',
   due_date: '2023-02-01',
-  status: 'pending',
+  status: InvoiceStatusEnum.Sent,
 };
 
 vi.mock('@/lib/supabase', () => {

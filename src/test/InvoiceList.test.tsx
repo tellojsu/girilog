@@ -2,12 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import InvoiceList from '../pages/invoices/list/page';
+import { InvoiceStatusEnum } from '@/types/girilog';
 
 // 1. Setup consistent mock before any imports
 const mockInvoices = [
-  { id: '1', invoice_number: 'INV-001', status: 'paid', total: 100, client_name: 'Client A' },
-  { id: '2', invoice_number: 'INV-002', status: 'pending', total: 200, client_name: 'Client B' },
-  { id: '3', invoice_number: 'INV-003', status: 'draft', total: 50, client_name: 'Client A' },
+  { id: '1', invoice_number: 'INV-001', status: InvoiceStatusEnum.Paid, total: 100, client_name: 'Client A' },
+  { id: '2', invoice_number: 'INV-002', status: InvoiceStatusEnum.Sent, total: 200, client_name: 'Client B' },
+  { id: '3', invoice_number: 'INV-003', status: InvoiceStatusEnum.Draft, total: 50, client_name: 'Client A' },
 ];
 
 vi.mock('@/lib/supabase', () => {

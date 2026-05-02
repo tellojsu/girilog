@@ -5,7 +5,7 @@ import AnnualGoalTracker from './components/AnnualGoalTracker';
 import RevenueLineChart from './components/RevenueLineChart';
 import RecentInvoices from './components/RecentInvoices';
 import { supabase } from '@/lib/supabase';
-import { Invoice } from '@/types/girilog';
+import { Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -47,25 +47,25 @@ export default function Dashboard() {
   const totalPaid = invoices
     .filter(i => {
       const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
-      return i.status === 'paid' && date.getFullYear() === currentYear;
+      return i.status === InvoiceStatusEnum.Paid && date.getFullYear() === currentYear;
     })
     .reduce((s, i) => s + Number(i.total), 0);
   const totalPending = invoices
     .filter(i => {
       const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
-      return i.status === 'pending' && date.getFullYear() === currentYear;
+      return i.status === InvoiceStatusEnum.Sent && date.getFullYear() === currentYear;
     })
     .reduce((s, i) => s + Number(i.total), 0);
   const totalOverdue = invoices
     .filter(i => {
       const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
-      return i.status === 'overdue' && date.getFullYear() === currentYear;
+      return i.status === InvoiceStatusEnum.Overdue && date.getFullYear() === currentYear;
     })
     .reduce((s, i) => s + Number(i.total), 0);
   const totalDraft = invoices
     .filter(i => {
       const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
-      return i.status === 'draft' && date.getFullYear() === currentYear;
+      return i.status === InvoiceStatusEnum.Draft && date.getFullYear() === currentYear;
     })
     .reduce((s, i) => s + Number(i.total), 0);
   const recentInvoices = invoices.filter(i => {

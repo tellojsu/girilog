@@ -1,4 +1,4 @@
-import { Client, Invoice } from '@/types/girilog';
+import { Client, Invoice, InvoiceStatusEnum } from '@/types/girilog';
 import ClientAvatar from '@/components/common/ClientAvatar';
 
 interface ClientCardProps {
@@ -14,9 +14,9 @@ function formatCurrency(amount: number) {
 
 export default function ClientCard({ client, invoices, onClick }: ClientCardProps) {
   const totalBilled = invoices.reduce((s, i) => s + Number(i.total), 0);
-  const totalPaid = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total), 0);
-  const openCount = invoices.filter(i => i.status === 'pending' || i.status === 'overdue').length;
-  const hasOverdue = invoices.some(i => i.status === 'overdue');
+  const totalPaid = invoices.filter(i => i.status === InvoiceStatusEnum.Paid).reduce((s, i) => s + Number(i.total), 0);
+  const openCount = invoices.filter(i => i.status === InvoiceStatusEnum.Sent || i.status === InvoiceStatusEnum.Overdue).length;
+  const hasOverdue = invoices.some(i => i.status === InvoiceStatusEnum.Overdue);
 
   return (
     <div
@@ -94,7 +94,7 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
         {totalBilled > 0 && (
           <div className="mt-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-[#4B5563] font-mono">Collected</span>
+              <span className="text-[10px] text-[#4B5563] font-mono">Paid</span>
               <span className="text-[10px] text-[#6B7280] font-mono">
                 {formatCurrency(totalPaid)} / {formatCurrency(totalBilled)}
               </span>

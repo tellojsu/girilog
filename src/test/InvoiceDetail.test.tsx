@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import InvoiceDetail from '../pages/invoices/detail/page';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { InvoiceStatusEnum } from '@/types/girilog';
 
 const mockFrom = vi.fn();
 const mockGetUser = vi.fn();
@@ -66,7 +67,7 @@ describe('InvoiceDetail Page', () => {
       invoice_number: 'INV-123',
       client_name: 'Test Client',
       created_at: new Date().toISOString(),
-      status: 'pending',
+      status: InvoiceStatusEnum.Sent,
     };
 
     const { supabase } = await import('@/lib/supabase');

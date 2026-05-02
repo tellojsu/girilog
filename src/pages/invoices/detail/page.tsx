@@ -4,7 +4,7 @@ import AppLayout from '@/components/feature/AppLayout';
 import InvoicePreview from '../creator/components/InvoicePreview';
 import StatusBadge from '@/components/base/StatusBadge';
 import { supabase } from '@/lib/supabase';
-import { Invoice, LineItem, Settings, InvoiceStatus } from '@/types/girilog';
+import { Invoice, LineItem, Settings, InvoiceStatusEnum } from '@/types/girilog';
 import { usePDFDownload } from '@/hooks/usePDFDownload';
 
 export default function InvoiceDetail() {
@@ -46,7 +46,7 @@ export default function InvoiceDetail() {
     fetchData();
   }, [id]);
 
-  const updateStatus = async (status: InvoiceStatus) => {
+  const updateStatus = async (status: InvoiceStatusEnum) => {
     if (!invoice) return;
     setUpdatingStatus(true);
     const { data: { user } } = await supabase.auth.getUser();
@@ -98,7 +98,12 @@ export default function InvoiceDetail() {
     );
   }
 
-  const statusOptions: InvoiceStatus[] = ['draft', 'pending', 'paid', 'overdue'];
+  const statusOptions: InvoiceStatusEnum[] = [
+    InvoiceStatusEnum.Draft,
+    InvoiceStatusEnum.Sent,
+    InvoiceStatusEnum.Paid,
+    InvoiceStatusEnum.Overdue,
+  ];
 
   return (
     <AppLayout

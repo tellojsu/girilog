@@ -33,7 +33,7 @@ export interface Invoice {
   client_name: string | null;
   client_email: string | null;
   client_address: string | null;
-  status: 'draft' | 'pending' | 'paid' | 'overdue';
+  status: InvoiceStatusEnum;
   issue_date: string;
   due_date: string | null;
   subtotal: number;
@@ -63,11 +63,18 @@ export interface Settings {
   updated_at: string;
 }
 
-export type InvoiceStatus = 'draft' | 'pending' | 'paid' | 'overdue';
+export enum InvoiceStatusEnum {
+  Draft = 'draft',
+  Sent = 'pending',
+  Paid = 'paid',
+  Overdue = 'overdue',
+}
 
-export const STATUS_CONFIG: Record<InvoiceStatus, { label: string; color: string; bg: string; dot: string }> = {
-  draft: { label: 'Draft', color: '#6B7280', bg: 'bg-gray-500/10', dot: 'bg-gray-500' },
-  pending: { label: 'Pending', color: '#F59E0B', bg: 'bg-amber-500/10', dot: 'bg-amber-500' },
-  paid: { label: 'Paid', color: '#10B981', bg: 'bg-emerald-500/10', dot: 'bg-emerald-500' },
-  overdue: { label: 'Overdue', color: '#EF4444', bg: 'bg-red-500/10', dot: 'bg-red-500' },
+export type InvoiceStatus = 'draft' | 'pending' | 'paid' | 'overdue'; // Deprecated
+
+export const STATUS_CONFIG: Record<InvoiceStatusEnum, { label: string; color: string; bg: string; dot: string }> = {
+  [InvoiceStatusEnum.Draft]: { label: 'WIP', color: '#6B7280', bg: 'bg-gray-500/10', dot: 'bg-gray-500' },
+  [InvoiceStatusEnum.Sent]: { label: 'Sent', color: '#F59E0B', bg: 'bg-amber-500/10', dot: 'bg-amber-500' },
+  [InvoiceStatusEnum.Paid]: { label: 'Paid', color: '#10B981', bg: 'bg-emerald-500/10', dot: 'bg-emerald-500' },
+  [InvoiceStatusEnum.Overdue]: { label: 'Overdue', color: '#EF4444', bg: 'bg-red-500/10', dot: 'bg-red-500' },
 };

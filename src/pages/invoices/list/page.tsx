@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/feature/AppLayout';
 import InvoiceTable from '../components/InvoiceTable';
 import { supabase } from '@/lib/supabase';
-import { Invoice, InvoiceStatus } from '@/types/girilog';
+import { Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
 const STATUS_FILTERS: { label: string; value: string }[] = [
   { label: 'All', value: 'all' },
-  { label: 'Draft', value: 'draft' },
-  { label: 'Pending', value: 'pending' },
-  { label: 'Paid', value: 'paid' },
-  { label: 'Overdue', value: 'overdue' },
+  { label: 'WIP', value: InvoiceStatusEnum.Draft },
+  { label: 'Sent', value: InvoiceStatusEnum.Sent },
+  { label: 'Paid', value: InvoiceStatusEnum.Paid },
+  { label: 'Overdue', value: InvoiceStatusEnum.Overdue },
 ];
 
 export default function InvoiceList() {
@@ -72,10 +72,10 @@ export default function InvoiceList() {
 
   const counts = useMemo(() => ({
     all: invoices.length,
-    draft: invoices.filter(i => i.status === 'draft').length,
-    pending: invoices.filter(i => i.status === 'pending').length,
-    paid: invoices.filter(i => i.status === 'paid').length,
-    overdue: invoices.filter(i => i.status === 'overdue').length,
+    draft: invoices.filter(i => i.status === InvoiceStatusEnum.Draft).length,
+    pending: invoices.filter(i => i.status === InvoiceStatusEnum.Sent).length,
+    paid: invoices.filter(i => i.status === InvoiceStatusEnum.Paid).length,
+    overdue: invoices.filter(i => i.status === InvoiceStatusEnum.Overdue).length,
   }), [invoices]);
 
   return (

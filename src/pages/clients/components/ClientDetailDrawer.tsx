@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Client, Invoice, InvoiceStatus } from '@/types/girilog';
+import { Client, Invoice, InvoiceStatusEnum } from '@/types/girilog';
 import ClientAvatar from '@/components/common/ClientAvatar';
 import StatusBadge from '@/components/base/StatusBadge';
 import { supabase } from '@/lib/supabase';
@@ -50,8 +50,8 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
   }, [client.id]);
 
   const totalBilled = invoices.reduce((s, i) => s + Number(i.total), 0);
-  const totalPaid = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total), 0);
-  const totalPending = invoices.filter(i => i.status === 'pending' || i.status === 'overdue').reduce((s, i) => s + Number(i.total), 0);
+  const totalPaid = invoices.filter(i => i.status === InvoiceStatusEnum.Paid).reduce((s, i) => s + Number(i.total), 0);
+  const totalSent = invoices.filter(i => i.status === InvoiceStatusEnum.Sent || i.status === InvoiceStatusEnum.Overdue).reduce((s, i) => s + Number(i.total), 0);
 
   const handleDelete = async () => {
     if (!deleteConfirm) { setDeleteConfirm(true); return; }
@@ -181,8 +181,8 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
                 <div className="text-[10px] text-[#4B5563] mt-0.5">Paid</div>
               </div>
               <div className="bg-[#0D0F14] border border-[#1E2330] rounded-xl p-3 text-center">
-                <div className={`text-base font-mono font-bold ${totalPending > 0 ? 'text-[#F59E0B]' : 'text-[#6B7280]'}`}>
-                  {formatCurrency(totalPending)}
+                <div className={`text-base font-mono font-bold ${totalSent > 0 ? 'text-[#F59E0B]' : 'text-[#6B7280]'}`}>
+                  {formatCurrency(totalSent)}
                 </div>
                 <div className="text-[10px] text-[#4B5563] mt-0.5">Outstanding</div>
               </div>

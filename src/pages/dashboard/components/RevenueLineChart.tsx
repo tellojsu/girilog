@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Invoice } from '@/types/girilog';
+import { Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
 interface RevenueLineChartProps {
   invoices: Invoice[];
@@ -38,7 +38,7 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
       if (date.getFullYear() !== currentYear) return;
       const m = date.getMonth();
       if (m >= 0 && m < 12) {
-        if (inv.status === 'paid' || inv.status === 'overdue') {
+        if (inv.status === InvoiceStatusEnum.Paid || inv.status === InvoiceStatusEnum.Overdue) {
           data[m].sent += Number(inv.total);
         } else {
           data[m].pending += Number(inv.total);
@@ -176,12 +176,12 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
         <div className="flex items-center gap-4 text-right">
           <div>
             <div className="text-xs text-[#10B981] font-mono font-semibold">{formatCurrency(currentSent, currency)}</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Sent</div>
+            <div className="text-[10px] text-[#4B5563] font-mono">Paid</div>
           </div>
           <div className="w-px h-6 bg-[#1E2330]" />
           <div>
             <div className="text-xs text-[#F59E0B] font-mono font-semibold">{formatCurrency(currentPending, currency)}</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Pending</div>
+            <div className="text-[10px] text-[#4B5563] font-mono">Sent</div>
           </div>
           {currentPending > 0 && (
             <>

@@ -71,10 +71,10 @@ export default function AnnualGoalTracker({
   };
 
   const footnoteStats = [
-    { label: 'Collected', value: formatCurrency(totalCollected, currency), color: '#10B981', dot: true },
-    { label: 'Pending', value: formatCurrency(totalPending, currency), color: '#F59E0B', dot: true },
+    { label: 'Paid', value: formatCurrency(totalCollected, currency), color: '#10B981', dot: true },
+    { label: 'Sent', value: formatCurrency(totalPending, currency), color: '#F59E0B', dot: true },
     { label: 'Overdue', value: formatCurrency(totalOverdue, currency), color: '#EF4444', dot: true },
-    { label: 'Draft', value: formatCurrency(totalDraft, currency), color: '#6B7280', dot: true },
+    { label: 'WIP', value: formatCurrency(totalDraft, currency), color: '#6B7280', dot: true },
     { label: 'In pipeline', value: formatCurrency(totalInPipeline, currency), color: '#9CA3AF', dot: false },
   ];
 
@@ -173,7 +173,7 @@ export default function AnnualGoalTracker({
                 <div className="text-2xl font-bold font-mono text-[#10B981]">
                   {Math.round(paidPct)}%
                 </div>
-                <div className="text-xs text-[#6B7280] font-mono">collected</div>
+                <div className="text-xs text-[#6B7280] font-mono">paid</div>
               </div>
             )}
           </div>

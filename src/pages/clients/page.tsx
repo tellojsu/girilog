@@ -4,7 +4,7 @@ import ClientCard from './components/ClientCard';
 import ClientFormModal from './components/ClientFormModal';
 import ClientDetailDrawer from './components/ClientDetailDrawer';
 import { supabase } from '@/lib/supabase';
-import { Client, Invoice } from '@/types/girilog';
+import { Client, Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
 type SortOption = 'name' | 'recent' | 'billed';
 
@@ -99,7 +99,7 @@ export default function ClientsPage() {
     [invoiceMap]
   );
   const totalPaid = useMemo(() =>
-    Object.values(invoiceMap).flat().filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total), 0),
+    Object.values(invoiceMap).flat().filter(i => i.status === InvoiceStatusEnum.Paid).reduce((s, i) => s + Number(i.total), 0),
     [invoiceMap]
   );
 
@@ -126,7 +126,7 @@ export default function ClientsPage() {
             {[
               { label: 'Total Clients', value: String(clients.length), icon: 'ri-group-line', color: '#10B981' },
               { label: 'Total Billed', value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalBilled), icon: 'ri-money-dollar-circle-line', color: '#10B981' },
-              { label: 'Total Collected', value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalPaid), icon: 'ri-checkbox-circle-line', color: '#10B981' },
+              { label: 'Total Paid', value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalPaid), icon: 'ri-checkbox-circle-line', color: '#10B981' },
               { label: 'Avg per Client', value: clients.length > 0 ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalBilled / clients.length) : '$0', icon: 'ri-bar-chart-line', color: '#F59E0B' },
             ].map(stat => (
               <div key={stat.label} className="bg-[#0A0C10] border border-[#1E2330] rounded-xl px-4 py-3 flex items-center gap-3">
