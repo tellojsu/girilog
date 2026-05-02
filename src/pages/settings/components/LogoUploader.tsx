@@ -9,6 +9,21 @@ export default function LogoUploader({ value, onChange }: LogoUploaderProps) {
   const [inputMode, setInputMode] = useState<'preview' | 'edit'>(value ? 'preview' : 'edit');
   const [draft, setDraft] = useState(value);
   const [imgError, setImgError] = useState(false);
+  const [isExternal, setIsExternal] = useState(false);
+
+  useEffect(() => {
+    if (value && value.startsWith('http')) {
+      setIsExternal(true);
+      // Optional: check if CORS is supported by trying to fetch
+      fetch(value, { mode: 'cors' })
+        .then(res => {
+          if (!res.ok) console.warn('Image might have CORS issues');
+        })
+        .catch(() => console.warn('Image definitely has CORS issues'));
+    } else {
+      setIsExternal(false);
+    }
+  }, [value]);
 
   const handleApply = () => {
     onChange(draft);
@@ -97,6 +112,11 @@ export default function LogoUploader({ value, onChange }: LogoUploaderProps) {
           </div>
         )}
         <p className="text-xs text-secondary mt-2">Paste a public image URL. Appears on generated invoices.</p>
+        {isExternal && (
+          <p className="text-[10px] text-amber-500/80 mt-1 font-mono italic">
+            Note: Some external URLs may not appear in PDF downloads due to security restrictions.
+          </p>
+        )}
       </div>
     </div>
   );

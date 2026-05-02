@@ -34,6 +34,7 @@ export function usePDFDownload() {
         width: 794,
         windowWidth: 1200, // Use a larger window width to avoid wrapping in clone
         imageTimeout: 15000, // Increase timeout for image loading
+        proxy: undefined, // Explicitly ensure no proxy is used unless we have one
         onclone: (clonedDoc) => {
           const clonedElement = clonedDoc.getElementById(elementId);
           if (clonedElement) {
@@ -62,13 +63,13 @@ export function usePDFDownload() {
 
       const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
       const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
-      
+
       console.log('[DEBUG_LOG] Canvas dimensions:', canvas.width, canvas.height);
       console.log('[DEBUG_LOG] PDF dimensions:', pdfWidth, pdfHeight);
 
       const imgWidth = pdfWidth;
       const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-      
+
       console.log('[DEBUG_LOG] Calculated img dimensions:', imgWidth, imgHeight);
 
       if (isNaN(imgHeight) || imgHeight <= 0) {
@@ -88,7 +89,7 @@ export function usePDFDownload() {
           const sliceCanvas = document.createElement('canvas');
           sliceCanvas.width = canvas.width;
           const currentSliceHeightPx = Math.min(pageHeightPx, canvas.height - yOffset);
-          
+
           if (currentSliceHeightPx <= 0) break;
 
           sliceCanvas.height = currentSliceHeightPx;

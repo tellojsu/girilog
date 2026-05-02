@@ -46,10 +46,8 @@ export default function InvoicePreview({
   const calculatedTotal = subtotal + taxAmount - discountAmount;
   const displayTotal = totalOverride !== undefined && lineItems.length === 0 ? totalOverride : calculatedTotal;
 
-  // Resolve localized logo URL if it matches problematic external URL
-  const resolvedLogoUrl = logoUrl === 'https://www.yeswayjosue.com/images/yeswayjosue-white.png'
-    ? '/images/yeswayjosue-white.png'
-    : logoUrl;
+  // Helper to check if an image is on a different origin
+  const isExternal = logoUrl?.startsWith('http');
 
   return (
     <div className="group/paper relative">
@@ -69,12 +67,12 @@ export default function InvoicePreview({
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  {resolvedLogoUrl ? (
+                  {logoUrl ? (
                     <img
-                      src={resolvedLogoUrl}
+                      src={logoUrl}
                       alt="Logo"
                       className="w-7 h-7 object-contain rounded"
-                      crossOrigin={resolvedLogoUrl.startsWith('http') ? 'anonymous' : undefined}
+                      crossOrigin={isExternal ? 'anonymous' : undefined}
                       onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
                   ) : (

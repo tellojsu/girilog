@@ -376,6 +376,7 @@ export default function SettingsPage() {
                     src={settings.logo_url}
                     alt="logo"
                     className="w-10 h-10 object-contain rounded"
+                    crossOrigin={settings.logo_url.startsWith('http') ? 'anonymous' : undefined}
                     onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                 ) : (
