@@ -16,16 +16,21 @@ interface InvoicePreviewProps {
   businessAddress: string;
   logoUrl?: string;
   totalOverride?: number;
+  showDate?: boolean;
+  showProject?: boolean;
 }
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
 }
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, compact = false) {
   if (!dateStr) return '—';
   // Append T00:00:00 to force local timezone parsing for YYYY-MM-DD strings
   const date = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`);
+  if (compact) {
+    return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+  }
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
@@ -33,6 +38,7 @@ export default function InvoicePreview({
   invoiceNumber, clientName, clientEmail, clientAddress,
   issueDate, dueDate, lineItems, taxRate, discountAmount, notes,
   businessName, businessEmail, businessAddress, logoUrl, totalOverride,
+  showDate, showProject,
 }: InvoicePreviewProps) {
   const subtotal = lineItems.reduce((s, i) => s + i.amount, 0);
   const taxAmount = subtotal * (taxRate / 100);
@@ -90,6 +96,8 @@ export default function InvoicePreview({
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
+              {showDate && <th className="text-left text-[10px] text-gray-400 uppercase tracking-wider pb-2 font-medium">Date</th>}
+              {showProject && <th className="text-left text-[10px] text-gray-400 uppercase tracking-wider pb-2 font-medium">Project</th>}
               <th className="text-left text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium">Description</th>
               <th className="text-right text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium">Qty</th>
               <th className="text-right text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium">Rate</th>
@@ -99,10 +107,12 @@ export default function InvoicePreview({
           <tbody className="divide-y divide-gray-100">
             {lineItems.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-4 text-center text-gray-400 text-xs italic">No items added yet</td>
+                <td colSpan={4 + (showDate ? 1 : 0) + (showProject ? 1 : 0)} className="py-4 text-center text-gray-400 text-xs italic">No items added yet</td>
               </tr>
             ) : lineItems.map((item, i) => (
               <tr key={i}>
+                {showDate && <td className="py-2.5 text-[10px] text-gray-500 font-mono">{formatDate(item.date, true)}</td>}
+                {showProject && <td className="py-2.5 text-[10px] text-gray-500">{item.project || '—'}</td>}
                 <td className="py-2.5 text-gray-800">{item.description || '—'}</td>
                 <td className="py-2.5 text-right text-gray-600 font-mono">{item.quantity}</td>
                 <td className="py-2.5 text-right text-gray-600 font-mono">{formatCurrency(item.unit_price)}</td>

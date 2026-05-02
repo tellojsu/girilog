@@ -18,6 +18,8 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
   const [description, setDescription] = useState('');
   const [hours, setHours] = useState('1');
   const [rate, setRate] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [project, setProject] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -43,10 +45,17 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
   const handleClientChange = (id: string) => {
     setClientId(id);
     const client = clients.find(c => String(c.id) === id);
-    if (client && client.default_hourly_rate != null) {
-      setRate(String(client.default_hourly_rate));
-    } else {
-      setRate('');
+    if (client) {
+      if (client.default_hourly_rate != null) {
+        setRate(String(client.default_hourly_rate));
+      } else {
+        setRate('');
+      }
+      if (client.projects && client.projects.length > 0) {
+        setProject(client.projects[0]);
+      } else {
+        setProject('');
+      }
     }
   };
 
@@ -135,6 +144,8 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
           quantity: qty,
           unit_price: unitPrice,
           amount: amount,
+          date: date,
+          project: project || null,
         });
 
       if (itemError) throw itemError;
@@ -176,6 +187,8 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
       setDescription('');
       setHours('1');
       setRate('');
+      setDate(new Date().toISOString().split('T')[0]);
+      setProject('');
     } catch (err: any) {
       console.error('[DEBUG_LOG] Error logging time:', err);
       setError(err.message || 'Failed to log time');
@@ -185,6 +198,8 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
   };
 
   if (!isOpen) return null;
+
+  const selectedClient = clients.find(c => String(c.id) === clientId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -216,6 +231,32 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Date</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full bg-[#161B26] border border-[#1E2330] rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Project</label>
+              <select
+                value={project}
+                onChange={(e) => setProject(e.target.value)}
+                disabled={!selectedClient || !selectedClient.show_project}
+                className="w-full bg-[#161B26] border border-[#1E2330] rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all disabled:opacity-50"
+              >
+                <option value="">No Project</option>
+                {selectedClient?.projects?.map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>

@@ -338,6 +338,8 @@ export default function InvoiceCreator() {
             quantity: i.quantity,
             unit_price: i.unit_price,
             amount: i.amount,
+            date: i.date || today,
+            project: i.project || null,
           }))
         );
         if (itemsError) throw itemsError;
@@ -669,7 +671,11 @@ export default function InvoiceCreator() {
                   <div className="w-5 h-5 rounded-full bg-[#1E2330] flex items-center justify-center text-[10px] font-bold font-mono text-[#6B7280] shrink-0">3</div>
                   Line Items
                 </h3>
-                <LineItemsEditor items={lineItems} onChange={setLineItems} />
+                <LineItemsEditor 
+                  items={lineItems} 
+                  onChange={setLineItems} 
+                  client={clients.find(c => String(c.id) === form.clientId)}
+                />
               </div>
 
               {/* ── Step 4: Notes & Totals ── */}
@@ -784,6 +790,8 @@ export default function InvoiceCreator() {
                   businessEmail={settings?.business_email || ''}
                   businessAddress={settings?.business_address || ''}
                   logoUrl={settings?.logo_url || ''}
+                  showDate={clients.find(c => String(c.id) === form.clientId)?.show_date}
+                  showProject={clients.find(c => String(c.id) === form.clientId)?.show_project}
                 />
               </div>
             </div>

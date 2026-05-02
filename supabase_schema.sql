@@ -105,6 +105,24 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='logo_url') THEN
         ALTER TABLE public.girilog_clients ADD COLUMN logo_url TEXT;
     END IF;
+
+    -- Add missing columns for line item features
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='show_date') THEN
+        ALTER TABLE public.girilog_clients ADD COLUMN show_date BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='show_project') THEN
+        ALTER TABLE public.girilog_clients ADD COLUMN show_project BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='projects') THEN
+        ALTER TABLE public.girilog_clients ADD COLUMN projects JSONB DEFAULT '[]'::jsonb;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_line_items' AND column_name='date') THEN
+        ALTER TABLE public.girilog_line_items ADD COLUMN date DATE DEFAULT CURRENT_DATE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_line_items' AND column_name='project') THEN
+        ALTER TABLE public.girilog_line_items ADD COLUMN project TEXT;
+    END IF;
 END $$;
 
 -- Enable RLS

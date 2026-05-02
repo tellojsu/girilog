@@ -13,6 +13,7 @@ export default function InvoiceDetail() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [client, setClient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -24,25 +25,33 @@ export default function InvoiceDetail() {
     downloadPDF('invoice-preview-capture', `${invoice.invoice_number}.pdf`);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+  const fetchData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-      const [{ data: inv }, { data: items }, { data: s }] = await Promise.all([
-        supabase.from('girilog_invoices').select('*').eq('id', id!).eq('user_id', user.id).maybeSingle(),
-        supabase.from('girilog_line_items').select('*').eq('invoice_id', id!).eq('user_id', user.id),
-        supabase.from('girilog_settings').select('*').eq('user_id', user.id).maybeSingle(),
-      ]);
-      if (inv) setInvoice(inv as Invoice);
-      if (items) {
-        setLineItems(items as LineItem[]);
-      } else {
-        setLineItems([]);
+    const [{ data: inv }, { data: items }, { data: s }] = await Promise.all([
+      supabase.from('girilog_invoices').select('*').eq('id', id!).eq('user_id', user.id).maybeSingle(),
+      supabase.from('girilog_line_items').select('*').eq('invoice_id', id!).eq('user_id', user.id),
+      supabase.from('girilog_settings').select('*').eq('user_id', user.id).maybeSingle(),
+    ]);
+
+    if (inv) {
+      setInvoice(inv as Invoice);
+      if (inv.client_id) {
+        const { data: c } = await supabase.from('girilog_clients').select('*').eq('id', inv.client_id).maybeSingle();
+        setClient(c);
       }
-      if (s) setSettings(s as Settings);
-      setLoading(false);
-    };
+    }
+    if (items) {
+      setLineItems(items as LineItem[]);
+    } else {
+      setLineItems([]);
+    }
+    if (s) setSettings(s as Settings);
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchData();
   }, [id]);
 
@@ -207,6 +216,8 @@ export default function InvoiceDetail() {
             businessAddress={settings?.business_address || ''}
             logoUrl={settings?.logo_url || ''}
             totalOverride={Number(invoice.total)}
+            showDate={client?.show_date}
+            showProject={client?.show_project}
           />
         </div>
 
@@ -227,6 +238,8 @@ export default function InvoiceDetail() {
           businessAddress={settings?.business_address || ''}
           logoUrl={settings?.logo_url || ''}
           totalOverride={Number(invoice.total)}
+          showDate={client?.show_date}
+          showProject={client?.show_project}
         />
       </div>
     </AppLayout>

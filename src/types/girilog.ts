@@ -11,6 +11,9 @@ export interface Client {
   tax_enabled: boolean;
   default_tax_rate: number;
   default_hourly_rate: number | null;
+  show_date: boolean;
+  show_project: boolean;
+  projects: string[];
   created_at: string;
   updated_at: string;
 }
@@ -19,6 +22,8 @@ export interface LineItem {
   id?: number;
   invoice_id?: number;
   user_id?: string;
+  date: string;
+  project: string | null;
   description: string;
   quantity: number;
   unit_price: number;
