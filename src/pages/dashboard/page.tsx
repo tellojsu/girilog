@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/feature/AppLayout';
-import AnnualGoalTracker from './components/AnnualGoalTracker';
+import AnnualGoalTracker from '@/components/feature/AnnualGoalTracker';
 import RevenueLineChart from './components/RevenueLineChart';
 import RecentInvoices from './components/RecentInvoices';
 import { supabase } from '@/lib/supabase';
@@ -44,30 +44,6 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const totalPaid = invoices
-    .filter(i => {
-      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
-      return i.status === InvoiceStatusEnum.Paid && date.getFullYear() === currentYear;
-    })
-    .reduce((s, i) => s + Number(i.total), 0);
-  const totalPending = invoices
-    .filter(i => {
-      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
-      return i.status === InvoiceStatusEnum.Sent && date.getFullYear() === currentYear;
-    })
-    .reduce((s, i) => s + Number(i.total), 0);
-  const totalOverdue = invoices
-    .filter(i => {
-      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
-      return i.status === InvoiceStatusEnum.Overdue && date.getFullYear() === currentYear;
-    })
-    .reduce((s, i) => s + Number(i.total), 0);
-  const totalDraft = invoices
-    .filter(i => {
-      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
-      return i.status === InvoiceStatusEnum.Draft && date.getFullYear() === currentYear;
-    })
-    .reduce((s, i) => s + Number(i.total), 0);
   const recentInvoices = invoices.filter(i => {
     const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
     return date.getFullYear() === currentYear;
@@ -108,15 +84,7 @@ export default function Dashboard() {
             <RevenueLineChart invoices={invoices} goal={annualGoal} currency={currency} />
           </div>
 
-          <AnnualGoalTracker
-            totalPaid={totalPaid}
-            totalPending={totalPending}
-            totalOverdue={totalOverdue}
-            totalDraft={totalDraft}
-            goal={annualGoal}
-            currency={currency}
-            onGoalSaved={setAnnualGoal}
-          />
+          <AnnualGoalTracker />
 
           <div className="w-full">
             <RecentInvoices invoices={recentInvoices} loading={false} />

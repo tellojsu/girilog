@@ -1,14 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
 interface AnnualGoalTrackerProps {
-  totalPaid: number;
-  totalPending: number;
-  totalOverdue: number;
-  totalDraft: number;
-  goal: number;
-  currency: string;
-  onGoalSaved: (newGoal: number) => void;
+  // Now self-contained, but we can accept optional initial values or refresh callbacks
+  className?: string;
 }
 
 function formatCurrency(amount: number, currency = 'USD') {
@@ -19,25 +15,82 @@ function formatCurrency(amount: number, currency = 'USD') {
   }).format(amount);
 }
 
-export default function AnnualGoalTracker({
-  totalPaid,
-  totalPending,
-  totalOverdue,
-  totalDraft,
-  goal,
-  currency,
-  onGoalSaved,
-}: AnnualGoalTrackerProps) {
+export default function AnnualGoalTracker({ className }: AnnualGoalTrackerProps) {
   const [editing, setEditing] = useState(false);
   const [inputVal, setInputVal] = useState('');
   const [saving, setSaving] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [goal, setGoal] = useState(0);
+  const [currency, setCurrency] = useState('USD');
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
 
   const currentYear = new Date().getFullYear();
-  const totalCollected = totalPaid;
-  const totalInPipeline = totalPaid + totalPending + totalOverdue;
 
-  const paidPct = goal > 0 ? Math.min((totalPaid / goal) * 100, 100) : 0;
+  const fetchData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const [invoiceRes, settingsRes] = await Promise.all([
+      supabase
+        .from('girilog_invoices')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('issue_date', `${currentYear}-01-01`)
+        .lte('issue_date', `${currentYear}-12-31`),
+      supabase
+        .from('girilog_settings')
+        .select('annual_revenue_goal, currency')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+    ]);
+
+    if (invoiceRes.data) setInvoices(invoiceRes.data as Invoice[]);
+    if (settingsRes.data) {
+      setGoal(Number(settingsRes.data.annual_revenue_goal) || 0);
+      setCurrency(settingsRes.data.currency || 'USD');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const totalPaidInvoices = invoices
+    .filter(i => {
+      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+      return i.status === InvoiceStatusEnum.Paid && date.getFullYear() === currentYear;
+    })
+    .reduce((s, i) => s + Number(i.total), 0);
+
+  const totalPending = invoices
+    .filter(i => {
+      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+      return i.status === InvoiceStatusEnum.Sent && date.getFullYear() === currentYear;
+    })
+    .reduce((s, i) => s + Number(i.total), 0);
+
+  const totalOverdue = invoices
+    .filter(i => {
+      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+      return i.status === InvoiceStatusEnum.Overdue && date.getFullYear() === currentYear;
+    })
+    .reduce((s, i) => s + Number(i.total), 0);
+
+  const totalDraft = invoices
+    .filter(i => {
+      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+      return i.status === InvoiceStatusEnum.Draft && date.getFullYear() === currentYear;
+    })
+    .reduce((s, i) => s + Number(i.total), 0);
+
+  const totalSent = totalPaidInvoices + totalOverdue;
+  const totalOutstanding = totalPending + totalDraft;
+  const totalAll = totalSent + totalOutstanding;
+
+  const paidPct = goal > 0 ? Math.min((totalPaidInvoices / goal) * 100, 100) : 0;
   const pendingPct = goal > 0 ? Math.min((totalPending / goal) * 100, 100 - paidPct) : 0;
   const overduePct = goal > 0 ? Math.min((totalOverdue / goal) * 100, 100 - paidPct - pendingPct) : 0;
 
@@ -46,7 +99,7 @@ export default function AnnualGoalTracker({
   const daysInYear = (currentYear % 4 === 0 && (currentYear % 100 !== 0 || currentYear % 400 === 0)) ? 366 : 365;
   const yearProgress = (dayOfYear / daysInYear) * 100;
 
-  const projectedTotal = yearProgress > 0 ? (totalPaid / (yearProgress / 100)) : 0;
+  const projectedTotal = yearProgress > 0 ? (totalPaidInvoices / (yearProgress / 100)) : 0;
   const onTrack = projectedTotal >= goal;
 
   const handleSave = async () => {
@@ -60,7 +113,7 @@ export default function AnnualGoalTracker({
         .update({ annual_revenue_goal: parsed })
         .eq('user_id', user.id);
     }
-    onGoalSaved(parsed);
+    setGoal(parsed);
     setSaving(false);
     setEditing(false);
   };
@@ -71,29 +124,32 @@ export default function AnnualGoalTracker({
   };
 
   const footnoteStats = [
-    { label: 'Paid', value: formatCurrency(totalCollected, currency), color: 'var(--color-primary, #10B981)', dot: true },
-    { label: 'Sent', value: formatCurrency(totalPending, currency), color: '#F59E0B', dot: true },
-    { label: 'Overdue', value: formatCurrency(totalOverdue, currency), color: '#EF4444', dot: true },
-    { label: 'WIP', value: formatCurrency(totalDraft, currency), color: '#6B7280', dot: true },
+    { label: 'Paid', value: formatCurrency(totalSent, currency), color: 'var(--color-primary, #10B981)', dot: true },
+    { label: 'Outstanding', value: formatCurrency(totalOutstanding, currency), color: '#F59E0B', dot: true },
+    { label: 'Total', value: formatCurrency(totalAll, currency), color: '#FFFFFF', dot: false },
   ];
 
   return (
-    <div className="bg-[#0A0C10] border border-[#1E2330] rounded-xl mb-6 overflow-hidden">
+    <div className={`bg-[#0A0C10] border border-[#1E2330] rounded-xl mb-6 overflow-hidden ${className || ''}`}>
       {/* Always-visible collapsed row */}
       <div
         className="flex items-center justify-between px-6 py-3 cursor-pointer select-none group"
         onClick={() => setExpanded(v => !v)}
       >
         <div className="flex flex-wrap gap-x-6 gap-y-1.5 items-center">
-          {footnoteStats.map(item => (
-            <div key={item.label} className="flex items-center gap-1.5">
-              {item.dot && (
-                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-              )}
-              <span className="text-xs text-secondary font-mono">{item.label}</span>
-              <span className="text-xs font-mono font-medium" style={{ color: item.color }}>{item.value}</span>
-            </div>
-          ))}
+          {loading ? (
+            <div className="h-4 w-64 bg-[#1E2330] animate-pulse rounded" />
+          ) : (
+            footnoteStats.map(item => (
+              <div key={item.label} className="flex items-center gap-1.5">
+                {item.dot && (
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                )}
+                <span className="text-xs text-secondary font-mono">{item.label}</span>
+                <span className="text-xs font-mono font-medium" style={{ color: item.color }}>{item.value}</span>
+              </div>
+            ))
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-4">
           <span className="text-xs text-secondary font-mono group-hover:text-[#6B7280] transition-colors whitespace-nowrap">
@@ -211,7 +267,7 @@ export default function AnnualGoalTracker({
                   </span>
                 </div>
                 <span className="text-xs text-[#6B7280] font-mono">
-                  {formatCurrency(totalPaid, currency)} / {formatCurrency(goal, currency)}
+                  {formatCurrency(totalPaidInvoices, currency)} / {formatCurrency(goal, currency)}
                 </span>
               </div>
             </>

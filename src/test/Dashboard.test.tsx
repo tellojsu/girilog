@@ -18,7 +18,7 @@ vi.mock('@/lib/supabase', () => ({
 }));
 
 // Mock components to avoid deep testing
-vi.mock('../pages/dashboard/components/AnnualGoalTracker', () => ({
+vi.mock('../components/feature/AnnualGoalTracker', () => ({
   default: () => <div data-testid="goal-tracker">AnnualGoalTracker</div>,
 }));
 vi.mock('../pages/dashboard/components/RevenueLineChart', () => ({
