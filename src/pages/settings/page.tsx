@@ -3,6 +3,8 @@ import AppLayout from '@/components/feature/AppLayout';
 import SettingsSection from './components/SettingsSection';
 import SettingsField from './components/SettingsField';
 import LogoUploader from './components/LogoUploader';
+import AddressAutocomplete from '@/components/common/AddressAutocomplete';
+import PhoneInput, { formatPhoneNumber } from '@/components/common/PhoneInput';
 import { supabase } from '@/lib/supabase';
 import { Settings } from '@/types/girilog';
 
@@ -14,16 +16,6 @@ function inputClass(focused?: boolean) {
   return `w-full bg-[#0D0F14] border ${focused ? 'border-[#10B981]/50' : 'border-[#1E2330]'} rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors`;
 }
 
-function formatPhoneNumber(value: string) {
-  if (!value) return value;
-  const phoneNumber = value.replace(/[^\d]/g, '');
-  const phoneNumberLength = phoneNumber.length;
-  if (phoneNumberLength < 4) return phoneNumber;
-  if (phoneNumberLength < 7) {
-    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
-  }
-  return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
-}
 
 export default function SettingsPage() {
   const [annualGoal, setAnnualGoal] = useState<number>(0);
@@ -246,23 +238,18 @@ export default function SettingsPage() {
           </SettingsField>
 
           <SettingsField label="Phone Number">
-            <input
-              type="tel"
+            <PhoneInput
               value={settings.business_phone || ''}
-              onChange={e => handleChange('business_phone', formatPhoneNumber(e.target.value))}
-              placeholder="(555) 000-0000"
+              onChange={value => handleChange('business_phone', value)}
               className={inputClass()}
             />
           </SettingsField>
 
           <SettingsField label="Business Address" hint="Full mailing address">
-            <textarea
+            <AddressAutocomplete
               value={settings.business_address || ''}
-              onChange={e => handleChange('business_address', e.target.value)}
+              onChange={value => handleChange('business_address', value)}
               placeholder={"123 Main Street\nSan Francisco, CA 94105\nUnited States"}
-              rows={3}
-              maxLength={500}
-              className={`${inputClass()} resize-none`}
             />
           </SettingsField>
         </SettingsSection>

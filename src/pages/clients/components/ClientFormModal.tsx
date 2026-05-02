@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Client } from '@/types/girilog';
 import { supabase } from '@/lib/supabase';
+import PhoneInput from '@/components/common/PhoneInput';
+import AddressAutocomplete from '@/components/common/AddressAutocomplete';
 
 interface ClientFormModalProps {
   client?: Client | null;
@@ -222,10 +224,9 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
             </div>
             <div>
               <label className="block text-xs font-medium text-[#8B9AB0] mb-1.5">Phone</label>
-              <input
-                type="tel"
+              <PhoneInput
                 value={form.phone}
-                onChange={e => handleChange('phone', e.target.value)}
+                onChange={value => handleChange('phone', value)}
                 placeholder="+1 555 000 0000"
                 className={inputClass}
               />
@@ -234,13 +235,10 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
 
           <div>
             <label className="block text-xs font-medium text-[#8B9AB0] mb-1.5">Address</label>
-            <textarea
+            <AddressAutocomplete
               value={form.address}
-              onChange={e => handleChange('address', e.target.value)}
+              onChange={value => handleChange('address', value)}
               placeholder={"123 Main St\nSan Francisco, CA 94105"}
-              rows={2}
-              maxLength={500}
-              className={`${inputClass} resize-none`}
             />
           </div>
 
@@ -278,8 +276,8 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
                 }`}
               >
                 <span
-                  className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
-                    form.tax_enabled ? 'translate-x-5' : 'translate-x-0.5'
+                  className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                    form.tax_enabled ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
               </button>

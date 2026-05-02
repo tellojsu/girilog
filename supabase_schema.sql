@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS public.girilog_clients (
     email TEXT,
     phone TEXT,
     address TEXT,
+    short_code TEXT,
+    tax_enabled BOOLEAN DEFAULT FALSE,
+    default_tax_rate NUMERIC DEFAULT 0,
+    default_hourly_rate NUMERIC,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -72,6 +76,20 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_settings' AND column_name='annual_revenue_goal') THEN
         ALTER TABLE public.girilog_settings ADD COLUMN annual_revenue_goal NUMERIC DEFAULT 0;
+    END IF;
+
+    -- Add missing columns to girilog_clients
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='short_code') THEN
+        ALTER TABLE public.girilog_clients ADD COLUMN short_code TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='tax_enabled') THEN
+        ALTER TABLE public.girilog_clients ADD COLUMN tax_enabled BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='default_tax_rate') THEN
+        ALTER TABLE public.girilog_clients ADD COLUMN default_tax_rate NUMERIC DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='default_hourly_rate') THEN
+        ALTER TABLE public.girilog_clients ADD COLUMN default_hourly_rate NUMERIC;
     END IF;
 END $$;
 
@@ -154,6 +172,10 @@ BEGIN
         email TEXT,
         phone TEXT,
         address TEXT,
+        short_code TEXT,
+        tax_enabled BOOLEAN DEFAULT FALSE,
+        default_tax_rate NUMERIC DEFAULT 0,
+        default_hourly_rate NUMERIC,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
