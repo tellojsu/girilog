@@ -46,6 +46,11 @@ export default function InvoicePreview({
   const calculatedTotal = subtotal + taxAmount - discountAmount;
   const displayTotal = totalOverride !== undefined && lineItems.length === 0 ? totalOverride : calculatedTotal;
 
+  // Resolve localized logo URL if it matches problematic external URL
+  const resolvedLogoUrl = logoUrl === 'https://www.yeswayjosue.com/images/yeswayjosue-white.png'
+    ? '/images/yeswayjosue-white.png'
+    : logoUrl;
+
   return (
     <div className="group/paper relative">
       <div
@@ -56,7 +61,7 @@ export default function InvoicePreview({
         }}
       >
         {/* Paper texture overlay */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]" />
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('/images/paper-fibers.png')]" />
 
         <div className="relative z-10 flex flex-col h-full">
           {/* Header */}
@@ -64,8 +69,14 @@ export default function InvoicePreview({
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  {logoUrl ? (
-                    <img src={logoUrl} alt="Logo" className="w-7 h-7 object-contain rounded" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  {resolvedLogoUrl ? (
+                    <img
+                      src={resolvedLogoUrl}
+                      alt="Logo"
+                      className="w-7 h-7 object-contain rounded"
+                      crossOrigin={resolvedLogoUrl.startsWith('http') ? 'anonymous' : undefined}
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
                   ) : (
                     <div className="w-7 h-7 rounded bg-primary/20 flex items-center justify-center">
                       <i className="ri-building-line text-primary text-xs" />

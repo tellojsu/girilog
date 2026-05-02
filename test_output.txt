@@ -1,0 +1,442 @@
+
+> react@0.0.0 test
+> vitest run src/test/TimezoneRepro.test.tsx
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90m/Users/jtello/repos/girilog[39m
+
+[90mstdout[2m | src/test/TimezoneRepro.test.tsx[2m > [22m[2mInvoicePreview Date Parsing[2m > [22m[2mshould display Jan 1, 2026 for issueDate "2026-01-01"
+[22m[39m[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"bg-white text-gray-900 rounded-xl overflow-hidden shadow-2xl text-sm"[39m
+      [33mstyle[39m=[32m"font-family: system-ui, sans-serif;"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-[#0D0F14] px-8 py-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-start justify-between"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mb-1"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"w-7 h-7 rounded bg-[#10B981]/20 flex items-center justify-center"[39m
+              [36m>[39m
+                [36m<i[39m
+                  [33mclass[39m=[32m"ri-building-line text-[#10B981] text-xs"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-white font-bold text-base font-mono"[39m
+              [36m>[39m
+                [0mTest Business[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[#6B7280] text-xs font-mono"[39m
+            [36m>[39m
+              [0mbiz@example.com[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[#6B7280] text-xs font-mono mt-0.5"[39m
+            [36m>[39m
+              [0m456 Biz Rd[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-right"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[#10B981] font-mono font-bold text-xl"[39m
+            [36m>[39m
+              [0mINV-001[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[#6B7280] text-xs font-mono mt-1"[39m
+            [36m>[39m
+              [0mINVOICE[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"px-8 py-5 bg-gray-50 border-b border-gray-100"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid grid-cols-3 gap-4"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-400 uppercase tracking-wider mb-1"[39m
+            [36m>[39m
+              [0mBill To[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"font-semibold text-gray-900"[39m
+            [36m>[39m
+              [0mTest Client[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-500 mt-0.5"[39m
+            [36m>[39m
+              [0mtest@example.com[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-500 mt-0.5 whitespace-pre-line"[39m
+            [36m>[39m
+              [0m123 Test St[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-400 uppercase tracking-wider mb-1"[39m
+            [36m>[39m
+              [0mIssue Date[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"font-medium text-gray-900"[39m
+            [36m>[39m
+              [0mDecember 31, 2025[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-400 uppercase tracking-wider mb-1"[39m
+            [36m>[39m
+              [0mDue Date[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"font-medium text-gray-900"[39m
+            [36m>[39m
+              [0mJanuary 30, 2026[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"px-8 py-5"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-gray-200"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"text-left text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium"[39m
+              [36m>[39m
+                [0mDescription[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"text-right text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium"[39m
+              [36m>[39m
+                [0mQty[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"text-right text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium"[39m
+              [36m>[39m
+                [0mRate[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"text-right text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium"[39m
+              [36m>[39m
+                [0mAmount[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody[39m
+            [33mclass[39m=[32m"divide-y divide-gray-100"[39m
+          [36m>[39m
+            [36m<tr>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"py-4 text-center text-gray-400 text-xs italic"[39m
+                [33mcolspan[39m=[32m"4"[39m
+              [36m>[39m
+                [0mNo items added yet[0m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"px-8 pb-5"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"ml-auto w-56 space-y-1.5"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-between text-xs text-gray-500"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mSubtotal[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono"[39m
+            [36m>[39m
+              [0m$0.00[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-between pt-2 border-t border-gray-200"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold text-gray-900"[39m
+            [36m>[39m
+              [0mTotal[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold font-mono text-[#0D0F14] text-base"[39m
+            [36m>[39m
+              [0m$0.00[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"px-8 py-4 bg-[#0D0F14] text-center"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"text-[#4B5563] text-xs font-mono"[39m
+        [36m>[39m
+          [0mThank you for your business · Generated by GiriLog[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+ [31m❯[39m src/test/TimezoneRepro.test.tsx [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 52[2mms[22m[39m
+[31m     [31m×[31m should display Jan 1, 2026 for issueDate "2026-01-01"[39m[32m 50[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/test/TimezoneRepro.test.tsx[2m > [22mInvoicePreview Date Parsing[2m > [22mshould display Jan 1, 2026 for issueDate "2026-01-01"
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: /January 1, 2026/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"bg-white text-gray-900 rounded-xl overflow-hidden shadow-2xl text-sm"[39m
+      [33mstyle[39m=[32m"font-family: system-ui, sans-serif;"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-[#0D0F14] px-8 py-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-start justify-between"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mb-1"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"w-7 h-7 rounded bg-[#10B981]/20 flex items-center justify-center"[39m
+              [36m>[39m
+                [36m<i[39m
+                  [33mclass[39m=[32m"ri-building-line text-[#10B981] text-xs"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-white font-bold text-base font-mono"[39m
+              [36m>[39m
+                [0mTest Business[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[#6B7280] text-xs font-mono"[39m
+            [36m>[39m
+              [0mbiz@example.com[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[#6B7280] text-xs font-mono mt-0.5"[39m
+            [36m>[39m
+              [0m456 Biz Rd[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-right"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[#10B981] font-mono font-bold text-xl"[39m
+            [36m>[39m
+              [0mINV-001[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[#6B7280] text-xs font-mono mt-1"[39m
+            [36m>[39m
+              [0mINVOICE[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"px-8 py-5 bg-gray-50 border-b border-gray-100"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid grid-cols-3 gap-4"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-400 uppercase tracking-wider mb-1"[39m
+            [36m>[39m
+              [0mBill To[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"font-semibold text-gray-900"[39m
+            [36m>[39m
+              [0mTest Client[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-500 mt-0.5"[39m
+            [36m>[39m
+              [0mtest@example.com[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-500 mt-0.5 whitespace-pre-line"[39m
+            [36m>[39m
+              [0m123 Test St[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-400 uppercase tracking-wider mb-1"[39m
+            [36m>[39m
+              [0mIssue Date[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"font-medium text-gray-900"[39m
+            [36m>[39m
+              [0mDecember 31, 2025[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-xs text-gray-400 uppercase tracking-wider mb-1"[39m
+            [36m>[39m
+              [0mDue Date[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"font-medium text-gray-900"[39m
+            [36m>[39m
+              [0mJanuary 30, 2026[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"px-8 py-5"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-gray-200"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"text-left text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium"[39m
+              [36m>[39m
+                [0mDescription[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"text-right text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium"[39m
+              [36m>[39m
+                [0mQty[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"text-right text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium"[39m
+              [36m>[39m
+                [0mRate[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"text-right text-xs text-gray-400 uppercase tracking-wider pb-2 font-medium"[39m
+              [36m>[39m
+                [0mAmount[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody[39m
+            [33mclass[39m=[32m"divide-y divide-gray-100"[39m
+          [36m>[39m
+            [36m<tr>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"py-4 text-center text-gray-400 text-xs italic"[39m
+                [33mcolspan[39m=[32m"4"[39m
+              [36m>[39m
+                [0mNo items added yet[0m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"px-8 pb-5"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"ml-auto w-56 space-y-1.5"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-between text-xs text-gray-500"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mSubtotal[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono"[39m
+            [36m>[39m
+              [0m$0.00[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-between pt-2 border-t border-gray-200"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold text-gray-900"[39m
+            [36m>[39m
+              [0mTotal[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold font-mono text-[#0D0F14] text-base"[39m
+            [36m>[39m
+              [0m$0.00[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"px-8 py-4 bg-[#0D0F14] text-center"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"text-[#4B5563] text-xs font-mono"[39m
+        [36m>[39m
+          [0mThank you for your business · Generated by GiriLog[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/test/TimezoneRepro.test.tsx:[2m32:37[22m[39m
+    [90m 30|[39m     [90m// We expect "January 1, 2026"[39m
+    [90m 31|[39m     screen[33m.[39m[34mdebug[39m()[33m;[39m
+    [90m 32|[39m     [35mconst[39m issueDateElement [33m=[39m screen[33m.[39m[34mgetByText[39m([36m/January 1, 2026/i[39m)[33m;[39m
+    [90m   |[39m                                     [31m^[39m
+    [90m 33|[39m     [34mexpect[39m(issueDateElement)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m 34|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 19:37:33
+[2m   Duration [22m 978ms[2m (transform 45ms, setup 49ms, import 74ms, tests 52ms, environment 707ms)[22m
+
