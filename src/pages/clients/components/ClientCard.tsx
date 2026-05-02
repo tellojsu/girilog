@@ -1,4 +1,5 @@
 import { Client, Invoice } from '@/types/girilog';
+import ClientAvatar from '@/components/common/ClientAvatar';
 
 interface ClientCardProps {
   client: Client;
@@ -10,20 +11,8 @@ function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
 }
 
-function getInitials(name: string) {
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-}
-
-const AVATAR_COLORS = [
-  'bg-[#10B981]/20 text-[#10B981]',
-  'bg-[#F59E0B]/20 text-[#F59E0B]',
-  'bg-[#8B5CF6]/20 text-[#8B5CF6]',
-  'bg-[#EC4899]/20 text-[#EC4899]',
-  'bg-[#06B6D4]/20 text-[#06B6D4]',
-];
 
 export default function ClientCard({ client, invoices, onClick }: ClientCardProps) {
-  const colorClass = AVATAR_COLORS[client.id % AVATAR_COLORS.length];
   const totalBilled = invoices.reduce((s, i) => s + Number(i.total), 0);
   const totalPaid = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total), 0);
   const openCount = invoices.filter(i => i.status === 'pending' || i.status === 'overdue').length;
@@ -37,24 +26,7 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          {client.logo_url ? (
-            <div className="w-11 h-11 rounded-xl border border-[#1E2330] bg-[#0D0F14] flex items-center justify-center shrink-0 overflow-hidden">
-              <img
-                src={client.logo_url}
-                alt={client.name}
-                className="w-full h-full object-contain p-1"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                  (e.target as HTMLImageElement).parentElement!.classList.add(...colorClass.split(' '));
-                  (e.target as HTMLImageElement).parentElement!.innerHTML = getInitials(client.name);
-                }}
-              />
-            </div>
-          ) : (
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm font-mono shrink-0 ${colorClass}`}>
-              {getInitials(client.name)}
-            </div>
-          )}
+          <ClientAvatar client={client} />
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-white truncate group-hover:text-[#10B981] transition-colors">
               {client.name}

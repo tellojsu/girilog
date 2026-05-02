@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Client, Invoice, InvoiceStatus } from '@/types/girilog';
+import ClientAvatar from '@/components/common/ClientAvatar';
 import StatusBadge from '@/components/base/StatusBadge';
 import { supabase } from '@/lib/supabase';
 
@@ -20,17 +21,6 @@ function formatDate(dateStr: string | null) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function getInitials(name: string) {
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-}
-
-const AVATAR_COLORS = [
-  'bg-[#10B981]/20 text-[#10B981]',
-  'bg-[#F59E0B]/20 text-[#F59E0B]',
-  'bg-[#8B5CF6]/20 text-[#8B5CF6]',
-  'bg-[#EC4899]/20 text-[#EC4899]',
-  'bg-[#06B6D4]/20 text-[#06B6D4]',
-];
 
 export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted }: ClientDetailDrawerProps) {
   const navigate = useNavigate();
@@ -38,8 +28,6 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-
-  const colorClass = AVATAR_COLORS[client.id % AVATAR_COLORS.length];
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -118,24 +106,7 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
           {/* Client identity */}
           <div className="px-6 py-5 border-b border-[#1E2330]">
             <div className="flex items-center gap-4 mb-4">
-              {client.logo_url ? (
-                <div className="w-14 h-14 rounded-2xl border border-[#1E2330] bg-[#0D0F14] flex items-center justify-center shrink-0 overflow-hidden">
-                  <img
-                    src={client.logo_url}
-                    alt={client.name}
-                    className="w-full h-full object-contain p-1"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                      (e.target as HTMLImageElement).parentElement!.classList.add(...colorClass.split(' '));
-                      (e.target as HTMLImageElement).parentElement!.innerHTML = getInitials(client.name);
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg font-mono shrink-0 ${colorClass}`}>
-                  {getInitials(client.name)}
-                </div>
-              )}
+              <ClientAvatar client={client} size="lg" />
               <div>
                 <h2 className="text-lg font-semibold text-white">{client.name}</h2>
                 {client.company && client.company !== client.name && (

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AppLayout from '@/components/feature/AppLayout';
+import ClientAvatar from '@/components/common/ClientAvatar';
 import LineItemsEditor from './components/LineItemsEditor';
 import InvoicePreview from './components/InvoicePreview';
 import StatusBadge from '@/components/base/StatusBadge';
@@ -468,23 +469,22 @@ export default function InvoiceCreator() {
                   )}
                 </div>
 
-                {/* Selected client pill */}
-                {form.clientId ? (
-                  <div className="flex items-center gap-3 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl px-4 py-3 mb-4">
-                    <div className="w-9 h-9 rounded-xl bg-[#10B981]/15 flex items-center justify-center shrink-0">
-                      <span className="text-xs font-bold text-[#10B981] font-mono">
-                        {(clients.find(c => String(c.id) === form.clientId)?.name || form.clientName || '??').slice(0, 2).toUpperCase()}
-                      </span>
+                {form.clientId ? (() => {
+                  const selectedClient = clients.find(c => String(c.id) === form.clientId);
+                  if (!selectedClient) return null;
+                  return (
+                    <div className="flex items-center gap-3 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl px-4 py-3 mb-4">
+                      <ClientAvatar client={selectedClient} size="sm" className="bg-[#10B981]/15 border-[#10B981]/20" fallbackClassName="text-[#10B981]" />
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-white">{selectedClient?.name || form.clientName}</div>
+                        {form.clientEmail && <div className="text-xs text-[#6B7280] font-mono truncate">{form.clientEmail}</div>}
+                      </div>
+                      <div className="w-5 h-5 flex items-center justify-center ml-auto shrink-0">
+                        <i className="ri-checkbox-circle-fill text-[#10B981]" />
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold text-white">{clients.find(c => String(c.id) === form.clientId)?.name || form.clientName}</div>
-                      {form.clientEmail && <div className="text-xs text-[#6B7280] font-mono truncate">{form.clientEmail}</div>}
-                    </div>
-                    <div className="w-5 h-5 flex items-center justify-center ml-auto shrink-0">
-                      <i className="ri-checkbox-circle-fill text-[#10B981]" />
-                    </div>
-                  </div>
-                ) : null}
+                  );
+                })() : null}
 
                 {/* Client Selector */}
                 <div className="relative mb-4">
@@ -527,11 +527,7 @@ export default function InvoiceCreator() {
                             onClick={() => selectClient(client)}
                             className={`w-full px-3 py-2.5 text-left hover:bg-[#2A3040] transition-colors cursor-pointer flex items-center gap-3 ${String(client.id) === form.clientId ? 'bg-[#10B981]/10' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center shrink-0">
-                              <span className="text-[10px] font-bold text-[#10B981] font-mono">
-                                {client.name.slice(0, 2).toUpperCase()}
-                              </span>
-                            </div>
+                            <ClientAvatar client={client} size="xs" className="bg-[#10B981]/10 border-[#10B981]/10" fallbackClassName="text-[#10B981]" />
                             <div className="min-w-0">
                               <div className="text-sm text-white truncate">{client.name}</div>
                               {client.email && <div className="text-xs text-[#4B5563] font-mono truncate">{client.email}</div>}
