@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabase';
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: 'ri-dashboard-line' },
   { path: '/invoices', label: 'Invoices', icon: 'ri-file-list-3-line' },
-  { path: '/invoices/new', label: 'New Invoice', icon: 'ri-add-circle-line' },
   { path: '/clients', label: 'Clients', icon: 'ri-group-line' },
   { path: '/settings', label: 'Settings', icon: 'ri-settings-3-line' },
 ];
