@@ -81,7 +81,14 @@ export default function InvoiceCreator() {
   const [isDirty, setIsDirty] = useState(false);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [showNewClientModal, setShowNewClientModal] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
+  const [showPreview, setShowPreview] = useState(() => {
+    const saved = localStorage.getItem('girilog_show_preview');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('girilog_show_preview', showPreview.toString());
+  }, [showPreview]);
   const [showTaxOverride, setShowTaxOverride] = useState(false);
   const [showDiscountOverride, setShowDiscountOverride] = useState(false);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
