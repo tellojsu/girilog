@@ -58,9 +58,10 @@ describe('Dashboard Page', () => {
   });
 
   it('renders dashboard with data', async () => {
+    const currentYear = new Date().getFullYear();
     const mockInvoices = [
-      { id: '1', status: 'paid', total: 100, created_at: new Date().toISOString() },
-      { id: '2', status: 'pending', total: 50, created_at: new Date().toISOString() },
+      { id: '1', status: 'paid', total: 100, issue_date: `${currentYear}-01-01`, created_at: new Date().toISOString() },
+      { id: '2', status: 'pending', total: 50, issue_date: `${currentYear}-01-01`, created_at: new Date().toISOString() },
     ];
     const mockSettings = { annual_revenue_goal: 5000, currency: 'USD' };
 

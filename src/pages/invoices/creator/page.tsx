@@ -202,7 +202,24 @@ export default function InvoiceCreator() {
   }, [form, lineItems, invoiceNumber, isEdit]);
 
   const setField = useCallback((field: keyof FormState, value: string) => {
-    setForm(f => ({ ...f, [field]: value }));
+    setForm(f => {
+      const next = { ...f, [field]: value };
+      if (field === 'issueDate' && value) {
+        // value is YYYY-MM-DD
+        const [year, month, day] = value.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        if (!isNaN(date.getTime())) {
+          // Calculate last day of month: next month day 0
+          const lastDay = new Date(year, month, 0);
+          // Convert to local YYYY-MM-DD
+          const y = lastDay.getFullYear();
+          const m = String(lastDay.getMonth() + 1).padStart(2, '0');
+          const d = String(lastDay.getDate()).padStart(2, '0');
+          next.dueDate = `${y}-${m}-${d}`;
+        }
+      }
+      return next;
+    });
   }, []);
 
   const selectClient = useCallback(async (client: Client) => {
@@ -624,8 +641,9 @@ export default function InvoiceCreator() {
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>Issue Date</label>
+                    <label htmlFor="issueDate" className={labelClass}>Issue Date</label>
                     <input
+                      id="issueDate"
                       type="date"
                       value={form.issueDate}
                       onChange={e => setField('issueDate', e.target.value)}
@@ -633,8 +651,9 @@ export default function InvoiceCreator() {
                     />
                   </div>
                   <div>
-                    <label className={labelClass}>Due Date</label>
+                    <label htmlFor="dueDate" className={labelClass}>Due Date</label>
                     <input
+                      id="dueDate"
                       type="date"
                       value={form.dueDate}
                       onChange={e => setField('dueDate', e.target.value)}

@@ -29,21 +29,24 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
   } | null>(null);
 
   const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
 
   const monthlyData = useMemo(() => {
     const data = Array.from({ length: 12 }, (_, i) => ({ month: i, sent: 0, pending: 0 }));
     invoices.forEach(inv => {
-      const m = new Date(inv.created_at).getMonth();
+      const date = new Date(inv.issue_date.includes('T') ? inv.issue_date : `${inv.issue_date}T00:00:00`);
+      if (date.getFullYear() !== currentYear) return;
+      const m = date.getMonth();
       if (m >= 0 && m < 12) {
-        if (inv.status === 'draft') {
-          data[m].pending += Number(inv.total);
-        } else {
+        if (inv.status === 'paid' || inv.status === 'overdue') {
           data[m].sent += Number(inv.total);
+        } else {
+          data[m].pending += Number(inv.total);
         }
       }
     });
     return data;
-  }, [invoices]);
+  }, [invoices, currentYear]);
 
   // Cumulative running totals
   const cumulativeData = useMemo(() => {

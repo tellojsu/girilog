@@ -103,7 +103,7 @@ export default function InvoiceDetail() {
   return (
     <AppLayout
       title={invoice.invoice_number}
-      subtitle={`${invoice.client_name || 'Unknown client'} · Created ${new Date(invoice.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+      subtitle={`${invoice.client_name || 'Unknown client'} · Created ${new Date(invoice.created_at.includes('T') ? invoice.created_at : `${invoice.created_at}T00:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
       actions={
         <div className="flex items-center gap-2">
           {/* Status Changer */}

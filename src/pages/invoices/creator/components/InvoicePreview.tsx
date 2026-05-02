@@ -24,7 +24,9 @@ function formatCurrency(amount: number) {
 
 function formatDate(dateStr: string) {
   if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  // Append T00:00:00 to force local timezone parsing for YYYY-MM-DD strings
+  const date = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`);
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 export default function InvoicePreview({

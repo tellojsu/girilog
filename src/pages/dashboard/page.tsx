@@ -13,21 +13,21 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [annualGoal, setAnnualGoal] = useState(0);
   const [currency, setCurrency] = useState('USD');
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const currentYear = new Date().getFullYear();
       const [invoiceRes, settingsRes] = await Promise.all([
         supabase
           .from('girilog_invoices')
           .select('*')
           .eq('user_id', user.id)
-          .gte('created_at', `${currentYear}-01-01`)
-          .lte('created_at', `${currentYear}-12-31T23:59:59`)
-          .order('created_at', { ascending: false }),
+          .gte('issue_date', `${currentYear}-01-01`)
+          .lte('issue_date', `${currentYear}-12-31`)
+          .order('issue_date', { ascending: false }),
         supabase
           .from('girilog_settings')
           .select('annual_revenue_goal, currency')
@@ -44,16 +44,39 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const totalPaid = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total), 0);
-  const totalPending = invoices.filter(i => i.status === 'pending').reduce((s, i) => s + Number(i.total), 0);
-  const totalOverdue = invoices.filter(i => i.status === 'overdue').reduce((s, i) => s + Number(i.total), 0);
-  const totalDraft = invoices.filter(i => i.status === 'draft').reduce((s, i) => s + Number(i.total), 0);
-  const recentInvoices = invoices;
+  const totalPaid = invoices
+    .filter(i => {
+      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+      return i.status === 'paid' && date.getFullYear() === currentYear;
+    })
+    .reduce((s, i) => s + Number(i.total), 0);
+  const totalPending = invoices
+    .filter(i => {
+      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+      return i.status === 'pending' && date.getFullYear() === currentYear;
+    })
+    .reduce((s, i) => s + Number(i.total), 0);
+  const totalOverdue = invoices
+    .filter(i => {
+      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+      return i.status === 'overdue' && date.getFullYear() === currentYear;
+    })
+    .reduce((s, i) => s + Number(i.total), 0);
+  const totalDraft = invoices
+    .filter(i => {
+      const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+      return i.status === 'draft' && date.getFullYear() === currentYear;
+    })
+    .reduce((s, i) => s + Number(i.total), 0);
+  const recentInvoices = invoices.filter(i => {
+    const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
+    return date.getFullYear() === currentYear;
+  });
 
   return (
     <AppLayout
       title="Dashboard"
-      subtitle={`${invoices.length} invoices this year`}
+      subtitle={`${recentInvoices.length} invoices this year`}
       actions={
         <button
           onClick={() => navigate('/invoices/new')}
