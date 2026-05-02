@@ -48,7 +48,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     return (
       <div className="min-h-screen bg-[#0D0F14] flex items-center justify-center">
         <div className="flex items-center gap-3 text-[#6B7280]">
-          <div className="w-5 h-5 border-2 border-[#10B981]/30 border-t-[#10B981] rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
           <span className="text-sm font-mono">Loading...</span>
         </div>
       </div>

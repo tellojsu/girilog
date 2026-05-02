@@ -59,7 +59,7 @@ export default function AuthPage() {
     }
   };
 
-  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-xl px-4 py-3 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors font-mono';
+  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-xl px-4 py-3 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors font-mono';
 
   const titles: Record<Mode, { heading: string; sub: string; btn: string }> = {
     login: { heading: 'Welcome back', sub: 'Sign in to your GiriLog workspace', btn: 'Sign in' },
@@ -106,12 +106,12 @@ export default function AuthPage() {
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           {/* Glow */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#10B981]/6 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary/6 rounded-full blur-[100px] pointer-events-none" />
 
           <div className="relative bg-[#0A0C10] border border-[#1E2330] rounded-2xl p-8">
             {/* Icon */}
-            <div className="w-12 h-12 rounded-2xl bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center mb-6">
-              <i className={`${mode === 'forgot' ? 'ri-lock-password-line' : mode === 'signup' ? 'ri-user-add-line' : 'ri-login-box-line'} text-[#10B981] text-xl`} />
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
+              <i className={`${mode === 'forgot' ? 'ri-lock-password-line' : mode === 'signup' ? 'ri-user-add-line' : 'ri-login-box-line'} text-primary text-xl`} />
             </div>
 
             <h1 className="text-2xl font-bold text-white mb-1">{heading}</h1>
@@ -157,7 +157,7 @@ export default function AuthPage() {
 
                 <div className="relative flex items-center gap-3 pt-1">
                   <div className="flex-1 h-px bg-[#1E2330]" />
-                  <span className="text-xs text-[#4B5563] font-mono">or continue with email</span>
+                  <span className="text-xs text-secondary font-mono">or continue with email</span>
                   <div className="flex-1 h-px bg-[#1E2330]" />
                 </div>
               </div>
@@ -196,7 +196,7 @@ export default function AuthPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(s => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-[#4B5563] hover:text-[#8B9AB0] transition-colors cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-secondary hover:text-[#8B9AB0] transition-colors cursor-pointer"
                     >
                       <i className={showPassword ? 'ri-eye-off-line text-sm' : 'ri-eye-line text-sm'} />
                     </button>
@@ -206,7 +206,7 @@ export default function AuthPage() {
                       <button
                         type="button"
                         onClick={() => { setMode('forgot'); setMessage(null); }}
-                        className="text-xs text-[#6B7280] hover:text-[#10B981] font-mono transition-colors cursor-pointer"
+                        className="text-xs text-[#6B7280] hover:text-primary font-mono transition-colors cursor-pointer"
                       >
                         Forgot password?
                       </button>
@@ -216,7 +216,7 @@ export default function AuthPage() {
               )}
 
               {message && (
-                <div className={`flex items-start gap-2 rounded-xl px-4 py-3 text-sm font-mono ${message.ok ? 'bg-[#10B981]/10 border border-[#10B981]/20 text-[#10B981]' : 'bg-[#EF4444]/10 border border-[#EF4444]/20 text-[#EF4444]'}`}>
+                <div className={`flex items-start gap-2 rounded-xl px-4 py-3 text-sm font-mono ${message.ok ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-[#EF4444]/10 border border-[#EF4444]/20 text-[#EF4444]'}`}>
                   <i className={`${message.ok ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'} text-base shrink-0 mt-0.5`} />
                   <span>{message.text}</span>
                 </div>
@@ -225,7 +225,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer whitespace-nowrap text-sm mt-2"
+                className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[#059669] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer whitespace-nowrap text-sm mt-2"
               >
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -241,7 +241,7 @@ export default function AuthPage() {
               {mode === 'login' && (
                 <p className="text-sm text-[#6B7280] font-mono">
                   Don&apos;t have an account?{' '}
-                  <button onClick={() => { setMode('signup'); setMessage(null); }} className="text-[#10B981] hover:text-[#34D399] transition-colors cursor-pointer font-medium">
+                  <button onClick={() => { setMode('signup'); setMessage(null); }} className="text-primary hover:text-[#34D399] transition-colors cursor-pointer font-medium">
                     Sign up
                   </button>
                 </p>
@@ -249,7 +249,7 @@ export default function AuthPage() {
               {mode === 'signup' && (
                 <p className="text-sm text-[#6B7280] font-mono">
                   Already have an account?{' '}
-                  <button onClick={() => { setMode('login'); setMessage(null); }} className="text-[#10B981] hover:text-[#34D399] transition-colors cursor-pointer font-medium">
+                  <button onClick={() => { setMode('login'); setMessage(null); }} className="text-primary hover:text-[#34D399] transition-colors cursor-pointer font-medium">
                     Sign in
                   </button>
                 </p>

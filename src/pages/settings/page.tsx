@@ -13,7 +13,7 @@ const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'INR', 'SGD', 'AED
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 function inputClass(focused?: boolean) {
-  return `w-full bg-[#0D0F14] border ${focused ? 'border-[#10B981]/50' : 'border-[#1E2330]'} rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors`;
+  return `w-full bg-[#0D0F14] border ${focused ? 'border-primary/50' : 'border-[#1E2330]'} rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors`;
 }
 
 
@@ -150,7 +150,7 @@ export default function SettingsPage() {
       <AppLayout title="Settings" subtitle="Business profile & preferences">
         <div className="flex items-center justify-center h-64">
           <div className="flex items-center gap-3 text-[#6B7280]">
-            <div className="w-5 h-5 border-2 border-[#10B981]/30 border-t-[#10B981] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             <span className="text-sm font-mono">Loading settings...</span>
           </div>
         </div>
@@ -165,7 +165,7 @@ export default function SettingsPage() {
       actions={
         <div className="flex items-center gap-3">
           {saveState === 'saved' && (
-            <div className="flex items-center gap-1.5 text-[#10B981] text-sm font-mono animate-pulse">
+            <div className="flex items-center gap-1.5 text-primary text-sm font-mono animate-pulse">
               <div className="w-4 h-4 flex items-center justify-center">
                 <i className="ri-checkbox-circle-line text-sm" />
               </div>
@@ -183,7 +183,7 @@ export default function SettingsPage() {
           <button
             onClick={handleSave}
             disabled={saveState === 'saving'}
-            className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+            className="flex items-center gap-2 bg-primary hover:bg-[#059669] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
           >
             {saveState === 'saving' ? (
               <>
@@ -283,7 +283,7 @@ export default function SettingsPage() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#4B5563] mt-1.5 font-mono">Set to 0 to hide the goal tracker.</p>
+            <p className="text-xs text-secondary mt-1.5 font-mono">Set to 0 to hide the goal tracker.</p>
           </SettingsField>
         </SettingsSection>
 
@@ -313,7 +313,7 @@ export default function SettingsPage() {
                 <span className="text-white">{settings.invoice_prefix || 'INV-'}0042</span>
               </div>
             </div>
-            <p className="text-xs text-[#4B5563] mt-1.5 font-mono">Max 10 characters. Numbers are appended automatically.</p>
+            <p className="text-xs text-secondary mt-1.5 font-mono">Max 10 characters. Numbers are appended automatically.</p>
           </SettingsField>
 
           <SettingsField
@@ -347,7 +347,7 @@ export default function SettingsPage() {
               <select
                 value={settings.currency || 'USD'}
                 onChange={e => handleChange('currency', e.target.value)}
-                className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#10B981]/50 transition-colors cursor-pointer appearance-none pr-8"
+                className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary/50 transition-colors cursor-pointer appearance-none pr-8"
               >
                 {CURRENCIES.map(c => (
                   <option key={c} value={c}>{c}</option>
@@ -364,7 +364,7 @@ export default function SettingsPage() {
         <div className="bg-[#0A0C10] border border-[#1E2330] rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-4 h-4 flex items-center justify-center">
-              <i className="ri-eye-line text-[#10B981] text-sm" />
+              <i className="ri-eye-line text-primary text-sm" />
             </div>
             <span className="text-xs text-[#6B7280] font-mono uppercase tracking-wider">Invoice Header Preview</span>
           </div>
@@ -379,8 +379,8 @@ export default function SettingsPage() {
                     onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded bg-[#10B981]/10 flex items-center justify-center">
-                    <i className="ri-building-line text-[#10B981]" />
+                  <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center">
+                    <i className="ri-building-line text-primary" />
                   </div>
                 )}
                 <div>
@@ -390,7 +390,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[#10B981] font-mono font-bold text-lg">{settings.invoice_prefix || 'INV-'}0042</div>
+                <div className="text-primary font-mono font-bold text-lg">{settings.invoice_prefix || 'INV-'}0042</div>
                 <div className="text-[#6B7280] text-xs font-mono mt-0.5">Issued: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
                 <div className="text-[#6B7280] text-xs font-mono">Currency: {settings.currency || 'USD'}</div>
               </div>

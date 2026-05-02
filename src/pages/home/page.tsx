@@ -112,22 +112,22 @@ function DemoRevenueChart() {
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-sm font-semibold text-white">Revenue This Year</h3>
-          <p className="text-xs text-[#4B5563] font-mono mt-0.5">Cumulative · {new Date().getFullYear()}</p>
+          <p className="text-xs text-secondary font-mono mt-0.5">Cumulative · {new Date().getFullYear()}</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <div className="text-xs text-[#10B981] font-mono font-semibold">$31,500</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Paid</div>
+            <div className="text-xs text-primary font-mono font-semibold">$31,500</div>
+            <div className="text-[10px] text-secondary font-mono">Paid</div>
           </div>
           <div className="w-px h-6 bg-[#1E2330]" />
           <div className="text-right">
             <div className="text-xs text-[#F59E0B] font-mono font-semibold">$12,400</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Sent</div>
+            <div className="text-[10px] text-secondary font-mono">Sent</div>
           </div>
           <div className="w-px h-6 bg-[#1E2330]" />
           <div className="text-right">
             <div className="text-xs text-white font-mono font-semibold">$43,900</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Total</div>
+            <div className="text-[10px] text-secondary font-mono">Total</div>
           </div>
         </div>
       </div>
@@ -136,8 +136,8 @@ function DemoRevenueChart() {
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 200 }}>
         <defs>
           <linearGradient id="demoSentGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#10B981" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#10B981" stopOpacity="0.04" />
+            <stop offset="0%" stopColor="var(--color-primary, #10B981)" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="var(--color-primary, #10B981)" stopOpacity="0.04" />
           </linearGradient>
           <linearGradient id="demoPendingGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.28" />
@@ -149,7 +149,7 @@ function DemoRevenueChart() {
         {yTicks.map(t => (
           <g key={t.val}>
             <line x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y} stroke="#1E2330" strokeWidth="1" />
-            <text x={PAD.left - 6} y={t.y + 4} textAnchor="end" fontSize="9" fill="#4B5563" fontFamily="monospace">
+            <text x={PAD.left - 6} y={t.y + 4} textAnchor="end" fontSize="9" fill="#94A3B8" fontFamily="monospace">
               {formatShort(t.val)}
             </text>
           </g>
@@ -158,7 +158,7 @@ function DemoRevenueChart() {
         {/* X labels */}
         {MONTHS.map((m, i) => (
           <text key={m} x={toX(i)} y={H - 6} textAnchor="middle" fontSize="9"
-            fill={i === currentMonth ? '#9CA3AF' : '#4B5563'}
+            fill={i === currentMonth ? '#9CA3AF' : '#94A3B8'}
             fontWeight={i === currentMonth ? '600' : '400'}
             fontFamily="monospace">
             {m}
@@ -170,14 +170,14 @@ function DemoRevenueChart() {
         {/* Pending band */}
         <path d={pendingBand} fill="url(#demoPendingGrad)" />
         {/* Sent line */}
-        <path d={sentPath} fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={sentPath} fill="none" stroke="var(--color-primary, #10B981)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         {/* Pending extension line */}
         <path d={pendingExtPath} fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
         {/* Dots on sent */}
         {sentPts.map((p, i) => (
           <circle key={i} cx={p.x} cy={p.y} r={i === currentMonth ? 4 : 2}
-            fill="#10B981" stroke="#0D0F14" strokeWidth="1.5" />
+            fill="var(--color-primary, #10B981)" stroke="#0D0F14" strokeWidth="1.5" />
         ))}
         {/* Dots on pending extension (only where pending > 0) */}
         {pendingExtPts.map((p, i) => DEMO_PENDING[i] > 0 ? (
@@ -189,7 +189,7 @@ function DemoRevenueChart() {
       {/* Legend */}
       <div className="flex items-center gap-5 mt-3 pt-3 border-t border-[#1E2330]">
         <div className="flex items-center gap-1.5">
-          <div className="w-5 h-0.5 bg-[#10B981] rounded" />
+          <div className="w-5 h-0.5 bg-primary rounded" />
           <span className="text-xs text-[#6B7280] font-mono">Sent</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -250,7 +250,7 @@ export default function HomePage() {
             </Link>
             <a
               href="#early-access"
-              className="text-sm font-medium bg-[#10B981] hover:bg-[#059669] text-white px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+              className="text-sm font-medium bg-primary hover:bg-[#059669] text-white px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
             >
               Get started
             </a>
@@ -273,7 +273,7 @@ export default function HomePage() {
             <a href="#testimonials" className="block text-sm text-[#8B9AB0] hover:text-white py-1.5" onClick={() => setMobileMenuOpen(false)}>Reviews</a>
             <div className="pt-2 border-t border-[#1E2330] flex flex-col gap-2">
               <Link to="/login" className="text-sm text-center text-[#8B9AB0] hover:text-white py-2 border border-[#1E2330] rounded-lg">Sign in</Link>
-              <a href="#early-access" className="text-sm text-center font-medium bg-[#10B981] text-white py-2 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Get started</a>
+              <a href="#early-access" className="text-sm text-center font-medium bg-primary text-white py-2 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Get started</a>
             </div>
           </div>
         )}
@@ -283,22 +283,22 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
         {/* Background grid */}
         <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(#10B981 1px, transparent 1px), linear-gradient(90deg, #10B981 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--color-primary, #10B981) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary, #10B981) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }} />
         {/* Glow */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#10B981]/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/8 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 bg-[#10B981]/10 border border-[#10B981]/20 rounded-full px-4 py-1.5 mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-            <span className="text-xs text-[#10B981] font-mono font-medium tracking-wide">Built for freelancers & developers</span>
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs text-primary font-mono font-medium tracking-wide">Built for freelancers & developers</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-6">
             Invoicing that
             <br />
-            <span className="text-[#10B981]">doesn't suck.</span>
+            <span className="text-primary">doesn't suck.</span>
           </h1>
 
           <p className="text-lg md:text-xl text-[#8B9AB0] max-w-2xl mx-auto leading-relaxed mb-10">
@@ -309,7 +309,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               to="/login"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors cursor-pointer whitespace-nowrap text-base"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-[#059669] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors cursor-pointer whitespace-nowrap text-base"
             >
               <i className="ri-arrow-right-line" />
               Start invoicing free
@@ -331,7 +331,7 @@ export default function HomePage() {
             ].map(s => (
               <div key={s.label} className="text-center">
                 <div className="text-2xl font-bold font-mono text-white">{s.val}</div>
-                <div className="text-xs text-[#4B5563] mt-1 font-mono">{s.label}</div>
+                <div className="text-xs text-secondary mt-1 font-mono">{s.label}</div>
               </div>
             ))}
           </div>
@@ -339,8 +339,8 @@ export default function HomePage() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
-          <span className="text-xs text-[#4B5563] font-mono">scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-[#4B5563] to-transparent" />
+          <span className="text-xs text-secondary font-mono">scroll</span>
+          <div className="w-px h-8 bg-gradient-to-b from-secondary to-transparent" />
         </div>
       </section>
 
@@ -356,10 +356,10 @@ export default function HomePage() {
             {FEATURES.map((f, i) => (
               <div
                 key={i}
-                className="bg-[#0A0C10] border border-[#1E2330] rounded-2xl p-6 hover:border-[#10B981]/30 transition-colors group"
+                className="bg-[#0A0C10] border border-[#1E2330] rounded-2xl p-6 hover:border-primary/30 transition-colors group"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#10B981]/10 flex items-center justify-center mb-4 group-hover:bg-[#10B981]/15 transition-colors">
-                  <i className={`${f.icon} text-[#10B981] text-lg`} />
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
+                  <i className={`${f.icon} text-primary text-lg`} />
                 </div>
                 <h3 className="text-base font-semibold text-white mb-2">{f.title}</h3>
                 <p className="text-sm text-[#6B7280] leading-relaxed">{f.desc}</p>
@@ -379,7 +379,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {/* Connector line */}
-            <div className="hidden md:block absolute top-8 left-[calc(16.67%+16px)] right-[calc(16.67%+16px)] h-px bg-gradient-to-r from-[#10B981]/30 via-[#10B981]/60 to-[#10B981]/30" />
+            <div className="hidden md:block absolute top-8 left-[calc(16.67%+16px)] right-[calc(16.67%+16px)] h-px bg-gradient-to-r from-primary/30 via-primary/60 to-primary/30" />
 
             {[
               {
@@ -402,10 +402,10 @@ export default function HomePage() {
               },
             ].map((s, i) => (
               <div key={i} className="relative flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-2xl bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center mb-5 relative z-10">
-                  <i className={`${s.icon} text-[#10B981] text-2xl`} />
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 relative z-10">
+                  <i className={`${s.icon} text-primary text-2xl`} />
                 </div>
-                <div className="text-xs font-mono text-[#10B981] mb-2 tracking-widest">{s.step}</div>
+                <div className="text-xs font-mono text-primary mb-2 tracking-widest">{s.step}</div>
                 <h3 className="text-lg font-semibold text-white mb-3">{s.title}</h3>
                 <p className="text-sm text-[#6B7280] leading-relaxed">{s.desc}</p>
               </div>
@@ -423,23 +423,23 @@ export default function HomePage() {
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-[#EF4444]/60" />
                 <div className="w-3 h-3 rounded-full bg-[#F59E0B]/60" />
-                <div className="w-3 h-3 rounded-full bg-[#10B981]/60" />
+                <div className="w-3 h-3 rounded-full bg-primary/60" />
               </div>
-              <span className="text-xs text-[#4B5563] font-mono">girilog.app/dashboard</span>
+              <span className="text-xs text-secondary font-mono">girilog.app/dashboard</span>
             </div>
 
             {/* Stat cards */}
             <div className="p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { label: 'Total Invoiced', val: '$48,200', change: '+12%', color: 'text-white' },
-                { label: 'Paid', val: '$31,500', change: '+8%', color: 'text-[#10B981]' },
+                { label: 'Paid', val: '$31,500', change: '+8%', color: 'text-primary' },
                 { label: 'Sent', val: '$12,400', change: '4 invoices', color: 'text-[#F59E0B]' },
                 { label: 'Overdue', val: '$4,300', change: '2 invoices', color: 'text-[#EF4444]' },
               ].map(s => (
                 <div key={s.label} className="bg-[#0D0F14] border border-[#1E2330] rounded-xl p-4">
-                  <div className="text-xs text-[#4B5563] font-mono mb-2">{s.label}</div>
+                  <div className="text-xs text-secondary font-mono mb-2">{s.label}</div>
                   <div className={`text-xl font-bold font-mono ${s.color}`}>{s.val}</div>
-                  <div className="text-xs text-[#4B5563] font-mono mt-1">{s.change}</div>
+                  <div className="text-xs text-secondary font-mono mt-1">{s.change}</div>
                 </div>
               ))}
             </div>
@@ -470,12 +470,12 @@ export default function HomePage() {
                 </div>
                 <p className="text-sm text-[#8B9AB0] leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[#10B981]/15 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-bold text-[#10B981] font-mono">{t.avatar}</span>
+                  <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-primary font-mono">{t.avatar}</span>
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-white">{t.name}</div>
-                    <div className="text-xs text-[#4B5563] font-mono">{t.role}</div>
+                    <div className="text-xs text-secondary font-mono">{t.role}</div>
                   </div>
                 </div>
               </div>
@@ -487,11 +487,11 @@ export default function HomePage() {
       {/* CTA / Early Access */}
       <section id="early-access" className="py-24 px-6">
         <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-[#0A0C10] border border-[#10B981]/20 rounded-3xl p-10 md:p-14 relative overflow-hidden">
-            <div className="absolute inset-0 bg-[#10B981]/3 pointer-events-none" />
+          <div className="bg-[#0A0C10] border border-primary/20 rounded-3xl p-10 md:p-14 relative overflow-hidden">
+            <div className="absolute inset-0 bg-primary/3 pointer-events-none" />
             <div className="relative z-10">
-              <div className="w-14 h-14 rounded-2xl bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center mx-auto mb-6">
-                <i className="ri-rocket-line text-[#10B981] text-2xl" />
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-6">
+                <i className="ri-rocket-line text-primary text-2xl" />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to get started?</h2>
               <p className="text-[#8B9AB0] mb-8 text-lg">
@@ -501,7 +501,7 @@ export default function HomePage() {
 
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors cursor-pointer whitespace-nowrap text-base"
+                className="inline-flex items-center gap-2 bg-primary hover:bg-[#059669] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors cursor-pointer whitespace-nowrap text-base"
               >
                 <i className="ri-arrow-right-line" />
                 Open GiriLog
@@ -522,7 +522,7 @@ export default function HomePage() {
             />
             <span className="text-white font-bold font-mono">GiriLog</span>
           </div>
-          <p className="text-xs text-[#4B5563] font-mono">© {new Date().getFullYear()} GiriLog. Built for freelancers.</p>
+          <p className="text-xs text-secondary font-mono">© {new Date().getFullYear()} GiriLog. Built for freelancers.</p>
           <Link to="/login" className="text-xs text-[#6B7280] hover:text-white font-mono transition-colors cursor-pointer">Sign in →</Link>
         </div>
       </footer>

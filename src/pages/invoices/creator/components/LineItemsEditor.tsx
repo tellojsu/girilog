@@ -48,7 +48,7 @@ export default function LineItemsEditor({ items, onChange }: LineItemsEditorProp
                 value={item.description}
                 onChange={e => updateItem(index, 'description', e.target.value)}
                 placeholder="Item description..."
-                className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors"
+                className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
             <div className="col-span-2">
@@ -58,19 +58,19 @@ export default function LineItemsEditor({ items, onChange }: LineItemsEditorProp
                 onChange={e => updateItem(index, 'quantity', e.target.value)}
                 min="0"
                 step="0.5"
-                className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#10B981]/50 transition-colors"
+                className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
             <div className="col-span-3">
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4B5563] text-sm font-mono">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm font-mono">$</span>
                 <input
                   type="number"
                   value={item.unit_price}
                   onChange={e => updateItem(index, 'unit_price', e.target.value)}
                   min="0"
                   step="0.01"
-                  className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-6 pr-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#10B981]/50 transition-colors"
+                  className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-6 pr-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
             </div>
@@ -78,7 +78,7 @@ export default function LineItemsEditor({ items, onChange }: LineItemsEditorProp
               <span className="text-sm font-mono font-semibold text-white">{formatCurrency(item.amount)}</span>
               <button
                 onClick={() => removeItem(index)}
-                className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center text-[#4B5563] hover:text-[#EF4444] transition-all cursor-pointer rounded"
+                className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center text-secondary hover:text-[#EF4444] transition-all cursor-pointer rounded"
               >
                 <i className="ri-close-line text-sm" />
               </button>
@@ -90,7 +90,7 @@ export default function LineItemsEditor({ items, onChange }: LineItemsEditorProp
       {/* Add Item */}
       <button
         onClick={addItem}
-        className="mt-3 flex items-center gap-2 text-sm text-[#10B981] hover:text-[#34D399] font-mono transition-colors cursor-pointer whitespace-nowrap"
+        className="mt-3 flex items-center gap-2 text-sm text-primary hover:text-[#34D399] font-mono transition-colors cursor-pointer whitespace-nowrap"
       >
         <div className="w-4 h-4 flex items-center justify-center">
           <i className="ri-add-line text-sm" />

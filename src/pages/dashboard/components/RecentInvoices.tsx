@@ -56,7 +56,7 @@ function ClientInitial({ name }: { name: string }) {
     .slice(0, 2)
     .map(w => w[0]?.toUpperCase() ?? '')
     .join('');
-  const colors = ['#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#3B82F6', '#EF4444'];
+  const colors = ['var(--color-primary, #10B981)', '#F59E0B', '#8B5CF6', '#EC4899', '#3B82F6', '#EF4444'];
   const color = colors[name.charCodeAt(0) % colors.length];
   return (
     <div
@@ -116,7 +116,7 @@ function ClientAccordion({ group }: { group: ClientGroup }) {
               <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-[#EF4444]/10 text-[#EF4444]">overdue</span>
             )}
             {allPaid && (
-              <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-[#10B981]/10 text-[#10B981]">all paid</span>
+              <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary">all paid</span>
             )}
           </div>
           <StatusDots group={group} />
@@ -124,12 +124,12 @@ function ClientAccordion({ group }: { group: ClientGroup }) {
 
         <div className="text-right shrink-0 mr-3">
           <div className="text-sm font-mono font-semibold text-white">{formatCurrency(group.total)}</div>
-          <div className="text-xs text-[#4B5563] font-mono mt-0.5">
+          <div className="text-xs text-secondary font-mono mt-0.5">
             {group.invoices.length} invoice{group.invoices.length !== 1 ? 's' : ''}
           </div>
         </div>
 
-        <div className="w-4 h-4 flex items-center justify-center text-[#4B5563] shrink-0">
+        <div className="w-4 h-4 flex items-center justify-center text-secondary shrink-0">
           {open
             ? <i className="ri-arrow-up-s-line text-sm" />
             : <i className="ri-arrow-down-s-line text-sm" />
@@ -157,22 +157,22 @@ function ClientAccordion({ group }: { group: ClientGroup }) {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#10B981]">{inv.invoice_number}</span>
+                  <span className="text-xs font-mono text-primary">{inv.invoice_number}</span>
                   <StatusBadge status={inv.status} size="sm" />
                 </div>
                 {inv.notes && (
-                  <div className="text-xs text-[#4B5563] truncate mt-0.5">{inv.notes}</div>
+                  <div className="text-xs text-secondary truncate mt-0.5">{inv.notes}</div>
                 )}
               </div>
 
               <div className="text-right shrink-0">
                 <div className="text-sm font-mono font-semibold text-white">{formatCurrency(Number(inv.total))}</div>
-                <div className="text-xs text-[#4B5563] mt-0.5">
+                <div className="text-xs text-secondary mt-0.5">
                   {inv.due_date ? `due ${formatDate(inv.due_date)}` : formatDate(inv.issue_date)}
                 </div>
               </div>
 
-              <div className="w-4 h-4 flex items-center justify-center text-[#4B5563] shrink-0">
+              <div className="w-4 h-4 flex items-center justify-center text-secondary shrink-0">
                 <i className="ri-arrow-right-s-line text-sm" />
               </div>
             </div>
@@ -193,12 +193,12 @@ export default function RecentInvoices({ invoices, loading }: RecentInvoicesProp
         <div>
           <h2 className="text-sm font-semibold text-white">By Client</h2>
           {!loading && invoices.length > 0 && (
-            <p className="text-xs text-[#4B5563] font-mono mt-0.5">{groups.length} client{groups.length !== 1 ? 's' : ''} · {invoices.length} invoices</p>
+            <p className="text-xs text-secondary font-mono mt-0.5">{groups.length} client{groups.length !== 1 ? 's' : ''} · {invoices.length} invoices</p>
           )}
         </div>
         <button
           onClick={() => navigate('/invoices')}
-          className="text-xs text-[#10B981] hover:text-[#34D399] font-mono transition-colors cursor-pointer whitespace-nowrap"
+          className="text-xs text-primary hover:text-[#34D399] font-mono transition-colors cursor-pointer whitespace-nowrap"
         >
           View all →
         </button>
@@ -221,7 +221,7 @@ export default function RecentInvoices({ invoices, loading }: RecentInvoicesProp
           ))}
         </div>
       ) : groups.length === 0 ? (
-        <div className="px-6 py-12 text-center text-[#4B5563] text-sm font-mono">
+        <div className="px-6 py-12 text-center text-secondary text-sm font-mono">
           No invoices yet. Create your first one!
         </div>
       ) : (

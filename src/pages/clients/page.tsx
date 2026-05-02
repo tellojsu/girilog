@@ -111,7 +111,7 @@ export default function ClientsPage() {
         actions={
           <button
             onClick={() => { setEditingClient(null); setShowModal(true); }}
-            className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+            className="flex items-center gap-2 bg-primary hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
           >
             <div className="w-4 h-4 flex items-center justify-center">
               <i className="ri-user-add-line text-sm" />
@@ -124,9 +124,9 @@ export default function ClientsPage() {
         {!loading && clients.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             {[
-              { label: 'Total Clients', value: String(clients.length), icon: 'ri-group-line', color: '#10B981' },
-              { label: 'Total Billed', value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalBilled), icon: 'ri-money-dollar-circle-line', color: '#10B981' },
-              { label: 'Total Paid', value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalPaid), icon: 'ri-checkbox-circle-line', color: '#10B981' },
+              { label: 'Total Clients', value: String(clients.length), icon: 'ri-group-line', color: 'var(--color-primary, #10B981)' },
+              { label: 'Total Billed', value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalBilled), icon: 'ri-money-dollar-circle-line', color: 'var(--color-primary, #10B981)' },
+              { label: 'Total Paid', value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalPaid), icon: 'ri-checkbox-circle-line', color: 'var(--color-primary, #10B981)' },
               { label: 'Avg per Client', value: clients.length > 0 ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(totalBilled / clients.length) : '$0', icon: 'ri-bar-chart-line', color: '#F59E0B' },
             ].map(stat => (
               <div key={stat.label} className="bg-[#0A0C10] border border-[#1E2330] rounded-xl px-4 py-3 flex items-center gap-3">
@@ -135,7 +135,7 @@ export default function ClientsPage() {
                 </div>
                 <div>
                   <div className="text-sm font-mono font-bold text-white">{stat.value}</div>
-                  <div className="text-[10px] text-[#4B5563]">{stat.label}</div>
+                  <div className="text-[10px] text-secondary">{stat.label}</div>
                 </div>
               </div>
             ))}
@@ -148,14 +148,14 @@ export default function ClientsPage() {
             {/* Search */}
             <div className="relative flex-1">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-                <i className="ri-search-line text-sm text-[#4B5563]" />
+                <i className="ri-search-line text-sm text-secondary" />
               </div>
               <input
                 type="text"
                 placeholder="Search clients, companies..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-[#4B5563] font-mono focus:outline-none focus:border-[#10B981]/50 transition-colors"
+                className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-secondary font-mono focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
 
@@ -171,7 +171,7 @@ export default function ClientsPage() {
                   onClick={() => setSort(opt.value)}
                   className={`px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all cursor-pointer whitespace-nowrap ${
                     sort === opt.value
-                      ? 'bg-[#10B981] text-white'
+                      ? 'bg-primary text-white'
                       : 'text-[#6B7280] hover:text-white'
                   }`}
                 >
@@ -186,14 +186,14 @@ export default function ClientsPage() {
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="flex items-center gap-3 text-[#6B7280]">
-              <div className="w-5 h-5 border-2 border-[#10B981]/30 border-t-[#10B981] rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
               <span className="text-sm font-mono">Loading clients...</span>
             </div>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center">
             <div className="w-14 h-14 rounded-2xl bg-[#0A0C10] border border-[#1E2330] flex items-center justify-center mb-4">
-              <i className="ri-group-line text-2xl text-[#4B5563]" />
+              <i className="ri-group-line text-2xl text-secondary" />
             </div>
             <p className="text-[#6B7280] text-sm font-mono">
               {search ? 'No clients match your search' : 'No clients yet'}
@@ -201,7 +201,7 @@ export default function ClientsPage() {
             {!search && (
               <button
                 onClick={() => { setEditingClient(null); setShowModal(true); }}
-                className="mt-3 text-xs text-[#10B981] hover:text-[#059669] transition-colors cursor-pointer"
+                className="mt-3 text-xs text-primary hover:text-[#059669] transition-colors cursor-pointer"
               >
                 Add your first client →
               </button>
@@ -219,7 +219,7 @@ export default function ClientsPage() {
                 />
               ))}
             </div>
-            <p className="text-xs text-[#4B5563] font-mono mt-4">
+            <p className="text-xs text-secondary font-mono mt-4">
               Showing {filtered.length} of {clients.length} client{clients.length !== 1 ? 's' : ''}
             </p>
           </>

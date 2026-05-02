@@ -79,7 +79,7 @@ export default function InvoiceDetail() {
     return (
       <AppLayout title="Invoice">
         <div className="flex items-center justify-center py-20">
-          <div className="w-6 h-6 border-2 border-[#10B981]/30 border-t-[#10B981] rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
         </div>
       </AppLayout>
     );
@@ -90,7 +90,7 @@ export default function InvoiceDetail() {
       <AppLayout title="Invoice Not Found">
         <div className="text-center py-20">
           <p className="text-[#6B7280] font-mono">Invoice not found</p>
-          <button onClick={() => navigate('/invoices')} className="mt-4 text-[#10B981] text-sm font-mono cursor-pointer">
+          <button onClick={() => navigate('/invoices')} className="mt-4 text-primary text-sm font-mono cursor-pointer">
             ← Back to invoices
           </button>
         </div>
@@ -142,10 +142,10 @@ export default function InvoiceDetail() {
           <button
             onClick={handleDownloadPDF}
             disabled={downloading}
-            className="flex items-center gap-2 px-4 py-2 border border-[#2A3040] hover:border-[#10B981]/50 text-[#8B9AB0] hover:text-[#10B981] text-sm font-medium rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 border border-[#2A3040] hover:border-primary/50 text-[#8B9AB0] hover:text-primary text-sm font-medium rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50"
           >
             {downloading ? (
-              <div className="w-4 h-4 border-2 border-[#10B981]/30 border-t-[#10B981] rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             ) : (
               <div className="w-4 h-4 flex items-center justify-center">
                 <i className="ri-download-line text-sm" />

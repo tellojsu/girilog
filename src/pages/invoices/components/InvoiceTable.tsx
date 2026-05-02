@@ -34,16 +34,16 @@ export default function InvoiceTable({ invoices, loading, sortField, sortDir, on
   const navigate = useNavigate();
 
   const SortIcon = ({ field }: { field: string }) => {
-    if (sortField !== field) return <i className="ri-arrow-up-down-line text-[#4B5563] text-xs ml-1" />;
+    if (sortField !== field) return <i className="ri-arrow-up-down-line text-secondary text-xs ml-1" />;
     return sortDir === 'asc'
-      ? <i className="ri-arrow-up-line text-[#10B981] text-xs ml-1" />
-      : <i className="ri-arrow-down-line text-[#10B981] text-xs ml-1" />;
+      ? <i className="ri-arrow-up-line text-primary text-xs ml-1" />
+      : <i className="ri-arrow-down-line text-primary text-xs ml-1" />;
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-6 h-6 border-2 border-[#10B981]/30 border-t-[#10B981] rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
@@ -52,10 +52,10 @@ export default function InvoiceTable({ invoices, loading, sortField, sortDir, on
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="w-12 h-12 rounded-xl bg-[#1E2330] flex items-center justify-center mb-4">
-          <i className="ri-file-list-3-line text-2xl text-[#4B5563]" />
+          <i className="ri-file-list-3-line text-2xl text-secondary" />
         </div>
         <p className="text-[#6B7280] text-sm font-mono">No invoices found</p>
-        <p className="text-[#4B5563] text-xs mt-1">Try adjusting your filters</p>
+        <p className="text-secondary text-xs mt-1">Try adjusting your filters</p>
       </div>
     );
   }
@@ -88,12 +88,12 @@ export default function InvoiceTable({ invoices, loading, sortField, sortDir, on
               className="hover:bg-[#1E2330]/40 transition-colors cursor-pointer group"
             >
               <td className="px-4 py-4">
-                <span className="text-sm font-mono text-[#10B981] font-medium">{inv.invoice_number}</span>
+                <span className="text-sm font-mono text-primary font-medium">{inv.invoice_number}</span>
               </td>
               <td className="px-4 py-4">
                 <div className="text-sm text-white font-medium">{inv.client_name || '—'}</div>
                 {inv.client_email && (
-                  <div className="text-xs text-[#4B5563] font-mono mt-0.5">{inv.client_email}</div>
+                  <div className="text-xs text-secondary font-mono mt-0.5">{inv.client_email}</div>
                 )}
               </td>
               <td className="px-4 py-4">

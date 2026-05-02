@@ -10,8 +10,8 @@ export default function NotFound() {
       </h1>
       <div className="relative z-10">
         <h2 className="text-xl md:text-2xl font-semibold mt-6 text-white">Page not found</h2>
-        <p className="mt-2 text-base text-[#4B5563] font-mono">{location.pathname}</p>
-        <Link to="/dashboard" className="mt-6 inline-flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap">
+        <p className="mt-2 text-base text-secondary font-mono">{location.pathname}</p>
+        <Link to="/dashboard" className="mt-6 inline-flex items-center gap-2 bg-primary hover:bg-[#059669] text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap">
           <i className="ri-arrow-left-line" /> Back to dashboard
         </Link>
       </div>

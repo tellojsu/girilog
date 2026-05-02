@@ -8,7 +8,7 @@ interface ClientAvatarProps {
 }
 
 const AVATAR_COLORS = [
-  'bg-[#10B981]/20 text-[#10B981]',
+  'bg-primary/20 text-primary',
   'bg-[#F59E0B]/20 text-[#F59E0B]',
   'bg-[#8B5CF6]/20 text-[#8B5CF6]',
   'bg-[#EC4899]/20 text-[#EC4899]',

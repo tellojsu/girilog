@@ -367,7 +367,7 @@ export default function InvoiceCreator() {
     (c.email || '').toLowerCase().includes(clientSearch.toLowerCase())
   );
 
-  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors font-mono';
+  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors font-mono';
   const labelClass = 'block text-xs text-[#6B7280] font-mono uppercase tracking-wider mb-1.5';
 
   return (
@@ -393,7 +393,7 @@ export default function InvoiceCreator() {
               </span>
             )}
             {saveMsg && (
-              <span className={`text-xs font-mono ${saveMsg.ok ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+              <span className={`text-xs font-mono ${saveMsg.ok ? 'text-primary' : 'text-[#EF4444]'}`}>
                 {saveMsg.ok ? <><i className="ri-checkbox-circle-line mr-1" /></> : <><i className="ri-error-warning-line mr-1" /></>}
                 {saveMsg.text}
               </span>
@@ -419,7 +419,7 @@ export default function InvoiceCreator() {
             <button
               onClick={() => handleSave(isEdit ? form.status : InvoiceStatusEnum.Sent)}
               disabled={saving || loading}
-              className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40"
+              className="flex items-center gap-2 bg-primary hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40"
             >
               {saving ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -458,13 +458,13 @@ export default function InvoiceCreator() {
         <div className="flex lg:hidden mb-4 bg-[#0A0C10] border border-[#1E2330] rounded-lg p-1">
           <button
             onClick={() => setActiveTab('form')}
-            className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'form' ? 'bg-[#10B981] text-white' : 'text-[#6B7280]'}`}
+            className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'form' ? 'bg-primary text-white' : 'text-[#6B7280]'}`}
           >
             Form
           </button>
           <button
             onClick={() => setActiveTab('preview')}
-            className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'preview' ? 'bg-[#10B981] text-white' : 'text-[#6B7280]'}`}
+            className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'preview' ? 'bg-primary text-white' : 'text-[#6B7280]'}`}
           >
             Preview
           </button>
@@ -479,12 +479,12 @@ export default function InvoiceCreator() {
 
               {/* ── Step 1: Client ── */}
               <div className={`bg-[#0A0C10] border rounded-xl p-5 transition-colors ${
-                form.clientId ? 'border-[#10B981]/30' : 'border-[#1E2330]'
+                form.clientId ? 'border-primary/30' : 'border-[#1E2330]'
               }`}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-white flex items-center gap-2">
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold font-mono shrink-0 ${
-                      form.clientId ? 'bg-[#10B981] text-white' : 'bg-[#1E2330] text-[#6B7280]'
+                      form.clientId ? 'bg-primary text-white' : 'bg-[#1E2330] text-[#6B7280]'
                     }`}>1</div>
                     Client
                   </h3>
@@ -502,14 +502,14 @@ export default function InvoiceCreator() {
                   const selectedClient = clients.find(c => String(c.id) === form.clientId);
                   if (!selectedClient) return null;
                   return (
-                    <div className="flex items-center gap-3 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl px-4 py-3 mb-4">
-                      <ClientAvatar client={selectedClient} size="sm" className="bg-[#10B981]/15 border-[#10B981]/20" fallbackClassName="text-[#10B981]" />
+                    <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 mb-4">
+                      <ClientAvatar client={selectedClient} size="sm" className="bg-primary/15 border-primary/20" fallbackClassName="text-primary" />
                       <div className="min-w-0">
                         <div className="text-sm font-semibold text-white">{selectedClient?.name || form.clientName}</div>
                         {form.clientEmail && <div className="text-xs text-[#6B7280] font-mono truncate">{form.clientEmail}</div>}
                       </div>
                       <div className="w-5 h-5 flex items-center justify-center ml-auto shrink-0">
-                        <i className="ri-checkbox-circle-fill text-[#10B981]" />
+                        <i className="ri-checkbox-circle-fill text-primary" />
                       </div>
                     </div>
                   );
@@ -521,7 +521,7 @@ export default function InvoiceCreator() {
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-                        <i className="ri-search-line text-[#4B5563] text-sm" />
+                        <i className="ri-search-line text-secondary text-sm" />
                       </div>
                       <input
                         type="text"
@@ -534,7 +534,7 @@ export default function InvoiceCreator() {
                     {!form.clientId && (
                       <button
                         onClick={() => setShowNewClientModal(true)}
-                        className="p-2 bg-[#10B981]/10 text-[#10B981] hover:bg-[#10B981]/20 rounded-lg transition-colors cursor-pointer group flex items-center gap-2 px-3 h-[38px]"
+                        className="p-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors cursor-pointer group flex items-center gap-2 px-3 h-[38px]"
                         title="Create new client"
                       >
                         <i className="ri-user-add-line" />
@@ -550,23 +550,23 @@ export default function InvoiceCreator() {
                           <button
                             key={client.id}
                             onClick={() => selectClient(client)}
-                            className={`w-full px-3 py-2.5 text-left hover:bg-[#2A3040] transition-colors cursor-pointer flex items-center gap-3 ${String(client.id) === form.clientId ? 'bg-[#10B981]/10' : ''}`}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-[#2A3040] transition-colors cursor-pointer flex items-center gap-3 ${String(client.id) === form.clientId ? 'bg-primary/10' : ''}`}
                           >
-                            <ClientAvatar client={client} size="xs" className="bg-[#10B981]/10 border-[#10B981]/10" fallbackClassName="text-[#10B981]" />
+                            <ClientAvatar client={client} size="xs" className="bg-primary/10 border-primary/10" fallbackClassName="text-primary" />
                             <div className="min-w-0">
                               <div className="text-sm text-white truncate">{client.name}</div>
-                              {client.email && <div className="text-xs text-[#4B5563] font-mono truncate">{client.email}</div>}
+                              {client.email && <div className="text-xs text-secondary font-mono truncate">{client.email}</div>}
                             </div>
                             {String(client.id) === form.clientId && (
                               <div className="w-4 h-4 flex items-center justify-center ml-auto shrink-0">
-                                <i className="ri-check-line text-[#10B981] text-sm" />
+                                <i className="ri-check-line text-primary text-sm" />
                               </div>
                             )}
                           </button>
                         ))}
                         {filteredClients.length === 0 && (
                           <div className="p-4 text-center">
-                            <p className="text-xs text-[#4B5563] font-mono mb-3">
+                            <p className="text-xs text-secondary font-mono mb-3">
                               No clients matching "{clientSearch}"
                             </p>
                             <button
@@ -574,7 +574,7 @@ export default function InvoiceCreator() {
                                 setShowNewClientModal(true);
                                 setClientSearch('');
                               }}
-                              className="inline-flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                              className="inline-flex items-center gap-2 bg-primary hover:bg-[#059669] text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                             >
                               <i className="ri-user-add-line" />
                               Create "{clientSearch}"
@@ -592,12 +592,12 @@ export default function InvoiceCreator() {
                 {!form.clientId && clients.length === 0 && (
                    <div className="flex flex-col items-center justify-center py-8 px-4 bg-[#1E2330]/30 border border-dashed border-[#2A3040] rounded-xl">
                      <div className="w-12 h-12 bg-[#1E2330] rounded-full flex items-center justify-center mb-3">
-                       <i className="ri-user-search-line text-[#4B5563] text-xl" />
+                       <i className="ri-user-search-line text-secondary text-xl" />
                      </div>
                      <p className="text-sm text-[#6B7280] text-center mb-4">You haven't added any clients yet.</p>
                      <button
                        onClick={() => setShowNewClientModal(true)}
-                       className="bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
+                       className="bg-primary hover:bg-[#059669] text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
                      >
                        <i className="ri-user-add-line" />
                        Add Your First Client
@@ -622,7 +622,7 @@ export default function InvoiceCreator() {
                       className={inputClass}
                     />
                     {!isEdit && autoNumber && (
-                      <p className="text-[10px] text-[#4B5563] font-mono mt-1">
+                      <p className="text-[10px] text-secondary font-mono mt-1">
                         {form.clientId ? 'Auto-generated for this client' : 'Select a client to generate number'}
                       </p>
                     )}
@@ -683,7 +683,7 @@ export default function InvoiceCreator() {
                   <div>
                     <h4 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3 flex items-center gap-2">
                       <div className="w-4 h-4 flex items-center justify-center">
-                        <i className="ri-sticky-note-line text-[#10B981] text-sm" />
+                        <i className="ri-sticky-note-line text-primary text-sm" />
                       </div>
                       Notes
                     </h4>
@@ -695,7 +695,7 @@ export default function InvoiceCreator() {
                       maxLength={500}
                       className={`${inputClass} resize-none`}
                     />
-                    <p className="text-[10px] text-[#4B5563] font-mono mt-1 text-right">
+                    <p className="text-[10px] text-secondary font-mono mt-1 text-right">
                       {form.notes.length}/500
                     </p>
                   </div>
@@ -704,7 +704,7 @@ export default function InvoiceCreator() {
                   <div>
                     <h4 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3 flex items-center gap-2">
                       <div className="w-4 h-4 flex items-center justify-center">
-                        <i className="ri-calculator-line text-[#10B981] text-sm" />
+                        <i className="ri-calculator-line text-primary text-sm" />
                       </div>
                       Totals
                     </h4>
@@ -723,7 +723,7 @@ export default function InvoiceCreator() {
                             value={form.taxRate}
                             onChange={e => setField('taxRate', e.target.value)}
                             min="0" max="100" step="0.5"
-                            className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-[#10B981]/50 text-right"
+                            className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-primary/50 text-right"
                           />
                           <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap">
                             = {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(taxAmount)}
@@ -732,7 +732,7 @@ export default function InvoiceCreator() {
                         {form.clientId && (() => {
                           const cl = clients.find(c => String(c.id) === form.clientId);
                           return cl ? (
-                            <p className="text-[10px] font-mono pl-[76px] text-[#4B5563]">
+                            <p className="text-[10px] font-mono pl-[76px] text-secondary">
                               {cl.tax_enabled
                                 ? `From client config (${cl.default_tax_rate}%) — override above`
                                 : 'Client has no tax — set above to override'}
@@ -747,12 +747,12 @@ export default function InvoiceCreator() {
                           value={form.discountAmount}
                           onChange={e => setField('discountAmount', e.target.value)}
                           min="0" step="0.01"
-                          className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-[#10B981]/50 text-right"
+                          className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-primary/50 text-right"
                         />
                       </div>
                       <div className="flex items-center justify-between pt-3 border-t border-[#1E2330]">
                         <span className="text-sm font-semibold text-white font-mono">Total</span>
-                        <span className="text-xl font-bold font-mono text-[#10B981]">
+                        <span className="text-xl font-bold font-mono text-primary">
                           {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}
                         </span>
                       </div>
@@ -767,7 +767,7 @@ export default function InvoiceCreator() {
               <div className="sticky top-6">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs text-[#6B7280] font-mono uppercase tracking-wider">Live Preview</span>
-                  <span className="text-xs text-[#4B5563] font-mono">Updates as you type</span>
+                  <span className="text-xs text-secondary font-mono">Updates as you type</span>
                 </div>
                 <InvoicePreview
                   invoiceNumber={invoiceNumber}

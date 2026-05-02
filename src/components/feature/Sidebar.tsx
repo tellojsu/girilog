@@ -45,7 +45,7 @@ export default function Sidebar() {
               to={item.path}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer whitespace-nowrap ${
                 active
-                  ? 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20'
+                  ? 'bg-primary/10 text-primary border border-primary/20'
                   : 'text-[#8B9AB0] hover:text-white hover:bg-[#1E2330]'
               }`}
             >
@@ -70,8 +70,8 @@ export default function Sidebar() {
           Sign out
         </button>
         <div className="flex items-center gap-2 px-3 py-1">
-          <div className="w-2 h-2 rounded-full bg-[#10B981]" />
-          <span className="text-xs text-[#4B5563] font-mono">v0.9.0 · connected</span>
+          <div className="w-2 h-2 rounded-full bg-primary" />
+          <span className="text-xs text-secondary font-mono">v0.9.0 · connected</span>
         </div>
       </div>
     </aside>

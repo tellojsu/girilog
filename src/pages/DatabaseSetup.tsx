@@ -193,8 +193,8 @@ $$;`;
     <div className="min-h-screen bg-[#0D0F14] text-white p-8 font-mono">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center gap-4 mb-12">
-          <div className="p-3 bg-[#10B981]/10 rounded-lg">
-            <Database className="w-8 h-8 text-[#10B981]" />
+          <div className="p-3 bg-primary/10 rounded-lg">
+            <Database className="w-8 h-8 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Database Initialization</h1>
@@ -210,15 +210,15 @@ $$;`;
         )}
 
         {status === 'ready' && (
-          <div className="bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl p-8 text-center space-y-4">
-            <div className="inline-flex p-3 bg-[#10B981]/10 rounded-full">
-              <CheckCircle2 className="w-12 h-12 text-[#10B981]" />
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-8 text-center space-y-4">
+            <div className="inline-flex p-3 bg-primary/10 rounded-full">
+              <CheckCircle2 className="w-12 h-12 text-primary" />
             </div>
             <h2 className="text-xl font-bold">Database is Healthy</h2>
             <p className="text-[#6B7280]">All required tables and policies are present.</p>
             <button 
               onClick={() => window.location.href = '/dashboard'}
-              className="px-6 py-2 bg-[#10B981] hover:bg-[#059669] text-black font-bold rounded-lg transition-colors"
+              className="px-6 py-2 bg-primary hover:bg-[#059669] text-black font-bold rounded-lg transition-colors"
             >
               Go to Dashboard
             </button>
@@ -267,7 +267,7 @@ $$;`;
               <button 
                 onClick={handleInitialize}
                 disabled={initializing}
-                className="flex items-center gap-2 px-8 py-3 bg-[#10B981] hover:bg-[#059669] disabled:opacity-50 text-black font-bold rounded-xl transition-all"
+                className="flex items-center gap-2 px-8 py-3 bg-primary hover:bg-[#059669] disabled:opacity-50 text-black font-bold rounded-xl transition-all"
               >
                 {initializing ? (
                   <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />

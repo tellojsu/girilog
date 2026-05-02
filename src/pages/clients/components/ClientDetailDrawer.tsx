@@ -116,7 +116,7 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
                 )}
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {client.short_code && (
-                    <span className="text-[10px] font-mono font-bold tracking-widest px-1.5 py-0.5 rounded bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20">
+                    <span className="text-[10px] font-mono font-bold tracking-widest px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
                       {client.short_code}
                     </span>
                   )}
@@ -126,7 +126,7 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
                       {formatCurrency(client.default_hourly_rate)}/hr
                     </span>
                   )}
-                  <p className="text-xs text-[#4B5563] font-mono">
+                  <p className="text-xs text-secondary font-mono">
                     Client since {formatDate(client.created_at)}
                   </p>
                 </div>
@@ -138,10 +138,10 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
               {client.email && (
                 <a
                   href={`mailto:${client.email}`}
-                  className="flex items-center gap-3 text-sm text-[#8B9AB0] hover:text-[#10B981] transition-colors group"
+                  className="flex items-center gap-3 text-sm text-[#8B9AB0] hover:text-primary transition-colors group"
                 >
                   <div className="w-7 h-7 rounded-lg bg-[#1E2330] flex items-center justify-center shrink-0">
-                    <i className="ri-mail-line text-xs text-[#6B7280] group-hover:text-[#10B981]" />
+                    <i className="ri-mail-line text-xs text-[#6B7280] group-hover:text-primary" />
                   </div>
                   <span className="font-mono text-xs">{client.email}</span>
                 </a>
@@ -149,10 +149,10 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
               {client.phone && (
                 <a
                   href={`tel:${client.phone}`}
-                  className="flex items-center gap-3 text-sm text-[#8B9AB0] hover:text-[#10B981] transition-colors group"
+                  className="flex items-center gap-3 text-sm text-[#8B9AB0] hover:text-primary transition-colors group"
                 >
                   <div className="w-7 h-7 rounded-lg bg-[#1E2330] flex items-center justify-center shrink-0">
-                    <i className="ri-phone-line text-xs text-[#6B7280] group-hover:text-[#10B981]" />
+                    <i className="ri-phone-line text-xs text-[#6B7280] group-hover:text-primary" />
                   </div>
                   <span className="font-mono text-xs">{client.phone}</span>
                 </a>
@@ -174,31 +174,31 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-[#0D0F14] border border-[#1E2330] rounded-xl p-3 text-center">
                 <div className="text-base font-mono font-bold text-white">{invoices.length}</div>
-                <div className="text-[10px] text-[#4B5563] mt-0.5">Total</div>
+                <div className="text-[10px] text-secondary mt-0.5">Total</div>
               </div>
-              <div className="bg-[#0D0F14] border border-[#10B981]/20 rounded-xl p-3 text-center">
-                <div className="text-base font-mono font-bold text-[#10B981]">{formatCurrency(totalPaid)}</div>
-                <div className="text-[10px] text-[#4B5563] mt-0.5">Paid</div>
+              <div className="bg-[#0D0F14] border border-primary/20 rounded-xl p-3 text-center">
+                <div className="text-base font-mono font-bold text-primary">{formatCurrency(totalPaid)}</div>
+                <div className="text-[10px] text-secondary mt-0.5">Paid</div>
               </div>
               <div className="bg-[#0D0F14] border border-[#1E2330] rounded-xl p-3 text-center">
                 <div className={`text-base font-mono font-bold ${totalSent > 0 ? 'text-[#F59E0B]' : 'text-[#6B7280]'}`}>
                   {formatCurrency(totalSent)}
                 </div>
-                <div className="text-[10px] text-[#4B5563] mt-0.5">Outstanding</div>
+                <div className="text-[10px] text-secondary mt-0.5">Outstanding</div>
               </div>
             </div>
 
             {totalBilled > 0 && (
               <div className="mt-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] text-[#4B5563] font-mono">Collection rate</span>
+                  <span className="text-[10px] text-secondary font-mono">Collection rate</span>
                   <span className="text-[10px] text-[#6B7280] font-mono">
                     {Math.round((totalPaid / totalBilled) * 100)}%
                   </span>
                 </div>
                 <div className="h-1.5 bg-[#1E2330] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#10B981] rounded-full transition-all"
+                    className="h-full bg-primary rounded-full transition-all"
                     style={{ width: `${Math.min(100, (totalPaid / totalBilled) * 100)}%` }}
                   />
                 </div>
@@ -212,7 +212,7 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
               <p className="text-xs text-[#6B7280] font-mono uppercase tracking-wider">Invoice History</p>
               <button
                 onClick={() => navigate(`/invoices/new?client=${client.id}`)}
-                className="flex items-center gap-1 text-xs text-[#10B981] hover:text-[#059669] transition-colors cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1 text-xs text-primary hover:text-[#059669] transition-colors cursor-pointer whitespace-nowrap"
               >
                 <i className="ri-add-line text-sm" />
                 New Invoice
@@ -221,15 +221,15 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
 
             {loading ? (
               <div className="flex items-center justify-center py-10">
-                <div className="w-5 h-5 border-2 border-[#10B981]/30 border-t-[#10B981] rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
               </div>
             ) : invoices.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <div className="w-10 h-10 rounded-xl bg-[#1E2330] flex items-center justify-center mb-3">
-                  <i className="ri-file-list-3-line text-xl text-[#4B5563]" />
+                  <i className="ri-file-list-3-line text-xl text-secondary" />
                 </div>
                 <p className="text-sm text-[#6B7280]">No invoices yet</p>
-                <p className="text-xs text-[#4B5563] mt-1">Create the first invoice for this client</p>
+                <p className="text-xs text-secondary mt-1">Create the first invoice for this client</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -241,8 +241,8 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="min-w-0">
-                        <div className="text-xs font-mono text-[#10B981] font-medium">{inv.invoice_number}</div>
-                        <div className="text-[10px] text-[#4B5563] font-mono mt-0.5">{formatDate(inv.issue_date)}</div>
+                        <div className="text-xs font-mono text-primary font-medium">{inv.invoice_number}</div>
+                        <div className="text-[10px] text-secondary font-mono mt-0.5">{formatDate(inv.issue_date)}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">

@@ -37,9 +37,9 @@ export default function LogoUploader({ value, onChange }: LogoUploaderProps) {
         ) : (
           <div className="flex flex-col items-center gap-1">
             <div className="w-6 h-6 flex items-center justify-center">
-              <i className="ri-building-line text-xl text-[#4B5563]" />
+              <i className="ri-building-line text-xl text-secondary" />
             </div>
-            <span className="text-[10px] text-[#4B5563] font-mono">No logo</span>
+            <span className="text-[10px] text-secondary font-mono">No logo</span>
           </div>
         )}
       </div>
@@ -52,7 +52,7 @@ export default function LogoUploader({ value, onChange }: LogoUploaderProps) {
             <button
               type="button"
               onClick={() => { setDraft(value); setInputMode('edit'); }}
-              className="text-xs text-[#10B981] hover:text-[#059669] cursor-pointer whitespace-nowrap transition-colors"
+              className="text-xs text-primary hover:text-[#059669] cursor-pointer whitespace-nowrap transition-colors"
             >
               Change
             </button>
@@ -71,13 +71,13 @@ export default function LogoUploader({ value, onChange }: LogoUploaderProps) {
               value={draft}
               onChange={e => { setDraft(e.target.value); setImgError(false); }}
               placeholder="https://example.com/logo.png"
-              className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] font-mono focus:outline-none focus:border-[#10B981]/50 transition-colors"
+              className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary font-mono focus:outline-none focus:border-primary/50 transition-colors"
             />
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleApply}
-                className="text-xs bg-[#10B981]/10 text-[#10B981] hover:bg-[#10B981]/20 px-3 py-1.5 rounded-md cursor-pointer whitespace-nowrap transition-colors"
+                className="text-xs bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 rounded-md cursor-pointer whitespace-nowrap transition-colors"
               >
                 Apply URL
               </button>
@@ -96,7 +96,7 @@ export default function LogoUploader({ value, onChange }: LogoUploaderProps) {
             )}
           </div>
         )}
-        <p className="text-xs text-[#4B5563] mt-2">Paste a public image URL. Appears on generated invoices.</p>
+        <p className="text-xs text-secondary mt-2">Paste a public image URL. Appears on generated invoices.</p>
       </div>
     </div>
   );

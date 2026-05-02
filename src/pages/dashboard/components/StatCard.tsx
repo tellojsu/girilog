@@ -16,7 +16,7 @@ export default function StatCard({ label, value, icon, iconColor, iconBg, change
           <i className={`${icon} text-lg`} style={{ color: iconColor }} />
         </div>
         {change && (
-          <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${changePositive ? 'text-[#10B981] bg-[#10B981]/10' : 'text-[#EF4444] bg-[#EF4444]/10'}`}>
+          <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${changePositive ? 'text-primary bg-primary/10' : 'text-[#EF4444] bg-[#EF4444]/10'}`}>
             {change}
           </span>
         )}

@@ -80,7 +80,7 @@ export default function Dashboard() {
       actions={
         <button
           onClick={() => navigate('/invoices/new')}
-          className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+          className="flex items-center gap-2 bg-primary hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
         >
           <div className="w-4 h-4 flex items-center justify-center">
             <i className="ri-add-line text-sm" />

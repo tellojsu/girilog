@@ -170,25 +170,25 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-sm font-semibold text-white">Revenue This Year</h3>
-          <p className="text-xs text-[#4B5563] font-mono mt-0.5">Cumulative · {new Date().getFullYear()}</p>
+          <p className="text-xs text-secondary font-mono mt-0.5">Cumulative · {new Date().getFullYear()}</p>
         </div>
         {/* Live totals */}
         <div className="flex items-center gap-4 text-right">
           <div>
-            <div className="text-xs text-[#10B981] font-mono font-semibold">{formatCurrency(currentSent, currency)}</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Paid</div>
+            <div className="text-xs text-primary font-mono font-semibold">{formatCurrency(currentSent, currency)}</div>
+            <div className="text-[10px] text-secondary font-mono">Paid</div>
           </div>
           <div className="w-px h-6 bg-[#1E2330]" />
           <div>
             <div className="text-xs text-[#F59E0B] font-mono font-semibold">{formatCurrency(currentPending, currency)}</div>
-            <div className="text-[10px] text-[#4B5563] font-mono">Sent</div>
+            <div className="text-[10px] text-secondary font-mono">Outstanding</div>
           </div>
           {currentPending > 0 && (
             <>
               <div className="w-px h-6 bg-[#1E2330]" />
               <div>
                 <div className="text-xs text-white font-mono font-semibold">{formatCurrency(currentSent + currentPending, currency)}</div>
-                <div className="text-[10px] text-[#4B5563] font-mono">Total</div>
+                <div className="text-[10px] text-secondary font-mono">Total</div>
               </div>
             </>
           )}
@@ -206,8 +206,8 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
         >
           <defs>
             <linearGradient id="sentGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#10B981" stopOpacity="0.04" />
+              <stop offset="0%" stopColor="var(--color-primary, #10B981)" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="var(--color-primary, #10B981)" stopOpacity="0.04" />
             </linearGradient>
             <linearGradient id="pendingBandGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.28" />
@@ -219,7 +219,7 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
           {yTicks.map(tick => (
             <g key={tick.val}>
               <line x1={PAD.left} y1={tick.y} x2={W - PAD.right} y2={tick.y} stroke="#1E2330" strokeWidth="1" />
-              <text x={PAD.left - 6} y={tick.y + 4} textAnchor="end" fontSize="9" fill="#4B5563" fontFamily="monospace">
+              <text x={PAD.left - 6} y={tick.y + 4} textAnchor="end" fontSize="9" fill="#94A3B8" fontFamily="monospace">
                 {formatShort(tick.val)}
               </text>
             </g>
@@ -233,7 +233,7 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
               y={H - 6}
               textAnchor="middle"
               fontSize="9"
-              fill={i === currentMonth ? '#9CA3AF' : '#4B5563'}
+              fill={i === currentMonth ? '#9CA3AF' : '#94A3B8'}
               fontFamily="monospace"
               fontWeight={i === currentMonth ? '600' : '400'}
             >
@@ -258,7 +258,7 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
 
           {/* Sent line */}
           {sentPath && (
-            <path d={sentPath} fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={sentPath} fill="none" stroke="var(--color-primary, #10B981)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           )}
 
           {/* Pending extension line — amber segment continuing from the green line's tip */}
@@ -288,7 +288,7 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
               key={`s${i}`}
               cx={p.x} cy={p.y}
               r={i === currentMonth ? 4 : 2}
-              fill="#10B981"
+              fill="var(--color-primary, #10B981)"
               stroke="#0A0C10"
               strokeWidth="1.5"
             />
@@ -333,7 +333,7 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
           >
             <div className="text-[#9CA3AF] mb-1.5">{tooltip.month} {new Date().getFullYear()}</div>
             <div className="flex items-center gap-1.5 mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
               <span className="text-[#6B7280]">Sent</span>
               <span className="text-white ml-auto">{formatCurrency(tooltip.sent, currency)}</span>
             </div>
@@ -367,7 +367,7 @@ export default function RevenueLineChart({ invoices, goal, currency }: RevenueLi
       {/* Legend */}
       <div className="flex items-center gap-5 mt-3 pt-3 border-t border-[#1E2330]">
         <div className="flex items-center gap-1.5">
-          <div className="w-5 h-0.5 bg-[#10B981] rounded" />
+          <div className="w-5 h-0.5 bg-primary rounded" />
           <span className="text-xs text-[#6B7280] font-mono">Sent</span>
         </div>
         <div className="flex items-center gap-1.5">

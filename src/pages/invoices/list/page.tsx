@@ -85,7 +85,7 @@ export default function InvoiceList() {
       actions={
         <button
           onClick={() => navigate('/invoices/new')}
-          className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+          className="flex items-center gap-2 bg-primary hover:bg-[#059669] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
         >
           <div className="w-4 h-4 flex items-center justify-center">
             <i className="ri-add-line text-sm" />
@@ -100,14 +100,14 @@ export default function InvoiceList() {
           {/* Search */}
           <div className="relative flex-1">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-              <i className="ri-search-line text-sm text-[#4B5563]" />
+              <i className="ri-search-line text-sm text-secondary" />
             </div>
             <input
               type="text"
               placeholder="Search invoices, clients..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-[#4B5563] font-mono focus:outline-none focus:border-[#10B981]/50 transition-colors"
+              className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-secondary font-mono focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -119,12 +119,12 @@ export default function InvoiceList() {
                 onClick={() => setStatusFilter(f.value)}
                 className={`px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === f.value
-                    ? 'bg-[#10B981] text-white'
+                    ? 'bg-primary text-white'
                     : 'text-[#6B7280] hover:text-white'
                 }`}
               >
                 {f.label}
-                <span className={`ml-1.5 text-xs ${statusFilter === f.value ? 'text-white/70' : 'text-[#4B5563]'}`}>
+                <span className={`ml-1.5 text-xs ${statusFilter === f.value ? 'text-white/70' : 'text-secondary'}`}>
                   {counts[f.value as keyof typeof counts]}
                 </span>
               </button>
@@ -146,7 +146,7 @@ export default function InvoiceList() {
 
       {/* Footer */}
       {!loading && filtered.length > 0 && (
-        <div className="mt-4 flex items-center justify-between text-xs text-[#4B5563] font-mono">
+        <div className="mt-4 flex items-center justify-between text-xs text-secondary font-mono">
           <span>Showing {filtered.length} invoice{filtered.length !== 1 ? 's' : ''}</span>
           <span>
             Total: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(

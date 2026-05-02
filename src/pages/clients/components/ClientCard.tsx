@@ -28,7 +28,7 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
         <div className="flex items-center gap-3">
           <ClientAvatar client={client} />
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-white truncate group-hover:text-[#10B981] transition-colors">
+            <h3 className="text-sm font-semibold text-white truncate group-hover:text-primary transition-colors">
               {client.name}
             </h3>
             {client.company && client.company !== client.name && (
@@ -48,7 +48,7 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
         {client.email && (
           <div className="flex items-center gap-2 text-xs text-[#6B7280]">
             <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
-              <i className="ri-mail-line text-[#4B5563]" />
+              <i className="ri-mail-line text-secondary" />
             </div>
             <span className="font-mono truncate">{client.email}</span>
           </div>
@@ -56,7 +56,7 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
         {client.phone && (
           <div className="flex items-center gap-2 text-xs text-[#6B7280]">
             <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
-              <i className="ri-phone-line text-[#4B5563]" />
+              <i className="ri-phone-line text-secondary" />
             </div>
             <span className="font-mono">{client.phone}</span>
           </div>
@@ -64,7 +64,7 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
         {client.address && (
           <div className="flex items-start gap-2 text-xs text-[#6B7280]">
             <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0 mt-0.5">
-              <i className="ri-map-pin-line text-[#4B5563]" />
+              <i className="ri-map-pin-line text-secondary" />
             </div>
             <span className="truncate">{client.address}</span>
           </div>
@@ -76,17 +76,17 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
         <div className="grid grid-cols-3 gap-2">
           <div className="text-center">
             <div className="text-sm font-mono font-bold text-white">{invoices.length}</div>
-            <div className="text-[10px] text-[#4B5563] mt-0.5">Invoices</div>
+            <div className="text-[10px] text-secondary mt-0.5">Invoices</div>
           </div>
           <div className="text-center border-x border-[#1E2330]">
-            <div className="text-sm font-mono font-bold text-[#10B981]">{formatCurrency(totalPaid)}</div>
-            <div className="text-[10px] text-[#4B5563] mt-0.5">Paid</div>
+            <div className="text-sm font-mono font-bold text-primary">{formatCurrency(totalPaid)}</div>
+            <div className="text-[10px] text-secondary mt-0.5">Paid</div>
           </div>
           <div className="text-center">
             <div className={`text-sm font-mono font-bold ${openCount > 0 ? 'text-[#F59E0B]' : 'text-[#6B7280]'}`}>
               {openCount}
             </div>
-            <div className="text-[10px] text-[#4B5563] mt-0.5">Open</div>
+            <div className="text-[10px] text-secondary mt-0.5">Open</div>
           </div>
         </div>
 
@@ -94,14 +94,14 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
         {totalBilled > 0 && (
           <div className="mt-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-[#4B5563] font-mono">Paid</span>
+              <span className="text-[10px] text-secondary font-mono">Paid</span>
               <span className="text-[10px] text-[#6B7280] font-mono">
                 {formatCurrency(totalPaid)} / {formatCurrency(totalBilled)}
               </span>
             </div>
             <div className="h-1 bg-[#1E2330] rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#10B981] rounded-full transition-all"
+                className="h-full bg-primary rounded-full transition-all"
                 style={{ width: `${Math.min(100, (totalPaid / totalBilled) * 100)}%` }}
               />
             </div>

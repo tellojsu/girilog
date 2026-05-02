@@ -12,8 +12,8 @@ export default function SettingsSection({ title, description, icon, children, ac
   return (
     <div className={`bg-[#0A0C10] border rounded-xl ${accent ? 'border-[#EF4444]/30' : 'border-[#1E2330]'}`}>
       <div className={`px-6 py-4 border-b flex items-start gap-3 ${accent ? 'border-[#EF4444]/20 bg-[#EF4444]/5' : 'border-[#1E2330]'}`}>
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 ${accent ? 'bg-[#EF4444]/10' : 'bg-[#10B981]/10'}`}>
-          <i className={`${icon} text-sm`} style={{ color: accent ? '#EF4444' : '#10B981' }} />
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 ${accent ? 'bg-[#EF4444]/10' : 'bg-primary/10'}`}>
+          <i className={`${icon} text-sm`} style={{ color: accent ? '#EF4444' : 'var(--color-primary, #10B981)' }} />
         </div>
         <div>
           <h2 className={`text-sm font-semibold ${accent ? 'text-[#EF4444]' : 'text-white'}`}>{title}</h2>

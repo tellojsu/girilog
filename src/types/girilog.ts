@@ -75,6 +75,6 @@ export type InvoiceStatus = 'draft' | 'pending' | 'paid' | 'overdue'; // Depreca
 export const STATUS_CONFIG: Record<InvoiceStatusEnum, { label: string; color: string; bg: string; dot: string }> = {
   [InvoiceStatusEnum.Draft]: { label: 'WIP', color: '#6B7280', bg: 'bg-gray-500/10', dot: 'bg-gray-500' },
   [InvoiceStatusEnum.Sent]: { label: 'Sent', color: '#F59E0B', bg: 'bg-amber-500/10', dot: 'bg-amber-500' },
-  [InvoiceStatusEnum.Paid]: { label: 'Paid', color: '#10B981', bg: 'bg-emerald-500/10', dot: 'bg-emerald-500' },
+  [InvoiceStatusEnum.Paid]: { label: 'Paid', color: 'primary', bg: 'bg-emerald-500/10', dot: 'bg-emerald-500' },
   [InvoiceStatusEnum.Overdue]: { label: 'Overdue', color: '#EF4444', bg: 'bg-red-500/10', dot: 'bg-red-500' },
 };

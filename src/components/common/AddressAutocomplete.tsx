@@ -119,12 +119,12 @@ export default function AddressAutocomplete({ value, onChange, placeholder }: Ad
         onChange={handleInputChange}
         placeholder={placeholder}
         rows={3}
-        className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors resize-none"
+        className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors resize-none"
         maxLength={500}
       />
       {loading && (
         <div className="absolute right-3 top-3">
-          <div className="w-4 h-4 border-2 border-[#10B981]/30 border-t-[#10B981] rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
         </div>
       )}
       {showSuggestions && suggestions.length > 0 && (

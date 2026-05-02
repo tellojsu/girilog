@@ -31,14 +31,14 @@ export default function ActivityFeed({ invoices }: ActivityFeedProps) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs text-white">
-                <span className="font-mono text-[#10B981]">{inv.invoice_number}</span>
+                <span className="font-mono text-primary">{inv.invoice_number}</span>
                 <span className="text-[#6B7280]"> · {inv.client_name}</span>
               </div>
               <div className="mt-0.5">
                 <StatusBadge status={inv.status} size="sm" />
               </div>
             </div>
-            <span className="text-xs text-[#4B5563] font-mono shrink-0">{timeAgo(inv.updated_at)}</span>
+            <span className="text-xs text-secondary font-mono shrink-0">{timeAgo(inv.updated_at)}</span>
           </div>
         ))}
       </div>

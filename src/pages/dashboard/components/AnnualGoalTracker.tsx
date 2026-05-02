@@ -71,11 +71,10 @@ export default function AnnualGoalTracker({
   };
 
   const footnoteStats = [
-    { label: 'Paid', value: formatCurrency(totalCollected, currency), color: '#10B981', dot: true },
+    { label: 'Paid', value: formatCurrency(totalCollected, currency), color: 'var(--color-primary, #10B981)', dot: true },
     { label: 'Sent', value: formatCurrency(totalPending, currency), color: '#F59E0B', dot: true },
     { label: 'Overdue', value: formatCurrency(totalOverdue, currency), color: '#EF4444', dot: true },
     { label: 'WIP', value: formatCurrency(totalDraft, currency), color: '#6B7280', dot: true },
-    { label: 'In pipeline', value: formatCurrency(totalInPipeline, currency), color: '#9CA3AF', dot: false },
   ];
 
   return (
@@ -91,16 +90,16 @@ export default function AnnualGoalTracker({
               {item.dot && (
                 <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
               )}
-              <span className="text-xs text-[#4B5563] font-mono">{item.label}</span>
+              <span className="text-xs text-secondary font-mono">{item.label}</span>
               <span className="text-xs font-mono font-medium" style={{ color: item.color }}>{item.value}</span>
             </div>
           ))}
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-4">
-          <span className="text-xs text-[#4B5563] font-mono group-hover:text-[#6B7280] transition-colors whitespace-nowrap">
+          <span className="text-xs text-secondary font-mono group-hover:text-[#6B7280] transition-colors whitespace-nowrap">
             {currentYear} Goal
           </span>
-          <div className="w-4 h-4 flex items-center justify-center text-[#4B5563] group-hover:text-[#6B7280] transition-colors">
+          <div className="w-4 h-4 flex items-center justify-center text-secondary group-hover:text-[#6B7280] transition-colors">
             {expanded ? <i className="ri-arrow-up-s-line text-sm" /> : <i className="ri-arrow-down-s-line text-sm" />}
           </div>
         </div>
@@ -118,7 +117,7 @@ export default function AnnualGoalTracker({
                   <span
                     className={`text-xs font-mono px-2 py-0.5 rounded-full ${
                       onTrack
-                        ? 'bg-[#10B981]/10 text-[#10B981]'
+                        ? 'bg-primary/10 text-primary'
                         : 'bg-[#F59E0B]/10 text-[#F59E0B]'
                     }`}
                   >
@@ -136,12 +135,12 @@ export default function AnnualGoalTracker({
                     onChange={e => setInputVal(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="e.g. 100000"
-                    className="bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-1.5 text-white font-mono text-lg w-40 focus:outline-none focus:border-[#10B981] text-sm"
+                    className="bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-1.5 text-white font-mono text-lg w-40 focus:outline-none focus:border-primary text-sm"
                   />
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="text-xs bg-[#10B981] hover:bg-[#059669] text-white px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer whitespace-nowrap"
+                    className="text-xs bg-primary hover:bg-[#059669] text-white px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer whitespace-nowrap"
                   >
                     {saving ? 'Saving…' : 'Save'}
                   </button>
@@ -159,7 +158,7 @@ export default function AnnualGoalTracker({
                   </span>
                   <button
                     onClick={e => { e.stopPropagation(); setInputVal(goal > 0 ? String(goal) : ''); setEditing(true); }}
-                    className="text-xs text-[#6B7280] hover:text-[#10B981] font-mono transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1"
+                    className="text-xs text-[#6B7280] hover:text-primary font-mono transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1"
                   >
                     <i className="ri-pencil-line text-xs" />
                     {goal > 0 ? 'Edit goal' : 'Set a goal'}
@@ -170,7 +169,7 @@ export default function AnnualGoalTracker({
 
             {goal > 0 && (
               <div className="text-right">
-                <div className="text-2xl font-bold font-mono text-[#10B981]">
+                <div className="text-2xl font-bold font-mono text-primary">
                   {Math.round(paidPct)}%
                 </div>
                 <div className="text-xs text-[#6B7280] font-mono">paid</div>
@@ -184,7 +183,7 @@ export default function AnnualGoalTracker({
               <div className="relative mb-3">
                 <div className="h-3 bg-[#1E2330] rounded-full overflow-hidden relative">
                   <div
-                    className="absolute inset-y-0 left-0 bg-[#10B981] transition-all duration-700 ease-out rounded-full"
+                    className="absolute inset-y-0 left-0 bg-primary transition-all duration-700 ease-out rounded-full"
                     style={{ width: `${paidPct}%` }}
                   />
                   <div
@@ -207,7 +206,7 @@ export default function AnnualGoalTracker({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                  <span className="text-xs text-[#4B5563] font-mono">
+                  <span className="text-xs text-secondary font-mono">
                     {Math.round(yearProgress)}% of {currentYear} elapsed
                   </span>
                 </div>

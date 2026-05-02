@@ -139,7 +139,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
     }
   };
 
-  const inputClass = 'w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#10B981]/50 transition-colors';
+  const inputClass = 'w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -151,8 +151,8 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E2330]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#10B981]/10 flex items-center justify-center">
-              <i className="ri-user-add-line text-sm text-[#10B981]" />
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <i className="ri-user-add-line text-sm text-primary" />
             </div>
             <h2 className="text-sm font-semibold text-white">
               {isEdit ? 'Edit Client' : 'New Client'}
@@ -204,7 +204,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
           <div>
             <label className="block text-xs font-medium text-[#8B9AB0] mb-1.5">
               Invoice Code
-              <span className="ml-1.5 text-[#4B5563] font-normal normal-case">used in invoice numbers, e.g. INV-ACME-0001</span>
+              <span className="ml-1.5 text-secondary font-normal normal-case">used in invoice numbers, e.g. INV-ACME-0001</span>
             </label>
             <div className="relative">
               <input
@@ -215,12 +215,12 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
                 maxLength={8}
                 className={`${inputClass} font-mono uppercase tracking-widest pr-16`}
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[#4B5563] font-mono">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-mono">
                 {form.short_code.length}/8
               </span>
             </div>
             {!codeManuallyEdited && form.short_code && (
-              <p className="text-[10px] text-[#4B5563] font-mono mt-1">Auto-suggested — edit to customise</p>
+              <p className="text-[10px] text-secondary font-mono mt-1">Auto-suggested — edit to customise</p>
             )}
           </div>
 
@@ -259,7 +259,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
           <div>
             <label className="block text-xs font-medium text-[#8B9AB0] mb-1.5">
               Default Hourly Rate
-              <span className="ml-1.5 text-[#4B5563] font-normal normal-case">pre-fills line items on new invoices</span>
+              <span className="ml-1.5 text-secondary font-normal normal-case">pre-fills line items on new invoices</span>
             </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[#6B7280] font-mono">$</span>
@@ -279,13 +279,13 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-[#8B9AB0]">Tax on Invoices</p>
-                <p className="text-[10px] text-[#4B5563] mt-0.5">Apply tax to invoices for this client</p>
+                <p className="text-[10px] text-secondary mt-0.5">Apply tax to invoices for this client</p>
               </div>
               <button
                 type="button"
                 onClick={() => setForm(prev => ({ ...prev, tax_enabled: !prev.tax_enabled }))}
                 className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${
-                  form.tax_enabled ? 'bg-[#10B981]' : 'bg-[#2A3040]'
+                  form.tax_enabled ? 'bg-primary' : 'bg-[#2A3040]'
                 }`}
               >
                 <span
@@ -331,7 +331,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-[#10B981] hover:bg-[#059669] disabled:opacity-60 text-white rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-primary hover:bg-[#059669] disabled:opacity-60 text-white rounded-lg transition-colors cursor-pointer whitespace-nowrap"
             >
               {saving ? (
                 <>
