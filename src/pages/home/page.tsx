@@ -238,6 +238,7 @@ export default function HomePage() {
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-[#8B9AB0] hover:text-white transition-colors cursor-pointer">Features</a>
             <a href="#how-it-works" className="text-sm text-[#8B9AB0] hover:text-white transition-colors cursor-pointer">How it works</a>
+            <a href="#about" className="text-sm text-[#8B9AB0] hover:text-white transition-colors cursor-pointer">About</a>
             <a href="#testimonials" className="text-sm text-[#8B9AB0] hover:text-white transition-colors cursor-pointer">Reviews</a>
           </nav>
 
@@ -270,6 +271,7 @@ export default function HomePage() {
           <div className="md:hidden bg-[#0A0C10] border-b border-[#1E2330] px-6 py-4 space-y-3">
             <a href="#features" className="block text-sm text-[#8B9AB0] hover:text-white py-1.5" onClick={() => setMobileMenuOpen(false)}>Features</a>
             <a href="#how-it-works" className="block text-sm text-[#8B9AB0] hover:text-white py-1.5" onClick={() => setMobileMenuOpen(false)}>How it works</a>
+            <a href="#about" className="block text-sm text-[#8B9AB0] hover:text-white py-1.5" onClick={() => setMobileMenuOpen(false)}>About</a>
             <a href="#testimonials" className="block text-sm text-[#8B9AB0] hover:text-white py-1.5" onClick={() => setMobileMenuOpen(false)}>Reviews</a>
             <div className="pt-2 border-t border-[#1E2330] flex flex-col gap-2">
               <Link to="/login" className="text-sm text-center text-[#8B9AB0] hover:text-white py-2 border border-[#1E2330] rounded-lg">Sign in</Link>
@@ -480,6 +482,48 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About */}
+      <section id="about" className="py-24 px-6 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-[#0A0C10] border border-[#1E2330] rounded-3xl p-8 md:p-12 relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl font-bold mb-6 text-white">The story behind the name</h2>
+                <div className="space-y-4 text-[#8B9AB0] leading-relaxed">
+                  <p>
+                    GiriLog takes its name from the Italian financial term <span className="text-primary font-mono italic">giri di partita</span> — the 'turns of the ledger'.
+                  </p>
+                  <p>
+                    It describes a system where value moves between accounts via record-keeping alone, no physical coins required.
+                  </p>
+                  <p className="text-white font-medium">
+                    The app embodies this philosophy: a frictionless system for converting work performed into value recorded.
+                  </p>
+                </div>
+              </div>
+              <div className="bg-[#0D0F14] border border-[#1E2330] rounded-2xl p-6 relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-transparent blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="relative">
+                  <h3 className="text-lg font-semibold mb-4 text-white">Why I built this</h3>
+                  <p className="text-sm text-[#8B9AB0] leading-relaxed mb-4">
+                    "I created GiriLog to make it simple and free for people who don't need something cumbersome to quickly invoice clients as they are starting out."
+                  </p>
+                  <p className="text-sm text-[#8B9AB0] leading-relaxed">
+                    "I couldn't find anything I liked, so rather than continuing to look, I just built one."
+                  </p>
+                  <div className="mt-6 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <i className="ri-user-smile-line text-primary" />
+                    </div>
+                    <span className="text-xs font-mono text-secondary">Creator of GiriLog</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

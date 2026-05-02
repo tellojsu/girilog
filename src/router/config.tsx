@@ -8,6 +8,7 @@ import InvoiceCreator from '../pages/invoices/creator/page';
 import InvoiceDetail from '../pages/invoices/detail/page';
 import SettingsPage from '../pages/settings/page';
 import ClientsPage from '../pages/clients/page';
+import SEOPage from '../pages/seo/page';
 import AuthGuard from '../components/feature/AuthGuard';
 import DatabaseSetup from '../pages/DatabaseSetup';
 
@@ -51,6 +52,10 @@ const routes: RouteObject[] = [
   {
     path: '/settings',
     element: <AuthGuard><SettingsPage /></AuthGuard>,
+  },
+  {
+    path: '/seo',
+    element: <AuthGuard><SEOPage /></AuthGuard>,
   },
   {
     path: '*',
