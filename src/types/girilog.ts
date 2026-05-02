@@ -13,6 +13,8 @@ export interface Client {
   default_hourly_rate: number | null;
   show_date: boolean;
   show_project: boolean;
+  show_tax: boolean;
+  show_discount: boolean;
   projects: string[];
   created_at: string;
   updated_at: string;
@@ -44,7 +46,7 @@ export interface Invoice {
   subtotal: number;
   tax_rate: number;
   tax_amount: number;
-  discount_amount: number;
+  discount_rate: number;
   total: number;
   notes: string | null;
   created_at: string;

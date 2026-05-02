@@ -24,6 +24,8 @@ type FormData = {
   default_hourly_rate: string;
   show_date: boolean;
   show_project: boolean;
+  show_tax: boolean;
+  show_discount: boolean;
   projects: string[];
 };
 
@@ -54,6 +56,8 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
     default_hourly_rate: '',
     show_date: false,
     show_project: false,
+    show_tax: true,
+    show_discount: true,
     projects: [],
   });
   const [codeManuallyEdited, setCodeManuallyEdited] = useState(false);
@@ -75,6 +79,8 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
         default_hourly_rate: client.default_hourly_rate != null ? String(client.default_hourly_rate) : '',
         show_date: client.show_date ?? false,
         show_project: client.show_project ?? false,
+        show_tax: client.show_tax ?? true,
+        show_discount: client.show_discount ?? true,
         projects: client.projects || [],
       });
       setCodeManuallyEdited(true);
@@ -122,6 +128,8 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
         default_hourly_rate: form.default_hourly_rate !== '' ? parseFloat(form.default_hourly_rate) : null,
         show_date: form.show_date,
         show_project: form.show_project,
+        show_tax: form.show_tax,
+        show_discount: form.show_discount,
         projects: form.projects,
         updated_at: new Date().toISOString(),
       };

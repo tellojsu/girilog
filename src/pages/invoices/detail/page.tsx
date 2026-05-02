@@ -209,7 +209,7 @@ export default function InvoiceDetail() {
             dueDate={invoice.due_date || ''}
             lineItems={lineItems}
             taxRate={Number(invoice.tax_rate)}
-            discountAmount={Number(invoice.discount_amount)}
+            discountRate={Number(invoice.discount_rate)}
             notes={invoice.notes || ''}
             businessName={settings?.business_name || 'GiriLog Studio'}
             businessEmail={settings?.business_email || ''}
@@ -231,7 +231,7 @@ export default function InvoiceDetail() {
           dueDate={invoice.due_date || ''}
           lineItems={lineItems}
           taxRate={Number(invoice.tax_rate)}
-          discountAmount={Number(invoice.discount_amount)}
+          discountRate={Number(invoice.discount_rate)}
           notes={invoice.notes || ''}
           businessName={settings?.business_name || 'GiriLog Studio'}
           businessEmail={settings?.business_email || ''}

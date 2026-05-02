@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.girilog_invoices (
     subtotal NUMERIC NOT NULL DEFAULT 0,
     tax_rate NUMERIC NOT NULL DEFAULT 0,
     tax_amount NUMERIC NOT NULL DEFAULT 0,
-    discount_amount NUMERIC NOT NULL DEFAULT 0,
+    discount_rate NUMERIC NOT NULL DEFAULT 0,
     total NUMERIC NOT NULL DEFAULT 0,
     currency TEXT NOT NULL DEFAULT 'USD',
     notes TEXT,
@@ -122,6 +122,13 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_line_items' AND column_name='project') THEN
         ALTER TABLE public.girilog_line_items ADD COLUMN project TEXT;
+    END IF;
+
+    -- Update discount column from amount to rate
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_invoices' AND column_name='discount_amount') THEN
+        ALTER TABLE public.girilog_invoices RENAME COLUMN discount_amount TO discount_rate;
+    ELSIF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_invoices' AND column_name='discount_rate') THEN
+        ALTER TABLE public.girilog_invoices ADD COLUMN discount_rate NUMERIC NOT NULL DEFAULT 0;
     END IF;
 END $$;
 
@@ -228,7 +235,7 @@ BEGIN
         subtotal NUMERIC NOT NULL DEFAULT 0,
         tax_rate NUMERIC NOT NULL DEFAULT 0,
         tax_amount NUMERIC NOT NULL DEFAULT 0,
-        discount_amount NUMERIC NOT NULL DEFAULT 0,
+        discount_rate NUMERIC NOT NULL DEFAULT 0,
         total NUMERIC NOT NULL DEFAULT 0,
         currency TEXT NOT NULL DEFAULT 'USD',
         notes TEXT,

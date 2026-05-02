@@ -17,7 +17,7 @@ interface FormState {
   issueDate: string;
   dueDate: string;
   taxRate: string;
-  discountAmount: string;
+  discountRate: string;
   notes: string;
   status: InvoiceStatusEnum;
 }
@@ -33,12 +33,12 @@ const DEFAULT_FORM: FormState = {
   issueDate: today,
   dueDate: thirtyDays,
   taxRate: '0',
-  discountAmount: '0',
+  discountRate: '0',
   notes: '',
   status: InvoiceStatusEnum.Draft,
 };
 
-function LoadingSkeleton() {
+function LoadingSkeleton({ showPreview = true }: { showPreview?: boolean }) {
   return (
     <div className="flex gap-6 animate-pulse">
       <div className="flex-1 space-y-4">
@@ -54,7 +54,7 @@ function LoadingSkeleton() {
           </div>
         ))}
       </div>
-      <div className="w-[420px] shrink-0 hidden lg:block">
+      <div className={`shrink-0 hidden lg:block ${showPreview ? 'w-[420px]' : 'w-0 overflow-hidden'}`}>
         <div className="h-[600px] bg-[#0A0C10] border border-[#1E2330] rounded-xl" />
       </div>
     </div>
@@ -81,6 +81,9 @@ export default function InvoiceCreator() {
   const [isDirty, setIsDirty] = useState(false);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [showNewClientModal, setShowNewClientModal] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
+  const [showTaxOverride, setShowTaxOverride] = useState(false);
+  const [showDiscountOverride, setShowDiscountOverride] = useState(false);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
   const [clientSearch, setClientSearch] = useState('');
   const originalRef = useRef<{ form: FormState; lineItems: LineItem[]; invoiceNumber: string } | null>(null);
@@ -140,7 +143,7 @@ export default function InvoiceCreator() {
             issueDate: inv.issue_date || today,
             dueDate: inv.due_date || '',
             taxRate: resolvedTaxRate,
-            discountAmount: String(inv.discount_amount || 0),
+            discountRate: String(inv.discount_rate || 0),
             notes: inv.notes || '',
             status: inv.status as Invoice['status'],
           };
@@ -271,8 +274,9 @@ export default function InvoiceCreator() {
 
   const subtotal = lineItems.reduce((s, i) => s + i.amount, 0);
   const taxRate = parseFloat(form.taxRate) || 0;
-  const discountAmount = parseFloat(form.discountAmount) || 0;
+  const discountRate = parseFloat(form.discountRate) || 0;
   const taxAmount = subtotal * (taxRate / 100);
+  const discountAmount = subtotal * (discountRate / 100);
   const total = subtotal + taxAmount - discountAmount;
 
   const handleSave = async (statusOverride?: InvoiceStatusEnum) => {
@@ -297,7 +301,7 @@ export default function InvoiceCreator() {
         subtotal,
         tax_rate: taxRate,
         tax_amount: taxAmount,
-        discount_amount: discountAmount,
+        discount_rate: discountRate,
         total,
         notes: form.notes || null,
         updated_at: new Date().toISOString(),
@@ -456,24 +460,37 @@ export default function InvoiceCreator() {
           </div>
         )}
 
-        {/* Mobile Tab Toggle */}
-        <div className="flex lg:hidden mb-4 bg-[#0A0C10] border border-[#1E2330] rounded-lg p-1">
+        {/* Mobile Tab Toggle / Preview Toggle */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 lg:hidden flex bg-[#0A0C10] border border-[#1E2330] rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('form')}
+              className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'form' ? 'bg-primary text-white' : 'text-[#6B7280]'}`}
+            >
+              Form
+            </button>
+            <button
+              onClick={() => setActiveTab('preview')}
+              className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'preview' ? 'bg-primary text-white' : 'text-[#6B7280]'}`}
+            >
+              Preview
+            </button>
+          </div>
           <button
-            onClick={() => setActiveTab('form')}
-            className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'form' ? 'bg-primary text-white' : 'text-[#6B7280]'}`}
+            onClick={() => setShowPreview(!showPreview)}
+            className={`hidden lg:flex items-center gap-2 px-3 py-1.5 text-xs font-mono rounded-lg border transition-all cursor-pointer whitespace-nowrap ${
+              showPreview 
+                ? 'bg-[#1E2330] border-[#2A3040] text-secondary hover:text-white' 
+                : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/20'
+            }`}
           >
-            Form
-          </button>
-          <button
-            onClick={() => setActiveTab('preview')}
-            className={`flex-1 py-2 text-sm font-mono rounded-md transition-all cursor-pointer whitespace-nowrap ${activeTab === 'preview' ? 'bg-primary text-white' : 'text-[#6B7280]'}`}
-          >
-            Preview
+            <i className={showPreview ? 'ri-eye-off-line' : 'ri-eye-line'} />
+            {showPreview ? 'Hide Preview' : 'Show Preview'}
           </button>
         </div>
 
         {loading ? (
-          <LoadingSkeleton />
+          <LoadingSkeleton showPreview={showPreview} />
         ) : (
           <div className="flex gap-6">
             {/* ── Form Panel ── */}
@@ -708,57 +725,100 @@ export default function InvoiceCreator() {
 
                   {/* Totals */}
                   <div>
-                    <h4 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <div className="w-4 h-4 flex items-center justify-center">
-                        <i className="ri-calculator-line text-primary text-sm" />
-                      </div>
-                      Totals
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between py-2 border-b border-[#1E2330]">
-                        <span className="text-xs text-[#6B7280] font-mono">Subtotal</span>
-                        <span className="text-sm font-mono text-white">
-                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)}
-                        </span>
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap w-16">Tax %</span>
-                          <input
-                            type="number"
-                            value={form.taxRate}
-                            onChange={e => setField('taxRate', e.target.value)}
-                            min="0" max="100" step="0.5"
-                            className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-primary/50 text-right"
-                          />
-                          <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap">
-                            = {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(taxAmount)}
-                          </span>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider flex items-center gap-2">
+                        <div className="w-4 h-4 flex items-center justify-center">
+                          <i className="ri-calculator-line text-primary text-sm" />
                         </div>
-                        {form.clientId && (() => {
-                          const cl = clients.find(c => String(c.id) === form.clientId);
-                          return cl ? (
-                            <p className="text-[10px] font-mono pl-[76px] text-secondary">
-                              {cl.tax_enabled
-                                ? `From client config (${cl.default_tax_rate}%) — override above`
-                                : 'Client has no tax — set above to override'}
-                            </p>
-                          ) : null;
-                        })()}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap w-16">Disc. $</span>
-                        <input
-                          type="number"
-                          value={form.discountAmount}
-                          onChange={e => setField('discountAmount', e.target.value)}
-                          min="0" step="0.01"
-                          className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-primary/50 text-right"
-                        />
-                      </div>
+                        Totals
+                      </h4>
+                    <div className="flex items-center gap-2">
+                      {form.clientId && !clients.find(c => String(c.id) === form.clientId)?.tax_enabled && !showTaxOverride && (
+                        <button
+                          type="button"
+                          onClick={() => setShowTaxOverride(true)}
+                          className="text-[10px] font-mono text-primary hover:text-[#059669] transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <i className="ri-add-line" />
+                          Add Tax
+                        </button>
+                      )}
+                      {!showDiscountOverride && Number(form.discountRate) === 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowDiscountOverride(true)}
+                          className="text-[10px] font-mono text-primary hover:text-[#059669] transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <i className="ri-add-line" />
+                          Add Discount
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between py-2 border-b border-[#1E2330]">
+                      <span className="text-xs text-[#6B7280] font-mono">Subtotal</span>
+                      <span className={`text-sm font-mono ${subtotal < 0 ? 'text-danger' : 'text-white'}`}>
+                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)}
+                      </span>
+                    </div>
+                    
+                    {(() => {
+                      const selectedClient = clients.find(c => String(c.id) === form.clientId);
+                      const isTaxVisible = (selectedClient?.tax_enabled !== false) || showTaxOverride;
+                      const isDiscountVisible = showDiscountOverride || Number(form.discountRate) > 0;
+
+                      return (
+                        <>
+                          {isTaxVisible && (
+                            <div className="space-y-1.5">
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap w-16">Tax %</span>
+                                <input
+                                  type="number"
+                                  value={form.taxRate}
+                                  onChange={e => setField('taxRate', e.target.value)}
+                                  min="0" max="100" step="0.5"
+                                  className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-primary/50 text-right"
+                                />
+                                <span className={`text-xs font-mono whitespace-nowrap ${taxAmount < 0 ? 'text-danger' : 'text-[#6B7280]'}`}>
+                                  = {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(taxAmount)}
+                                </span>
+                              </div>
+                              {form.clientId && selectedClient && selectedClient.tax_enabled !== false && (
+                                <p className="text-[10px] font-mono pl-[76px] text-secondary">
+                                  {selectedClient.tax_enabled
+                                    ? `From client config (${selectedClient.default_tax_rate}%) — override above`
+                                    : 'Client has no tax — set above to override'}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {isDiscountVisible && (
+                            <div className="space-y-1.5">
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-[#6B7280] font-mono whitespace-nowrap w-16">Disc. %</span>
+                                <input
+                                  type="number"
+                                  value={form.discountRate}
+                                  onChange={e => setField('discountRate', e.target.value)}
+                                  min="0" max="100" step="0.1"
+                                  className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-2 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-primary/50 text-right"
+                                />
+                                <span className={`text-xs font-mono whitespace-nowrap ${discountAmount > 0 ? 'text-primary' : 'text-[#6B7280]'}`}>
+                                  = {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(discountAmount)}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+
                       <div className="flex items-center justify-between pt-3 border-t border-[#1E2330]">
                         <span className="text-sm font-semibold text-white font-mono">Total</span>
-                        <span className="text-xl font-bold font-mono text-primary">
+                        <span className={`text-xl font-bold font-mono ${total < 0 ? 'text-danger' : 'text-primary'}`}>
                           {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}
                         </span>
                       </div>
@@ -769,32 +829,34 @@ export default function InvoiceCreator() {
             </div>
 
             {/* ── Preview Panel ── */}
-            <div className={`w-[420px] shrink-0 ${activeTab === 'form' ? 'hidden lg:block' : ''}`}>
-              <div className="sticky top-6">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs text-[#6B7280] font-mono uppercase tracking-wider">Live Preview</span>
-                  <span className="text-xs text-secondary font-mono">Updates as you type</span>
+            {showPreview && (
+              <div className={`w-[420px] shrink-0 ${activeTab === 'form' ? 'hidden lg:block' : ''}`}>
+                <div className="sticky top-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-[#6B7280] font-mono uppercase tracking-wider">Live Preview</span>
+                    <span className="text-xs text-secondary font-mono">Updates as you type</span>
+                  </div>
+                    <InvoicePreview
+                      invoiceNumber={invoiceNumber}
+                      clientName={form.clientName}
+                      clientEmail={form.clientEmail}
+                      clientAddress={form.clientAddress}
+                      issueDate={form.issueDate}
+                      dueDate={form.dueDate}
+                      lineItems={lineItems}
+                      taxRate={taxRate}
+                      discountRate={discountRate}
+                      notes={form.notes}
+                      businessName={settings?.business_name || 'GiriLog Studio'}
+                      businessEmail={settings?.business_email || ''}
+                      businessAddress={settings?.business_address || ''}
+                      logoUrl={settings?.logo_url || ''}
+                      showDate={clients.find(c => String(c.id) === form.clientId)?.show_date}
+                      showProject={clients.find(c => String(c.id) === form.clientId)?.show_project}
+                    />
                 </div>
-                <InvoicePreview
-                  invoiceNumber={invoiceNumber}
-                  clientName={form.clientName}
-                  clientEmail={form.clientEmail}
-                  clientAddress={form.clientAddress}
-                  issueDate={form.issueDate}
-                  dueDate={form.dueDate}
-                  lineItems={lineItems}
-                  taxRate={taxRate}
-                  discountAmount={discountAmount}
-                  notes={form.notes}
-                  businessName={settings?.business_name || 'GiriLog Studio'}
-                  businessEmail={settings?.business_email || ''}
-                  businessAddress={settings?.business_address || ''}
-                  logoUrl={settings?.logo_url || ''}
-                  showDate={clients.find(c => String(c.id) === form.clientId)?.show_date}
-                  showProject={clients.find(c => String(c.id) === form.clientId)?.show_project}
-                />
               </div>
-            </div>
+            )}
           </div>
         )}
       </AppLayout>

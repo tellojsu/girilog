@@ -9,7 +9,7 @@ interface InvoicePreviewProps {
   dueDate: string;
   lineItems: LineItem[];
   taxRate: number;
-  discountAmount: number;
+  discountRate: number;
   notes: string;
   businessName: string;
   businessEmail: string;
@@ -36,12 +36,13 @@ function formatDate(dateStr: string, compact = false) {
 
 export default function InvoicePreview({
   invoiceNumber, clientName, clientEmail, clientAddress,
-  issueDate, dueDate, lineItems, taxRate, discountAmount, notes,
+  issueDate, dueDate, lineItems, taxRate, discountRate, notes,
   businessName, businessEmail, businessAddress, logoUrl, totalOverride,
   showDate, showProject,
 }: InvoicePreviewProps) {
   const subtotal = lineItems.reduce((s, i) => s + i.amount, 0);
   const taxAmount = subtotal * (taxRate / 100);
+  const discountAmount = subtotal * (discountRate / 100);
   const calculatedTotal = subtotal + taxAmount - discountAmount;
   const displayTotal = totalOverride !== undefined && lineItems.length === 0 ? totalOverride : calculatedTotal;
 
@@ -115,8 +116,10 @@ export default function InvoicePreview({
                 {showProject && <td className="py-2.5 text-[10px] text-gray-500">{item.project || '—'}</td>}
                 <td className="py-2.5 text-gray-800">{item.description || '—'}</td>
                 <td className="py-2.5 text-right text-gray-600 font-mono">{item.quantity}</td>
-                <td className="py-2.5 text-right text-gray-600 font-mono">{formatCurrency(item.unit_price)}</td>
-                <td className="py-2.5 text-right font-mono font-medium text-gray-900">{formatCurrency(item.amount)}</td>
+                <td className="py-2.5 text-right text-gray-600 font-mono">
+                  <span className={item.unit_price < 0 ? 'text-danger' : ''}>{formatCurrency(item.unit_price)}</span>
+                </td>
+                <td className={`py-2.5 text-right font-mono font-medium ${item.amount < 0 ? 'text-danger' : 'text-gray-900'}`}>{formatCurrency(item.amount)}</td>
               </tr>
             ))}
           </tbody>
@@ -128,23 +131,23 @@ export default function InvoicePreview({
         <div className="ml-auto w-56 space-y-1.5">
           <div className="flex justify-between text-xs text-gray-500">
             <span>Subtotal</span>
-            <span className="font-mono">{formatCurrency(subtotal)}</span>
+            <span className={`font-mono ${subtotal < 0 ? 'text-danger' : ''}`}>{formatCurrency(subtotal)}</span>
           </div>
           {taxRate > 0 && (
             <div className="flex justify-between text-xs text-gray-500">
               <span>Tax ({taxRate}%)</span>
-              <span className="font-mono">{formatCurrency(taxAmount)}</span>
+              <span className={`font-mono ${taxAmount < 0 ? 'text-danger' : ''}`}>{formatCurrency(taxAmount)}</span>
             </div>
           )}
-          {discountAmount > 0 && (
+          {discountRate > 0 && (
             <div className="flex justify-between text-xs text-primary">
-              <span>Discount</span>
+              <span>Discount ({discountRate}%)</span>
               <span className="font-mono">-{formatCurrency(discountAmount)}</span>
             </div>
           )}
           <div className="flex justify-between pt-2 border-t border-gray-200">
             <span className="font-bold text-gray-900">Total</span>
-            <span className="font-bold font-mono text-[#0D0F14] text-base">{formatCurrency(displayTotal)}</span>
+            <span className={`font-bold font-mono text-base ${displayTotal < 0 ? 'text-danger' : 'text-[#0D0F14]'}`}>{formatCurrency(displayTotal)}</span>
           </div>
         </div>
       </div>

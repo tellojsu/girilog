@@ -10,7 +10,7 @@ export default {
           primary: '#10B981',
           secondary: '#cceeff',
             temp1: '#4f46e5',
-            temp2: '#f97316',
+            danger: '#f97316',
             temp3: '#bf8ad6',
             temp4: '#cceeff',
         },
