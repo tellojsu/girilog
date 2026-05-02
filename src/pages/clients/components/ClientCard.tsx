@@ -37,9 +37,24 @@ export default function ClientCard({ client, invoices, onClick }: ClientCardProp
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm font-mono shrink-0 ${colorClass}`}>
-            {getInitials(client.name)}
-          </div>
+          {client.logo_url ? (
+            <div className="w-11 h-11 rounded-xl border border-[#1E2330] bg-[#0D0F14] flex items-center justify-center shrink-0 overflow-hidden">
+              <img
+                src={client.logo_url}
+                alt={client.name}
+                className="w-full h-full object-contain p-1"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                  (e.target as HTMLImageElement).parentElement!.classList.add(...colorClass.split(' '));
+                  (e.target as HTMLImageElement).parentElement!.innerHTML = getInitials(client.name);
+                }}
+              />
+            </div>
+          ) : (
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm font-mono shrink-0 ${colorClass}`}>
+              {getInitials(client.name)}
+            </div>
+          )}
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-white truncate group-hover:text-[#10B981] transition-colors">
               {client.name}

@@ -3,6 +3,7 @@ import { Client } from '@/types/girilog';
 import { supabase } from '@/lib/supabase';
 import PhoneInput from '@/components/common/PhoneInput';
 import AddressAutocomplete from '@/components/common/AddressAutocomplete';
+import LogoUploader from '@/pages/settings/components/LogoUploader';
 
 interface ClientFormModalProps {
   client?: Client | null;
@@ -17,6 +18,7 @@ type FormData = {
   phone: string;
   address: string;
   short_code: string;
+  logo_url: string;
   tax_enabled: boolean;
   default_tax_rate: string;
   default_hourly_rate: string;
@@ -43,6 +45,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
     phone: '',
     address: '',
     short_code: '',
+    logo_url: '',
     tax_enabled: false,
     default_tax_rate: '0',
     default_hourly_rate: '',
@@ -60,6 +63,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
         phone: client.phone || '',
         address: client.address || '',
         short_code: client.short_code || '',
+        logo_url: client.logo_url || '',
         tax_enabled: client.tax_enabled ?? false,
         default_tax_rate: String(client.default_tax_rate ?? 0),
         default_hourly_rate: client.default_hourly_rate != null ? String(client.default_hourly_rate) : '',
@@ -103,6 +107,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
         phone: form.phone.trim() || null,
         address: form.address.trim() || null,
         short_code: form.short_code.trim() || null,
+        logo_url: form.logo_url.trim() || null,
         tax_enabled: form.tax_enabled,
         default_tax_rate: parseFloat(form.default_tax_rate) || 0,
         default_hourly_rate: form.default_hourly_rate !== '' ? parseFloat(form.default_hourly_rate) : null,
@@ -163,6 +168,14 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-[#8B9AB0] mb-2">Client Logo</label>
+            <LogoUploader
+              value={form.logo_url}
+              onChange={url => handleChange('logo_url', url)}
+            />
+          </div>
+
           <div>
             <label className="block text-xs font-medium text-[#8B9AB0] mb-1.5">
               Client Name <span className="text-[#EF4444]">*</span>

@@ -118,9 +118,24 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
           {/* Client identity */}
           <div className="px-6 py-5 border-b border-[#1E2330]">
             <div className="flex items-center gap-4 mb-4">
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg font-mono shrink-0 ${colorClass}`}>
-                {getInitials(client.name)}
-              </div>
+              {client.logo_url ? (
+                <div className="w-14 h-14 rounded-2xl border border-[#1E2330] bg-[#0D0F14] flex items-center justify-center shrink-0 overflow-hidden">
+                  <img
+                    src={client.logo_url}
+                    alt={client.name}
+                    className="w-full h-full object-contain p-1"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      (e.target as HTMLImageElement).parentElement!.classList.add(...colorClass.split(' '));
+                      (e.target as HTMLImageElement).parentElement!.innerHTML = getInitials(client.name);
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg font-mono shrink-0 ${colorClass}`}>
+                  {getInitials(client.name)}
+                </div>
+              )}
               <div>
                 <h2 className="text-lg font-semibold text-white">{client.name}</h2>
                 {client.company && client.company !== client.name && (

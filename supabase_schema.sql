@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.girilog_clients (
     phone TEXT,
     address TEXT,
     short_code TEXT,
+    logo_url TEXT,
     tax_enabled BOOLEAN DEFAULT FALSE,
     default_tax_rate NUMERIC DEFAULT 0,
     default_hourly_rate NUMERIC,
@@ -90,6 +91,9 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='default_hourly_rate') THEN
         ALTER TABLE public.girilog_clients ADD COLUMN default_hourly_rate NUMERIC;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_clients' AND column_name='logo_url') THEN
+        ALTER TABLE public.girilog_clients ADD COLUMN logo_url TEXT;
     END IF;
 END $$;
 
@@ -173,6 +177,7 @@ BEGIN
         phone TEXT,
         address TEXT,
         short_code TEXT,
+        logo_url TEXT,
         tax_enabled BOOLEAN DEFAULT FALSE,
         default_tax_rate NUMERIC DEFAULT 0,
         default_hourly_rate NUMERIC,

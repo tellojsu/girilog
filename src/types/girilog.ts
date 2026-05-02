@@ -7,6 +7,7 @@ export interface Client {
   address: string | null;
   company: string | null;
   short_code: string | null;
+  logo_url: string | null;
   tax_enabled: boolean;
   default_tax_rate: number;
   default_hourly_rate: number | null;
