@@ -14,11 +14,19 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  const getLocalDateString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const [clientId, setClientId] = useState('');
   const [description, setDescription] = useState('');
   const [hours, setHours] = useState('1');
   const [rate, setRate] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(getLocalDateString());
   const [project, setProject] = useState('');
 
   useEffect(() => {
@@ -98,7 +106,7 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
         const slug = selectedClient.short_code || String(selectedClient.id);
         const invoiceNumber = `INV-${slug}-${next}`;
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = getLocalDateString();
         const thirtyDays = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
 
         const { data: newInvoice, error: invError } = await supabase
@@ -187,7 +195,7 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
       setDescription('');
       setHours('1');
       setRate('');
-      setDate(new Date().toISOString().split('T')[0]);
+      setDate(getLocalDateString());
       setProject('');
     } catch (err: any) {
       console.error('[DEBUG_LOG] Error logging time:', err);

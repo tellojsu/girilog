@@ -33,14 +33,22 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
     onChange(updated);
   };
 
+  const getLocalDateString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const addItem = () => {
     onChange([...items, {
       description: '',
       quantity: 1,
       unit_price: client?.default_hourly_rate ?? 0,
       amount: client?.default_hourly_rate ?? 0,
-      date: new Date().toISOString().split('T')[0],
-      project: projects.length > 0 ? projects[0] : null
+      date: getLocalDateString(),
+      project: null
     }]);
   };
 
@@ -65,7 +73,7 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
       const unitPrice = client?.default_hourly_rate ?? 0;
 
       // Try to parse date M/D/YY or M/D/YYYY to YYYY-MM-DD
-      let formattedDate = new Date().toISOString().split('T')[0];
+      let formattedDate = getLocalDateString();
       if (dateStr) {
         const d = new Date(dateStr);
         if (!isNaN(d.getTime())) {
