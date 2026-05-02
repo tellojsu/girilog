@@ -35,7 +35,11 @@ export default function InvoiceDetail() {
         supabase.from('girilog_settings').select('*').eq('user_id', user.id).maybeSingle(),
       ]);
       if (inv) setInvoice(inv as Invoice);
-      if (items) setLineItems(items as LineItem[]);
+      if (items) {
+        setLineItems(items as LineItem[]);
+      } else {
+        setLineItems([]);
+      }
       if (s) setSettings(s as Settings);
       setLoading(false);
     };
@@ -197,6 +201,7 @@ export default function InvoiceDetail() {
             businessEmail={settings?.business_email || ''}
             businessAddress={settings?.business_address || ''}
             logoUrl={settings?.logo_url || ''}
+            totalOverride={Number(invoice.total)}
           />
         </div>
 
@@ -216,6 +221,7 @@ export default function InvoiceDetail() {
           businessEmail={settings?.business_email || ''}
           businessAddress={settings?.business_address || ''}
           logoUrl={settings?.logo_url || ''}
+          totalOverride={Number(invoice.total)}
         />
       </div>
     </AppLayout>

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AppLayout from '@/components/feature/AppLayout';
 import ClientAvatar from '@/components/common/ClientAvatar';
+import ClientFormModal from '@/pages/clients/components/ClientFormModal';
 import LineItemsEditor from './components/LineItemsEditor';
 import InvoicePreview from './components/InvoicePreview';
 import StatusBadge from '@/components/base/StatusBadge';
@@ -76,10 +77,10 @@ export default function InvoiceCreator() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<{ text: string; ok: boolean } | null>(null);
-  const [showClientDropdown, setShowClientDropdown] = useState(false);
   const [activeTab, setActiveTab] = useState<'form' | 'preview'>('form');
   const [isDirty, setIsDirty] = useState(false);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [showNewClientModal, setShowNewClientModal] = useState(false);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
   const [clientSearch, setClientSearch] = useState('');
   const originalRef = useRef<{ form: FormState; lineItems: LineItem[]; invoiceNumber: string } | null>(null);
@@ -137,7 +138,7 @@ export default function InvoiceCreator() {
             clientEmail: inv.client_email || '',
             clientAddress: inv.client_address || '',
             issueDate: inv.issue_date || today,
-            dueDate: inv.due_date || thirtyDays,
+            dueDate: inv.due_date || '',
             taxRate: resolvedTaxRate,
             discountAmount: String(inv.discount_amount || 0),
             notes: inv.notes || '',
@@ -205,6 +206,11 @@ export default function InvoiceCreator() {
   }, []);
 
   const selectClient = useCallback(async (client: Client) => {
+    setClients(prev => {
+      const exists = prev.find(c => c.id === client.id);
+      if (exists) return prev.map(c => c.id === client.id ? client : c);
+      return [...prev, client].sort((a, b) => a.name.localeCompare(b.name));
+    });
     setForm(f => ({
       ...f,
       clientId: String(client.id),
@@ -224,7 +230,6 @@ export default function InvoiceCreator() {
         )
       );
     }
-    setShowClientDropdown(false);
     setClientSearch('');
     // Auto-generate invoice number for this client
     if (autoNumber) {
@@ -237,6 +242,11 @@ export default function InvoiceCreator() {
       setInvoiceNumber(`INV-${slug}-${next}`);
     }
   }, [autoNumber]);
+
+  const handleClientSaved = useCallback((client: Client) => {
+    selectClient(client);
+    setShowNewClientModal(false);
+  }, [selectClient]);
 
   const clearClient = useCallback(() => {
     setForm(f => ({ ...f, clientId: '', clientName: '', clientEmail: '', clientAddress: '' }));
@@ -266,7 +276,7 @@ export default function InvoiceCreator() {
         client_address: form.clientAddress || null,
         status: finalStatus,
         issue_date: form.issueDate,
-        due_date: form.dueDate || null,
+        due_date: form.dueDate && !isNaN(Date.parse(form.dueDate)) ? form.dueDate : null,
         subtotal,
         tax_rate: taxRate,
         tax_amount: taxAmount,
@@ -301,24 +311,26 @@ export default function InvoiceCreator() {
         invoiceId = data.id;
       }
 
-      const validItems = lineItems.filter(i => i.description.trim());
+      const validItems = lineItems.filter(i => i.description.trim() || i.amount > 0);
       if (validItems.length > 0) {
-        await supabase.from('girilog_line_items').insert(
+        const { error: itemsError } = await supabase.from('girilog_line_items').insert(
           validItems.map(i => ({
             user_id: user.id,
             invoice_id: invoiceId,
-            description: i.description,
+            description: i.description || 'No description',
             quantity: i.quantity,
             unit_price: i.unit_price,
             amount: i.amount,
           }))
         );
+        if (itemsError) throw itemsError;
       }
 
       setIsDirty(false);
       setSaveMsg({ text: isEdit ? 'Changes saved!' : 'Invoice created!', ok: true });
       setTimeout(() => navigate(`/invoices/${invoiceId}`), 700);
-    } catch {
+    } catch (err) {
+      console.error('[DEBUG_LOG] Error saving invoice:', err);
       setSaveMsg({ text: 'Failed to save. Try again.', ok: false });
     } finally {
       setSaving(false);
@@ -486,40 +498,36 @@ export default function InvoiceCreator() {
                   );
                 })() : null}
 
-                {/* Client Selector */}
+                {/* Client Search/Selector */}
                 <div className="relative mb-4">
-                  <label className={labelClass}>{form.clientId ? 'Change client' : 'Select existing client'}</label>
+                  <label className={labelClass}>{form.clientId ? 'Change client' : 'Select client'}</label>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => { setShowClientDropdown(d => !d); setClientSearch(''); }}
-                      className="flex-1 bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between hover:border-[#10B981]/50 transition-colors cursor-pointer"
-                    >
-                      <span className="text-[#4B5563]">
-                        {showClientDropdown ? 'Search clients...' : (form.clientId ? 'Switch to a different client...' : 'Pick a client to get started...')}
-                      </span>
-                      <div className="w-4 h-4 flex items-center justify-center">
-                        <i className={`${showClientDropdown ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} text-[#6B7280]`} />
+                    <div className="relative flex-1">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+                        <i className="ri-search-line text-[#4B5563] text-sm" />
                       </div>
-                    </button>
+                      <input
+                        type="text"
+                        value={clientSearch}
+                        onChange={e => setClientSearch(e.target.value)}
+                        placeholder={form.clientId ? 'Search to change client...' : 'Search for a client...'}
+                        className={`${inputClass} pl-10`}
+                      />
+                    </div>
+                    {!form.clientId && (
+                      <button
+                        onClick={() => setShowNewClientModal(true)}
+                        className="p-2 bg-[#10B981]/10 text-[#10B981] hover:bg-[#10B981]/20 rounded-lg transition-colors cursor-pointer group flex items-center gap-2 px-3 h-[38px]"
+                        title="Create new client"
+                      >
+                        <i className="ri-user-add-line" />
+                        <span className="text-xs font-medium">New</span>
+                      </button>
+                    )}
                   </div>
 
-                  {showClientDropdown && (
+                  {clientSearch && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-[#1A1F2E] border border-[#2A3040] rounded-xl overflow-hidden z-20 shadow-2xl">
-                      <div className="p-2 border-b border-[#2A3040]">
-                        <div className="relative">
-                          <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 flex items-center justify-center">
-                            <i className="ri-search-line text-xs text-[#4B5563]" />
-                          </div>
-                          <input
-                            type="text"
-                            value={clientSearch}
-                            onChange={e => setClientSearch(e.target.value)}
-                            placeholder="Search clients..."
-                            className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-7 pr-3 py-1.5 text-xs text-white placeholder-[#4B5563] font-mono focus:outline-none focus:border-[#10B981]/50"
-                            autoFocus
-                          />
-                        </div>
-                      </div>
                       <div className="max-h-48 overflow-y-auto">
                         {filteredClients.map(client => (
                           <button
@@ -540,8 +548,20 @@ export default function InvoiceCreator() {
                           </button>
                         ))}
                         {filteredClients.length === 0 && (
-                          <div className="px-3 py-4 text-xs text-[#4B5563] font-mono text-center">
-                            {clientSearch ? 'No clients match' : 'No clients yet'}
+                          <div className="p-4 text-center">
+                            <p className="text-xs text-[#4B5563] font-mono mb-3">
+                              No clients matching "{clientSearch}"
+                            </p>
+                            <button
+                              onClick={() => {
+                                setShowNewClientModal(true);
+                                setClientSearch('');
+                              }}
+                              className="inline-flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                            >
+                              <i className="ri-user-add-line" />
+                              Create "{clientSearch}"
+                            </button>
                           </div>
                         )}
                       </div>
@@ -549,39 +569,24 @@ export default function InvoiceCreator() {
                   )}
                 </div>
 
-                {/* Manual client fields — always visible */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelClass}>Client Name</label>
-                    <input
-                      type="text"
-                      value={form.clientName}
-                      onChange={e => setField('clientName', e.target.value)}
-                      placeholder="Acme Corp"
-                      className={inputClass}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Client Email</label>
-                    <input
-                      type="email"
-                      value={form.clientEmail}
-                      onChange={e => setField('clientEmail', e.target.value)}
-                      placeholder="billing@acme.com"
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className={labelClass}>Client Address</label>
-                    <textarea
-                      value={form.clientAddress}
-                      onChange={e => setField('clientAddress', e.target.value)}
-                      placeholder={"123 Main St, City, State ZIP"}
-                      rows={2}
-                      className={`${inputClass} resize-none`}
-                    />
-                  </div>
-                </div>
+                {/* Manual client fields — only visible when no client selected and no search results (fallback) */}
+                {/* Actually, user said: "we shouldn't show the client name, email, address as inputs, those should just be used from the client that is picked." */}
+                {/* "if a name is not found then there should be a button to create a new client that takes them to that experience" */}
+                {!form.clientId && clients.length === 0 && (
+                   <div className="flex flex-col items-center justify-center py-8 px-4 bg-[#1E2330]/30 border border-dashed border-[#2A3040] rounded-xl">
+                     <div className="w-12 h-12 bg-[#1E2330] rounded-full flex items-center justify-center mb-3">
+                       <i className="ri-user-search-line text-[#4B5563] text-xl" />
+                     </div>
+                     <p className="text-sm text-[#6B7280] text-center mb-4">You haven't added any clients yet.</p>
+                     <button
+                       onClick={() => setShowNewClientModal(true)}
+                       className="bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
+                     >
+                       <i className="ri-user-add-line" />
+                       Add Your First Client
+                     </button>
+                   </div>
+                )}
               </div>
 
               {/* ── Step 2: Invoice Details ── */}
@@ -803,6 +808,14 @@ export default function InvoiceCreator() {
             </div>
           </div>
         </div>
+      )}
+
+      {showNewClientModal && (
+        <ClientFormModal
+          isOpen={showNewClientModal}
+          onClose={() => setShowNewClientModal(false)}
+          onSave={handleClientSaved}
+        />
       )}
     </>
   );

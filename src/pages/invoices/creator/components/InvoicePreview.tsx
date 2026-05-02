@@ -15,6 +15,7 @@ interface InvoicePreviewProps {
   businessEmail: string;
   businessAddress: string;
   logoUrl?: string;
+  totalOverride?: number;
 }
 
 function formatCurrency(amount: number) {
@@ -29,11 +30,12 @@ function formatDate(dateStr: string) {
 export default function InvoicePreview({
   invoiceNumber, clientName, clientEmail, clientAddress,
   issueDate, dueDate, lineItems, taxRate, discountAmount, notes,
-  businessName, businessEmail, businessAddress, logoUrl,
+  businessName, businessEmail, businessAddress, logoUrl, totalOverride,
 }: InvoicePreviewProps) {
   const subtotal = lineItems.reduce((s, i) => s + i.amount, 0);
   const taxAmount = subtotal * (taxRate / 100);
-  const total = subtotal + taxAmount - discountAmount;
+  const calculatedTotal = subtotal + taxAmount - discountAmount;
+  const displayTotal = totalOverride !== undefined && lineItems.length === 0 ? totalOverride : calculatedTotal;
 
   return (
     <div className="bg-white text-gray-900 rounded-xl overflow-hidden shadow-2xl text-sm" style={{ fontFamily: 'system-ui, sans-serif' }}>
@@ -130,7 +132,7 @@ export default function InvoicePreview({
           )}
           <div className="flex justify-between pt-2 border-t border-gray-200">
             <span className="font-bold text-gray-900">Total</span>
-            <span className="font-bold font-mono text-[#0D0F14] text-base">{formatCurrency(total)}</span>
+            <span className="font-bold font-mono text-[#0D0F14] text-base">{formatCurrency(displayTotal)}</span>
           </div>
         </div>
       </div>

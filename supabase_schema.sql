@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS public.girilog_invoices (
     invoice_number TEXT NOT NULL,
     client_id BIGINT REFERENCES public.girilog_clients(id) ON DELETE SET NULL,
     client_name TEXT,
+    client_email TEXT,
+    client_address TEXT,
     status TEXT NOT NULL DEFAULT 'draft',
     issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
     due_date DATE,
@@ -77,6 +79,14 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_settings' AND column_name='annual_revenue_goal') THEN
         ALTER TABLE public.girilog_settings ADD COLUMN annual_revenue_goal NUMERIC DEFAULT 0;
+    END IF;
+
+    -- Add missing columns to girilog_invoices
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_invoices' AND column_name='client_email') THEN
+        ALTER TABLE public.girilog_invoices ADD COLUMN client_email TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_invoices' AND column_name='client_address') THEN
+        ALTER TABLE public.girilog_invoices ADD COLUMN client_address TEXT;
     END IF;
 
     -- Add missing columns to girilog_clients
@@ -192,6 +202,8 @@ BEGIN
         invoice_number TEXT NOT NULL,
         client_id BIGINT REFERENCES public.girilog_clients(id) ON DELETE SET NULL,
         client_name TEXT,
+        client_email TEXT,
+        client_address TEXT,
         status TEXT NOT NULL DEFAULT 'draft',
         issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
         due_date DATE,

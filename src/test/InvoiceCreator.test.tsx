@@ -84,7 +84,7 @@ describe('InvoiceCreator Page', () => {
     });
 
     expect(screen.getByTestId('line-items-editor')).toBeDefined();
-    // expect(screen.getByPlaceholderText('Search or select a client...')).toBeDefined();
+    expect(screen.getByPlaceholderText(/Search for a client.../i)).toBeDefined();
   });
 
   it('renders correctly in edit mode', async () => {
@@ -118,6 +118,6 @@ describe('InvoiceCreator Page', () => {
     });
 
     expect(screen.getByDisplayValue('INV-123')).toBeDefined();
-    expect(screen.getByDisplayValue('Test Client')).toBeDefined();
+    expect(screen.getByText('Test Client')).toBeDefined();
   });
 });
