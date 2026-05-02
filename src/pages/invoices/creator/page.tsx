@@ -268,15 +268,28 @@ export default function InvoiceCreator() {
     setClientSearch('');
     // Auto-generate invoice number for this client
     if (autoNumber) {
+      // Get settings directly to ensure we have the latest prefix
+      const { data: sData } = await supabase
+        .from('girilog_settings')
+        .select('invoice_prefix')
+        .single();
+
+      // Get all invoices for this client to determine the next sequential number
       const { count } = await supabase
         .from('girilog_invoices')
         .select('id', { count: 'exact', head: true })
         .eq('client_id', client.id);
-      const next = String((count ?? 0) + 1).padStart(4, '0');
+      
+      const nextNum = (count ?? 0) + 1;
+      const next = String(nextNum).padStart(4, '0');
       const slug = client.short_code || String(client.id);
-      setInvoiceNumber(`INV-${slug}-${next}`);
+      const prefix = sData?.invoice_prefix || settings?.invoice_prefix || 'INV-';
+      
+      let finalInvoiceNumber = `${prefix}${slug}-${next}`;
+      
+      setInvoiceNumber(finalInvoiceNumber);
     }
-  }, [autoNumber]);
+  }, [autoNumber, settings]);
 
   const handleClientSaved = useCallback((client: Client) => {
     selectClient(client);
@@ -649,12 +662,9 @@ export default function InvoiceCreator() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass}>Invoice Number</label>
-                    <input
-                      type="text"
-                      value={invoiceNumber}
-                      onChange={e => { setInvoiceNumber(e.target.value); setAutoNumber(false); }}
-                      className={inputClass}
-                    />
+                    <div className={`${inputClass} bg-[#1E2330]/50 flex items-center`}>
+                      <span className="text-secondary font-mono">{invoiceNumber || 'Select a client...'}</span>
+                    </div>
                     {!isEdit && autoNumber && (
                       <p className="text-[10px] text-secondary font-mono mt-1">
                         {form.clientId ? 'Auto-generated for this client' : 'Select a client to generate number'}

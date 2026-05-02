@@ -24,8 +24,6 @@ type FormData = {
   default_hourly_rate: string;
   show_date: boolean;
   show_project: boolean;
-  show_tax: boolean;
-  show_discount: boolean;
   projects: string[];
 };
 
@@ -56,8 +54,6 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
     default_hourly_rate: '',
     show_date: false,
     show_project: false,
-    show_tax: true,
-    show_discount: true,
     projects: [],
   });
   const [codeManuallyEdited, setCodeManuallyEdited] = useState(false);
@@ -79,8 +75,6 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
         default_hourly_rate: client.default_hourly_rate != null ? String(client.default_hourly_rate) : '',
         show_date: client.show_date ?? false,
         show_project: client.show_project ?? false,
-        show_tax: client.show_tax ?? true,
-        show_discount: client.show_discount ?? true,
         projects: client.projects || [],
       });
       setCodeManuallyEdited(true);
@@ -114,6 +108,53 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      const trimmedCode = form.short_code.trim();
+      
+      // Check if this short_code (prefix) is already "owned" by another client
+      if (trimmedCode) {
+        // Find if there are ANY invoices for other clients that use this short_code as prefix
+        // Actually, it's easier to check if any other client already has this short_code
+        const { data: otherClient } = await supabase
+          .from('girilog_clients')
+          .select('id, name')
+          .eq('user_id', user.id)
+          .eq('short_code', trimmedCode)
+          .neq('id', client?.id || -1)
+          .maybeSingle();
+
+        if (otherClient) {
+          setError(`The invoice code "${trimmedCode}" is already used by client "${otherClient.name}".`);
+          setSaving(false);
+          return;
+        }
+
+        // Also check if any existing invoices (possibly from deleted clients or manually edited before)
+        // use this prefix but belonged to a different client.
+        // We can check if any invoice starts with Prefix-ShortCode-
+        const { data: settings } = await supabase
+          .from('girilog_settings')
+          .select('invoice_prefix')
+          .eq('user_id', user.id)
+          .single();
+        
+        const prefix = settings?.invoice_prefix || 'INV-';
+        const searchPattern = `${prefix}${trimmedCode}-%`;
+
+        const { data: existingInvoices } = await supabase
+          .from('girilog_invoices')
+          .select('client_id')
+          .eq('user_id', user.id)
+          .like('invoice_number', searchPattern)
+          .neq('client_id', client?.id || -1)
+          .limit(1);
+
+        if (existingInvoices && existingInvoices.length > 0) {
+          setError(`The invoice code "${trimmedCode}" is reserved because it has been used for invoices of another client.`);
+          setSaving(false);
+          return;
+        }
+      }
+
       const payload = {
         user_id: user.id,
         name: form.name.trim(),
@@ -128,8 +169,6 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
         default_hourly_rate: form.default_hourly_rate !== '' ? parseFloat(form.default_hourly_rate) : null,
         show_date: form.show_date,
         show_project: form.show_project,
-        show_tax: form.show_tax,
-        show_discount: form.show_discount,
         projects: form.projects,
         updated_at: new Date().toISOString(),
       };

@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS public.girilog_invoices (
     currency TEXT NOT NULL DEFAULT 'USD',
     notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, invoice_number)
 );
 
 -- 3. Line Items Table
@@ -240,7 +241,8 @@ BEGIN
         currency TEXT NOT NULL DEFAULT 'USD',
         notes TEXT,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(user_id, invoice_number)
     );
 
     -- 3. Line Items Table

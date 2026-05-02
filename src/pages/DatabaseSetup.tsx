@@ -68,18 +68,21 @@ BEGIN
         invoice_number TEXT NOT NULL,
         client_id BIGINT REFERENCES public.girilog_clients(id) ON DELETE SET NULL,
         client_name TEXT,
+        client_email TEXT,
+        client_address TEXT,
         status TEXT NOT NULL DEFAULT 'draft',
         issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
         due_date DATE,
         subtotal NUMERIC NOT NULL DEFAULT 0,
         tax_rate NUMERIC NOT NULL DEFAULT 0,
         tax_amount NUMERIC NOT NULL DEFAULT 0,
-        discount_amount NUMERIC NOT NULL DEFAULT 0,
+        discount_rate NUMERIC NOT NULL DEFAULT 0,
         total NUMERIC NOT NULL DEFAULT 0,
         currency TEXT NOT NULL DEFAULT 'USD',
         notes TEXT,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(user_id, invoice_number)
     );
 
     -- 3. Line Items Table
