@@ -111,6 +111,40 @@ export class InvoiceService extends BaseService<Invoice> {
     if (error) throw error;
     return data && data.length > 0;
   }
+  async getNextInvoiceNumber(clientId: number, shortCode?: string) {
+    const userId = await this.getUserId();
+    const sData = await settingsService.getSettings();
+    const prefix = sData?.invoice_prefix || 'INV-';
+    const slug = shortCode || String(clientId);
+
+    const { data, error } = await supabase
+      .from(this.tableName)
+      .select('invoice_number')
+      .eq('user_id', userId)
+      .like('invoice_number', `${prefix}${slug}-%`)
+      .order('invoice_number', { ascending: false });
+
+    if (error) throw error;
+
+    let nextNum = 1;
+    if (data && data.length > 0) {
+      // Find the highest number in the current set of invoices for this prefix+slug
+      const numbers = data
+        .map(inv => {
+          const parts = inv.invoice_number.split('-');
+          const lastPart = parts[parts.length - 1];
+          return parseInt(lastPart);
+        })
+        .filter(n => !isNaN(n));
+
+      if (numbers.length > 0) {
+        nextNum = Math.max(...numbers) + 1;
+      }
+    }
+
+    const next = String(nextNum).padStart(4, '0');
+    return `${prefix}${slug}-${next}`;
+  }
 }
 
 export const invoiceService = new InvoiceService();

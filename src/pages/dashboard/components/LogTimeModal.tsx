@@ -82,11 +82,7 @@ export default function LogTimeModal({ isOpen, onClose, onSaved }: LogTimeModalP
 
       if (!wipInvoice) {
         // 2. Create new WIP invoice if none exists
-        const count = await invoiceService.getInvoiceCountForClient(selectedClient.id);
-
-        const next = String(count + 1).padStart(4, '0');
-        const slug = selectedClient.short_code || String(selectedClient.id);
-        const invoiceNumber = `INV-${slug}-${next}`;
+        const invoiceNumber = await invoiceService.getNextInvoiceNumber(selectedClient.id, selectedClient.short_code);
 
         const today = getLocalDateString();
         const thirtyDays = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];

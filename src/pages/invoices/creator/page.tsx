@@ -270,19 +270,7 @@ export default function InvoiceCreator() {
     setClientSearch('');
     // Auto-generate invoice number for this client
     if (autoNumber) {
-      // Get settings directly to ensure we have the latest prefix
-      const sData = await settingsService.getSettings();
-
-      // Get all invoices for this client to determine the next sequential number
-      const count = await invoiceService.getInvoiceCountForClient(client.id);
-
-      const nextNum = (count ?? 0) + 1;
-      const next = String(nextNum).padStart(4, '0');
-      const slug = client.short_code || String(client.id);
-      const prefix = sData?.invoice_prefix || settings?.invoice_prefix || 'INV-';
-
-      let finalInvoiceNumber = `${prefix}${slug}-${next}`;
-
+      const finalInvoiceNumber = await invoiceService.getNextInvoiceNumber(client.id, client.short_code);
       setInvoiceNumber(finalInvoiceNumber);
     }
   }, [autoNumber, settings]);
