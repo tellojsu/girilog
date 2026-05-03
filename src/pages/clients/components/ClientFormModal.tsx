@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Client } from '@/types/girilog';
-import { supabase } from '@/lib/supabase';
+import { clientService, invoiceService } from '@/services';
 import PhoneInput from '@/components/common/PhoneInput';
 import AddressAutocomplete from '@/components/common/AddressAutocomplete';
 import LogoUploader from '@/pages/settings/components/LogoUploader';
@@ -105,22 +105,11 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
 
     setSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
       const trimmedCode = form.short_code.trim();
       
       // Check if this short_code (prefix) is already "owned" by another client
       if (trimmedCode) {
-        // Find if there are ANY invoices for other clients that use this short_code as prefix
-        // Actually, it's easier to check if any other client already has this short_code
-        const { data: otherClient } = await supabase
-          .from('girilog_clients')
-          .select('id, name')
-          .eq('user_id', user.id)
-          .eq('short_code', trimmedCode)
-          .neq('id', client?.id || -1)
-          .maybeSingle();
+        const otherClient = await clientService.isShortCodeTaken(trimmedCode, client?.id);
 
         if (otherClient) {
           setError(`The invoice code "${trimmedCode}" is already used by client "${otherClient.name}".`);
@@ -128,27 +117,9 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
           return;
         }
 
-        // Also check if any existing invoices (possibly from deleted clients or manually edited before)
-        // use this prefix but belonged to a different client.
-        // We can check if any invoice starts with Prefix-ShortCode-
-        const { data: settings } = await supabase
-          .from('girilog_settings')
-          .select('invoice_prefix')
-          .eq('user_id', user.id)
-          .single();
-        
-        const prefix = settings?.invoice_prefix || 'INV-';
-        const searchPattern = `${prefix}${trimmedCode}-%`;
+        const isUsedInInvoices = await invoiceService.checkShortCodeUsage(trimmedCode, client?.id);
 
-        const { data: existingInvoices } = await supabase
-          .from('girilog_invoices')
-          .select('client_id')
-          .eq('user_id', user.id)
-          .like('invoice_number', searchPattern)
-          .neq('client_id', client?.id || -1)
-          .limit(1);
-
-        if (existingInvoices && existingInvoices.length > 0) {
+        if (isUsedInInvoices) {
           setError(`The invoice code "${trimmedCode}" is reserved because it has been used for invoices of another client.`);
           setSaving(false);
           return;
@@ -156,7 +127,6 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
       }
 
       const payload = {
-        user_id: user.id,
         name: form.name.trim(),
         company: form.company.trim() || null,
         email: form.email.trim() || null,
@@ -170,28 +140,17 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
         show_date: form.show_date,
         show_project: form.show_project,
         projects: form.projects,
-        updated_at: new Date().toISOString(),
       };
 
+      let data;
       if (isEdit && client) {
-        const { data, error: err } = await supabase
-          .from('girilog_clients')
-          .update(payload)
-          .eq('id', client.id)
-          .select()
-          .maybeSingle();
-        if (err) throw err;
-        if (data) onSaved(data as Client);
+        data = await clientService.update(client.id, payload);
       } else {
-        const { data, error: err } = await supabase
-          .from('girilog_clients')
-          .insert({ ...payload, created_at: new Date().toISOString() })
-          .select()
-          .maybeSingle();
-        if (err) throw err;
-        if (data) onSaved(data as Client);
+        data = await clientService.create(payload);
       }
-    } catch {
+      if (data) onSaved(data);
+    } catch (err) {
+      console.error('Error saving client:', err);
       setError('Failed to save client. Please try again.');
     } finally {
       setSaving(false);

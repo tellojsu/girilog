@@ -11,6 +11,7 @@ vi.mock('@/lib/supabase', () => {
   const qb = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
     maybeSingle: vi.fn().mockReturnThis(),
     then: vi.fn((resolve: any) => Promise.resolve({ data: null, error: null }).then(resolve)),
   };
@@ -28,6 +29,7 @@ const createMockBuilder = (data: any = null) => {
   const qb = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
     maybeSingle: vi.fn(),
   } as any;
   qb.then = (resolve: any) => Promise.resolve({ data, error: null }).then(resolve);

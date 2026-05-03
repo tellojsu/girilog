@@ -5,7 +5,7 @@ import SettingsField from './components/SettingsField';
 import LogoUploader from './components/LogoUploader';
 import AddressAutocomplete from '@/components/common/AddressAutocomplete';
 import PhoneInput, { formatPhoneNumber } from '@/components/common/PhoneInput';
-import { supabase } from '@/lib/supabase';
+import { settingsService } from '@/services';
 import { Settings } from '@/types/girilog';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'INR', 'SGD', 'AED', 'CHF'];
@@ -36,21 +36,18 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from('girilog_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      if (data) {
-        const settingsData = data as Settings;
-        if (settingsData.business_phone) {
-          settingsData.business_phone = formatPhoneNumber(settingsData.business_phone);
+      try {
+        const data = await settingsService.getSettings();
+        if (data) {
+          const settingsData = { ...data };
+          if (settingsData.business_phone) {
+            settingsData.business_phone = formatPhoneNumber(settingsData.business_phone);
+          }
+          setSettings(settingsData);
+          setAnnualGoal(Number(settingsData.annual_revenue_goal) || 0);
         }
-        setSettings(settingsData);
-        setAnnualGoal(Number((data as Record<string, unknown>).annual_revenue_goal) || 0);
+      } catch (err) {
+        console.error('Error fetching settings:', err);
       }
       setLoading(false);
     };
@@ -65,9 +62,6 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaveState('saving');
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
       const payload = {
         business_name: settings.business_name,
         business_email: settings.business_email,
@@ -82,45 +76,25 @@ export default function SettingsPage() {
 
       console.log('[DEBUG_LOG] Payload to save:', payload);
 
-      let error;
+      let data;
       if (settings.id) {
-        const res = await supabase
-          .from('girilog_settings')
-          .update({
-            ...payload,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', settings.id)
-          .eq('user_id', user.id);
-        error = res.error;
-        console.log('[DEBUG_LOG] Update response:', res);
+        data = await settingsService.update(settings.id, payload);
       } else {
-        const res = await supabase
-          .from('girilog_settings')
-          .insert({
-            ...payload,
-            user_id: user.id,
-          })
-          .select()
-          .single();
-      error = res.error;
-      console.log('[DEBUG_LOG] Insert response:', res);
-      if (res.data) {
-        const settingsData = res.data as Settings;
+        data = await settingsService.create(payload);
+      }
+      
+      if (data) {
+        const settingsData = { ...data };
         if (settingsData.business_phone) {
           settingsData.business_phone = formatPhoneNumber(settingsData.business_phone);
         }
         setSettings(settingsData);
       }
-    }
 
-      if (error) {
-        console.error('[DEBUG_LOG] Error saving settings:', error);
-        throw error;
-      }
       setSaveState('saved');
       setTimeout(() => setSaveState('idle'), 3000);
-    } catch {
+    } catch (err) {
+      console.error('[DEBUG_LOG] Error saving settings:', err);
       setSaveState('error');
       setTimeout(() => setSaveState('idle'), 4000);
     }

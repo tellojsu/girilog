@@ -18,10 +18,11 @@ Welcome to **GiriLog**, an open-source invoice management tool. These guidelines
 - `src/components/feature`: Complex UI (AuthGuard, Layouts).
 - `src/pages/[feature]`: Page components. Complex pages often have a `components/` sub-folder.
 - `src/hooks`: Custom shared logic (e.g., `usePDFDownload`).
+- `src/services`: Business logic and data access layer (Supabase wrappers).
 
 ## 💻 AI Implementation Guidelines
-- **Data Fetching**: Use `supabase` client directly in `useEffect` or event handlers.
-- **Error Handling**: Use `try/catch` for Supabase operations. Show user-friendly messages via local state (e.g., `setSaveMsg`).
+- **Data Fetching**: Use classes from `src/services` (e.g., `clientService`, `invoiceService`) instead of calling the `supabase` client directly in components.
+- **Error Handling**: Services already handle basic authentication and throwing errors. Wrap service calls in `try/catch` in components to manage UI state (e.g., `setSaveMsg`).
 - **Form State**: For complex forms, use a single `form` state object instead of multiple `useState` calls.
 - **Dirty Checking**: Implement "unsaved changes" warnings for editor pages using `isDirty` state and `beforeunload` listeners.
 - **Performance**: Use `useCallback` for functions passed to complex components.
@@ -30,7 +31,17 @@ Welcome to **GiriLog**, an open-source invoice management tool. These guidelines
 - **Mandatory**: Tests MUST be written or updated for every fix and feature. Do not submit code without verifying it with tests.
 - **Framework**: Vitest + React Testing Library.
 - **Mocking Patterns**:
-  - **Supabase**: Use the "Thenable Builder" pattern to mock chained calls.
+  - **Services**: Mock service instances from `@/services`.
+    ```typescript
+    vi.mock('@/services', async (importOriginal) => ({
+      ...(await importOriginal<any>()),
+      clientService: {
+        getClients: vi.fn().mockResolvedValue([]),
+        isShortCodeTaken: vi.fn().mockResolvedValue(null),
+      },
+    }));
+    ```
+  - **Supabase (Lower Level)**: If testing a service or direct call, use the "Thenable Builder" pattern to mock chained calls.
     ```typescript
     const qb = {
       select: vi.fn().mockReturnThis(),

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clientService, invoiceService } from '@/services';
 import { Client, Invoice, InvoiceStatusEnum } from '@/types/girilog';
 import ClientAvatar from '@/components/common/ClientAvatar';
 import StatusBadge from '@/components/base/StatusBadge';
-import { supabase } from '@/lib/supabase';
 
 interface ClientDetailDrawerProps {
   client: Client;
@@ -34,16 +34,12 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
   useEffect(() => {
     const fetchInvoices = async () => {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from('girilog_invoices')
-        .select('*')
-        .eq('client_id', client.id)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      if (data) setInvoices(data as Invoice[]);
+      try {
+        const data = await invoiceService.getInvoicesByClient(client.id);
+        setInvoices(data);
+      } catch (err) {
+        console.error('Error fetching invoices:', err);
+      }
       setLoading(false);
     };
     fetchInvoices();
@@ -56,17 +52,12 @@ export default function ClientDetailDrawer({ client, onClose, onEdit, onDeleted 
   const handleDelete = async () => {
     if (!deleteConfirm) { setDeleteConfirm(true); return; }
     setDeleting(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase
-        .from('girilog_clients')
-        .delete()
-        .eq('id', client.id)
-        .eq('user_id', user.id);
-      if (!error) {
-        onDeleted(client.id);
-        onClose();
-      }
+    try {
+      await clientService.delete(client.id);
+      onDeleted(client.id);
+      onClose();
+    } catch (err) {
+      console.error('Error deleting client:', err);
     }
     setDeleting(false);
   };

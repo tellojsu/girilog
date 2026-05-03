@@ -6,7 +6,7 @@ import ClientFormModal from '@/pages/clients/components/ClientFormModal';
 import LineItemsEditor from './components/LineItemsEditor';
 import InvoicePreview from './components/InvoicePreview';
 import StatusBadge from '@/components/base/StatusBadge';
-import { supabase } from '@/lib/supabase';
+import { clientService, invoiceService, lineItemService, settingsService } from '@/services';
 import { Client, LineItem, Invoice, Settings, InvoiceStatusEnum } from '@/types/girilog';
 
 interface FormState {
@@ -125,26 +125,24 @@ export default function InvoiceCreator() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const [{ data: clientsData }, { data: settingsData }] = await Promise.all([
-        supabase.from('girilog_clients').select('*').eq('user_id', user.id).order('name'),
-        supabase.from('girilog_settings').select('*').eq('user_id', user.id).maybeSingle(),
-      ]);
-      if (clientsData) setClients(clientsData as Client[]);
-
-      if (isEdit && id) {
-        const [{ data: inv }, { data: items }] = await Promise.all([
-          supabase.from('girilog_invoices').select('*').eq('id', id).eq('user_id', user.id).maybeSingle(),
-          supabase.from('girilog_line_items').select('*').eq('invoice_id', id).eq('user_id', user.id).order('id'),
+      try {
+        const [clientsData, settingsData] = await Promise.all([
+          clientService.getClients(),
+          settingsService.getSettings(),
         ]);
+        setClients(clientsData);
 
-        if (inv) {
-          // Look up the client to apply their current tax/rate config
-          const matchedClient = inv.client_id
-            ? (clientsData as Client[] | null)?.find(c => c.id === inv.client_id) ?? null
-            : null;
+        if (isEdit && id) {
+          const [inv, items] = await Promise.all([
+            invoiceService.getById(id),
+            lineItemService.getLineItemsByInvoice(parseInt(id)),
+          ]);
+
+          if (inv) {
+            // Look up the client to apply their current tax/rate config
+            const matchedClient = inv.client_id
+              ? clientsData.find(c => c.id === inv.client_id) ?? null
+              : null;
 
           const resolvedTaxRate = matchedClient
             ? (matchedClient.tax_enabled ? String(matchedClient.default_tax_rate ?? 0) : '0')
@@ -200,7 +198,11 @@ export default function InvoiceCreator() {
 
       if (settingsData) setSettings(settingsData as Settings);
       setLoading(false);
-    };
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setLoading(false);
+    }
+  };
     fetchData();
   }, [id, isEdit]);
 
@@ -269,24 +271,18 @@ export default function InvoiceCreator() {
     // Auto-generate invoice number for this client
     if (autoNumber) {
       // Get settings directly to ensure we have the latest prefix
-      const { data: sData } = await supabase
-        .from('girilog_settings')
-        .select('invoice_prefix')
-        .single();
+      const sData = await settingsService.getSettings();
 
       // Get all invoices for this client to determine the next sequential number
-      const { count } = await supabase
-        .from('girilog_invoices')
-        .select('id', { count: 'exact', head: true })
-        .eq('client_id', client.id);
-      
+      const count = await invoiceService.getInvoiceCountForClient(client.id);
+
       const nextNum = (count ?? 0) + 1;
       const next = String(nextNum).padStart(4, '0');
       const slug = client.short_code || String(client.id);
       const prefix = sData?.invoice_prefix || settings?.invoice_prefix || 'INV-';
-      
+
       let finalInvoiceNumber = `${prefix}${slug}-${next}`;
-      
+
       setInvoiceNumber(finalInvoiceNumber);
     }
   }, [autoNumber, settings]);
@@ -313,11 +309,7 @@ export default function InvoiceCreator() {
     const finalStatus = statusOverride || form.status;
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      const payload = {
-        user_id: user.id,
+      const payload: Partial<Invoice> = {
         invoice_number: invoiceNumber,
         client_id: form.clientId ? parseInt(form.clientId) : null,
         client_name: form.clientName || null,
@@ -332,39 +324,23 @@ export default function InvoiceCreator() {
         discount_rate: discountRate,
         total,
         notes: form.notes || null,
-        updated_at: new Date().toISOString(),
       };
 
       let invoiceId: number;
 
       if (isEdit && id) {
-        const { error } = await supabase
-          .from('girilog_invoices')
-          .update(payload)
-          .eq('id', id)
-          .eq('user_id', user.id);
-        if (error) throw error;
+        await invoiceService.update(id, payload);
         invoiceId = parseInt(id);
-        await supabase
-          .from('girilog_line_items')
-          .delete()
-          .eq('invoice_id', invoiceId)
-          .eq('user_id', user.id);
+        await lineItemService.deleteByInvoice(invoiceId);
       } else {
-        const { data, error } = await supabase
-          .from('girilog_invoices')
-          .insert({ ...payload, created_at: new Date().toISOString() })
-          .select('id')
-          .single();
-        if (error) throw error;
-        invoiceId = data.id;
+        const newInvoice = await invoiceService.create(payload);
+        invoiceId = newInvoice.id;
       }
 
       const validItems = lineItems.filter(i => i.description.trim() || i.amount > 0);
       if (validItems.length > 0) {
-        const { error: itemsError } = await supabase.from('girilog_line_items').insert(
+        await lineItemService.createMany(
           validItems.map(i => ({
-            user_id: user.id,
             invoice_id: invoiceId,
             description: i.description || 'No description',
             quantity: i.quantity,
@@ -374,7 +350,6 @@ export default function InvoiceCreator() {
             project: i.project || null,
           }))
         );
-        if (itemsError) throw itemsError;
       }
 
       setIsDirty(false);
@@ -713,9 +688,9 @@ export default function InvoiceCreator() {
                   <div className="w-5 h-5 rounded-full bg-[#1E2330] flex items-center justify-center text-[10px] font-bold font-mono text-[#6B7280] shrink-0">3</div>
                   Line Items
                 </h3>
-                <LineItemsEditor 
-                  items={lineItems} 
-                  onChange={setLineItems} 
+                <LineItemsEditor
+                  items={lineItems}
+                  onChange={setLineItems}
                   client={clients.find(c => String(c.id) === form.clientId)}
                 />
               </div>

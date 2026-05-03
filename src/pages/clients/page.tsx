@@ -3,7 +3,7 @@ import AppLayout from '@/components/feature/AppLayout';
 import ClientCard from './components/ClientCard';
 import ClientFormModal from './components/ClientFormModal';
 import ClientDetailDrawer from './components/ClientDetailDrawer';
-import { supabase } from '@/lib/supabase';
+import { clientService, invoiceService } from '@/services';
 import { Client, Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
 type SortOption = 'name' | 'recent' | 'billed';
@@ -20,28 +20,26 @@ export default function ClientsPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const [clientList, invoiceList] = await Promise.all([
+        clientService.getClients(),
+        invoiceService.getAllInvoices(),
+      ]);
 
-    const [clientsRes, invoicesRes] = await Promise.all([
-      supabase.from('girilog_clients').select('*').eq('user_id', user.id).order('name'),
-      supabase.from('girilog_invoices').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-    ]);
+      // Group invoices by client_id
+      const map: Record<number, Invoice[]> = {};
+      invoiceList.forEach(inv => {
+        if (inv.client_id) {
+          if (!map[inv.client_id]) map[inv.client_id] = [];
+          map[inv.client_id].push(inv);
+        }
+      });
 
-    const clientList = (clientsRes.data || []) as Client[];
-    const invoiceList = (invoicesRes.data || []) as Invoice[];
-
-    // Group invoices by client_id
-    const map: Record<number, Invoice[]> = {};
-    invoiceList.forEach(inv => {
-      if (inv.client_id) {
-        if (!map[inv.client_id]) map[inv.client_id] = [];
-        map[inv.client_id].push(inv);
-      }
-    });
-
-    setClients(clientList);
-    setInvoiceMap(map);
+      setClients(clientList);
+      setInvoiceMap(map);
+    } catch (err) {
+      console.error('Error fetching clients and invoices:', err);
+    }
     setLoading(false);
   };
 

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import AppLayout from '@/components/feature/AppLayout';
 import InvoicePreview from '../creator/components/InvoicePreview';
 import StatusBadge from '@/components/base/StatusBadge';
-import { supabase } from '@/lib/supabase';
+import { clientService, invoiceService, lineItemService, settingsService } from '@/services';
 import { Invoice, LineItem, Settings, InvoiceStatusEnum } from '@/types/girilog';
 import { usePDFDownload } from '@/hooks/usePDFDownload';
 
@@ -26,28 +26,25 @@ export default function InvoiceDetail() {
   };
 
   const fetchData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const [inv, items, s] = await Promise.all([
+        invoiceService.getById(id!),
+        lineItemService.getLineItemsByInvoice(parseInt(id!)),
+        settingsService.getSettings(),
+      ]);
 
-    const [{ data: inv }, { data: items }, { data: s }] = await Promise.all([
-      supabase.from('girilog_invoices').select('*').eq('id', id!).eq('user_id', user.id).maybeSingle(),
-      supabase.from('girilog_line_items').select('*').eq('invoice_id', id!).eq('user_id', user.id),
-      supabase.from('girilog_settings').select('*').eq('user_id', user.id).maybeSingle(),
-    ]);
-
-    if (inv) {
-      setInvoice(inv as Invoice);
-      if (inv.client_id) {
-        const { data: c } = await supabase.from('girilog_clients').select('*').eq('id', inv.client_id).maybeSingle();
-        setClient(c);
+      if (inv) {
+        setInvoice(inv as Invoice);
+        if (inv.client_id) {
+          const c = await clientService.getClientById(inv.client_id);
+          setClient(c);
+        }
       }
+      setLineItems(items || []);
+      if (s) setSettings(s as Settings);
+    } catch (err) {
+      console.error('Error fetching invoice details:', err);
     }
-    if (items) {
-      setLineItems(items as LineItem[]);
-    } else {
-      setLineItems([]);
-    }
-    if (s) setSettings(s as Settings);
     setLoading(false);
   };
 
@@ -58,14 +55,11 @@ export default function InvoiceDetail() {
   const updateStatus = async (status: InvoiceStatusEnum) => {
     if (!invoice) return;
     setUpdatingStatus(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from('girilog_invoices')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', invoice.id)
-        .eq('user_id', user.id);
+    try {
+      await invoiceService.update(invoice.id, { status });
       setInvoice(i => i ? { ...i, status } : i);
+    } catch (err) {
+      console.error('Error updating status:', err);
     }
     setShowStatusMenu(false);
     setUpdatingStatus(false);
@@ -73,14 +67,11 @@ export default function InvoiceDetail() {
 
   const handleDelete = async () => {
     if (!invoice) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from('girilog_invoices')
-        .delete()
-        .eq('id', invoice.id)
-        .eq('user_id', user.id);
+    try {
+      await invoiceService.delete(invoice.id);
       navigate('/invoices');
+    } catch (err) {
+      console.error('Error deleting invoice:', err);
     }
   };
 

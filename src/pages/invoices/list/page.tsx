@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/feature/AppLayout';
 import InvoiceTable from '../components/InvoiceTable';
-import { supabase } from '@/lib/supabase';
+import { invoiceService } from '@/services';
 import { Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
 const STATUS_FILTERS: { label: string; value: string }[] = [
@@ -41,15 +41,12 @@ export default function InvoiceList() {
   useEffect(() => {
     const fetchInvoices = async () => {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from('girilog_invoices')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      if (data) setInvoices(data as Invoice[]);
+      try {
+        const data = await invoiceService.getAllInvoices();
+        setInvoices(data);
+      } catch (err) {
+        console.error('Error fetching invoices:', err);
+      }
       setLoading(false);
     };
     fetchInvoices();
@@ -65,17 +62,11 @@ export default function InvoiceList() {
   };
 
   const handleDelete = async (id: number) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('girilog_invoices')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', user.id);
-
-    if (!error) {
+    try {
+      await invoiceService.delete(id);
       setInvoices(prev => prev.filter(inv => inv.id !== id));
+    } catch (err) {
+      console.error('Error deleting invoice:', err);
     }
   };
 

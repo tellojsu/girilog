@@ -46,7 +46,7 @@ GiriLog is a clean, professional invoice management web application targeting de
 | subtotal | NUMERIC | Sum of line items |
 | tax_rate | NUMERIC | Tax percentage |
 | tax_amount | NUMERIC | Calculated tax |
-| discount_amount | NUMERIC | Discount value |
+| discount_rate   | NUMERIC | Discount rate % |
 | total | NUMERIC | Final total |
 | notes | TEXT | Invoice notes |
 | created_at | TIMESTAMPTZ | Created timestamp |

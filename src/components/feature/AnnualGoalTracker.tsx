@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { invoiceService, settingsService } from '@/services';
 import { Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
 interface AnnualGoalTrackerProps {
@@ -29,27 +29,19 @@ export default function AnnualGoalTracker({ className }: AnnualGoalTrackerProps)
   const currentYear = new Date().getFullYear();
 
   const fetchData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const [invoiceData, settingsData] = await Promise.all([
+        invoiceService.getYearlyInvoices(currentYear),
+        settingsService.getSettings(),
+      ]);
 
-    const [invoiceRes, settingsRes] = await Promise.all([
-      supabase
-        .from('girilog_invoices')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('issue_date', `${currentYear}-01-01`)
-        .lte('issue_date', `${currentYear}-12-31`),
-      supabase
-        .from('girilog_settings')
-        .select('annual_revenue_goal, currency')
-        .eq('user_id', user.id)
-        .maybeSingle(),
-    ]);
-
-    if (invoiceRes.data) setInvoices(invoiceRes.data as Invoice[]);
-    if (settingsRes.data) {
-      setGoal(Number(settingsRes.data.annual_revenue_goal) || 0);
-      setCurrency(settingsRes.data.currency || 'USD');
+      setInvoices(invoiceData);
+      if (settingsData) {
+        setGoal(Number(settingsData.annual_revenue_goal) || 0);
+        setCurrency(settingsData.currency || 'USD');
+      }
+    } catch (err) {
+      console.error('Error fetching tracker data:', err);
     }
     setLoading(false);
   };
@@ -108,14 +100,12 @@ export default function AnnualGoalTracker({ className }: AnnualGoalTrackerProps)
     const parsed = parseFloat(inputVal.replace(/[^0-9.]/g, ''));
     if (isNaN(parsed) || parsed < 0) return;
     setSaving(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from('girilog_settings')
-        .update({ annual_revenue_goal: parsed })
-        .eq('user_id', user.id);
+    try {
+      await settingsService.updateAnnualGoal(parsed);
+      setGoal(parsed);
+    } catch (err) {
+      console.error('Error saving goal:', err);
     }
-    setGoal(parsed);
     setSaving(false);
     setEditing(false);
   };
