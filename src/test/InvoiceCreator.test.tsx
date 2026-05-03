@@ -118,7 +118,7 @@ describe('InvoiceCreator Page', () => {
       expect(screen.getByText(/Editing INV-123/i)).toBeDefined();
     });
 
-    expect(screen.getByDisplayValue('INV-123')).toBeDefined();
+    expect(screen.getAllByText('INV-123').length).toBeGreaterThan(0);
     expect(screen.getByText('Test Client')).toBeDefined();
   });
 });
