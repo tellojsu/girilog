@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clientService, invoiceService } from '@/services';
-import { Client, Invoice, InvoiceStatusEnum } from '@/types/girilog';
+import { Client, Invoice, InvoiceStatus, InvoiceStatusEnum } from '@/types/girilog';
 import ClientAvatar from '@/components/common/ClientAvatar';
 import StatusBadge from '@/components/base/StatusBadge';
 

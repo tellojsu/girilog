@@ -6,6 +6,9 @@ export default {
     ],
     theme: {
       extend: {
+        screens: {
+          'tall': { 'raw': '(min-height: 720px)' },
+        },
         colors: {
           primary: '#10B981',
           secondary: '#cceeff',

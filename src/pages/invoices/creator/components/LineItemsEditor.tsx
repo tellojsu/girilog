@@ -165,7 +165,7 @@ export default function LineItemsEditor({ items, onChange, client }: LineItemsEd
                 value={item.description}
                 onChange={e => updateItem(index, 'description', e.target.value)}
                 placeholder="Item description..."
-                className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-[11px] text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-[11px] text-white placeholder-[#6B7280] focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
             <div className="col-span-1 pr-2">

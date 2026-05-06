@@ -64,6 +64,7 @@ export interface Settings {
   default_tax_rate: number;
   currency: string;
   annual_revenue_goal: number;
+  onboarding_dismissed: boolean;
   created_at: string;
   updated_at: string;
 }

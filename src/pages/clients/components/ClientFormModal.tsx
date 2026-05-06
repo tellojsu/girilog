@@ -104,9 +104,10 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
     if (!form.name.trim()) { setError('Client name is required'); return; }
 
     setSaving(true);
+    setError('');
     try {
       const trimmedCode = form.short_code.trim();
-      
+
       // Check if this short_code (prefix) is already "owned" by another client
       if (trimmedCode) {
         const otherClient = await clientService.isShortCodeTaken(trimmedCode, client?.id);
@@ -157,7 +158,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
     }
   };
 
-  const inputClass = 'w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors';
+  const inputClass = 'w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-[#6B7280] focus:outline-none focus:border-primary/50 transition-colors';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -208,7 +209,7 @@ export default function ClientFormModal({ client, onClose, onSaved }: ClientForm
                       type="text"
                       value={form.name}
                       onChange={e => handleChange('name', e.target.value)}
-                      placeholder="Jane Smith"
+                      placeholder="John Smith"
                       className={inputClass}
                       autoFocus
                     />

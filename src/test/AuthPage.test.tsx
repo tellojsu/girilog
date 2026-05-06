@@ -81,8 +81,8 @@ describe('AuthPage', () => {
     });
   });
 
-  it('handles signup submission', async () => {
-    mockSignUp.mockResolvedValue({ data: {}, error: null });
+  it('handles signup submission without immediate session', async () => {
+    mockSignUp.mockResolvedValue({ data: { session: null }, error: null });
 
     render(
       <MemoryRouter>
@@ -100,7 +100,31 @@ describe('AuthPage', () => {
         email: 'new@example.com',
         password: 'password123',
       });
-      expect(screen.getByText('Account created! Check your email to confirm.')).toBeDefined();
+      // Check for partial text as it's a longer message
+      expect(screen.getByText(/Account created!/i)).toBeDefined();
+    });
+  });
+
+  it('handles signup submission with immediate session', async () => {
+    mockSignUp.mockResolvedValue({ data: { session: { user: { id: '123' } } }, error: null });
+
+    render(
+      <MemoryRouter>
+        <AuthPage />
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByText('Sign up'));
+    fireEvent.change(screen.getByPlaceholderText('you@example.com'), { target: { value: 'new@example.com' } });
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: /create account/i }));
+
+    await waitFor(() => {
+      expect(mockSignUp).toHaveBeenCalledWith({
+        email: 'new@example.com',
+        password: 'password123',
+      });
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
     });
   });
 

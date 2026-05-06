@@ -26,6 +26,21 @@ export class SettingsService extends BaseService<Settings> {
 
     if (error) throw error;
   }
+
+  async dismissOnboarding(id?: string | number) {
+    const userId = await this.getUserId();
+    const query = supabase
+      .from(this.tableName)
+      .update({ onboarding_dismissed: true, updated_at: new Date().toISOString() })
+      .eq('user_id', userId);
+
+    if (id) {
+      query.eq('id', id);
+    }
+
+    const { error } = await query;
+    if (error) throw error;
+  }
 }
 
 export const settingsService = new SettingsService();

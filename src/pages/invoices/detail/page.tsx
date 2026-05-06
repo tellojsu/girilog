@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AppLayout from '@/components/feature/AppLayout';
 import InvoicePreview from '../creator/components/InvoicePreview';
 import StatusBadge from '@/components/base/StatusBadge';
 import { clientService, invoiceService, lineItemService, settingsService } from '@/services';
-import { Invoice, LineItem, Settings, InvoiceStatusEnum } from '@/types/girilog';
+import { Invoice, LineItem, InvoiceStatus, Settings, InvoiceStatusEnum } from '@/types/girilog';
 import { usePDFDownload } from '@/hooks/usePDFDownload';
 
 export default function InvoiceDetail() {
@@ -25,7 +25,7 @@ export default function InvoiceDetail() {
     downloadPDF('invoice-preview-capture', `${invoice.invoice_number}.pdf`);
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [inv, items, s] = await Promise.all([
         invoiceService.getById(id!),
@@ -46,11 +46,11 @@ export default function InvoiceDetail() {
       console.error('Error fetching invoice details:', err);
     }
     setLoading(false);
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchData();
-  }, [id]);
+  }, [fetchData]);
 
   const updateStatus = async (status: InvoiceStatusEnum) => {
     if (!invoice) return;

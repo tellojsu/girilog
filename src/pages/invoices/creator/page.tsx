@@ -7,7 +7,7 @@ import LineItemsEditor from './components/LineItemsEditor';
 import InvoicePreview from './components/InvoicePreview';
 import StatusBadge from '@/components/base/StatusBadge';
 import { clientService, invoiceService, lineItemService, settingsService } from '@/services';
-import { Client, LineItem, Invoice, Settings, InvoiceStatusEnum } from '@/types/girilog';
+import { Client, LineItem, Invoice, InvoiceStatus, Settings, InvoiceStatusEnum } from '@/types/girilog';
 
 interface FormState {
   clientId: string;
@@ -273,7 +273,7 @@ export default function InvoiceCreator() {
       const finalInvoiceNumber = await invoiceService.getNextInvoiceNumber(client.id, client.short_code);
       setInvoiceNumber(finalInvoiceNumber);
     }
-  }, [autoNumber, settings]);
+  }, [autoNumber]);
 
   const handleClientSaved = useCallback((client: Client) => {
     selectClient(client);
@@ -364,7 +364,7 @@ export default function InvoiceCreator() {
     (c.email || '').toLowerCase().includes(clientSearch.toLowerCase())
   );
 
-  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors font-mono';
+  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-lg px-3 py-2 text-sm text-white placeholder-[#6B7280] focus:outline-none focus:border-primary/50 transition-colors font-mono';
   const labelClass = 'block text-xs text-[#6B7280] font-mono uppercase tracking-wider mb-1.5';
 
   return (

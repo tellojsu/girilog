@@ -1,29 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/feature/AppLayout';
 import AnnualGoalTracker from '@/components/feature/AnnualGoalTracker';
 import RevenueLineChart from './components/RevenueLineChart';
 import RecentInvoices from './components/RecentInvoices';
 import LogTimeModal from './components/LogTimeModal';
+import OnboardingModal from './components/OnboardingModal';
 import { invoiceService, settingsService } from '@/services';
-import { Invoice, InvoiceStatusEnum } from '@/types/girilog';
+import { Invoice, InvoiceStatusEnum, Settings } from '@/types/girilog';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<Settings | null>(null);
   const [annualGoal, setAnnualGoal] = useState(0);
   const [currency, setCurrency] = useState('USD');
   const [showLogTimeModal, setShowLogTimeModal] = useState(false);
   const currentYear = new Date().getFullYear();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [invoiceData, settingsData] = await Promise.all([
         invoiceService.getYearlyInvoices(currentYear),
         settingsService.getSettings(),
       ]);
       setInvoices(invoiceData);
+      setSettings(settingsData);
       if (settingsData) {
         setAnnualGoal(Number(settingsData.annual_revenue_goal) || 0);
         setCurrency(settingsData.currency || 'USD');
@@ -32,11 +35,11 @@ export default function Dashboard() {
       console.error('Error fetching dashboard data:', err);
     }
     setLoading(false);
-  };
+  }, [currentYear]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const recentInvoices = invoices.filter(i => {
     const date = new Date(i.issue_date.includes('T') ? i.issue_date : `${i.issue_date}T00:00:00`);
@@ -88,6 +91,12 @@ export default function Dashboard() {
             isOpen={showLogTimeModal}
             onClose={() => setShowLogTimeModal(false)}
             onSaved={fetchData}
+          />
+
+          <OnboardingModal
+            settings={settings}
+            onDismiss={() => {}}
+            onRefreshSettings={fetchData}
           />
         </>
       )}

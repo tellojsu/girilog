@@ -119,7 +119,7 @@ export default function AddressAutocomplete({ value, onChange, placeholder }: Ad
         onChange={handleInputChange}
         placeholder={placeholder}
         rows={3}
-        className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors resize-none"
+        className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-[#6B7280] focus:outline-none focus:border-primary/50 transition-colors resize-none"
         maxLength={500}
       />
       {loading && (

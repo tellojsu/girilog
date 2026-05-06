@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { invoiceService, settingsService } from '@/services';
 import { Invoice, InvoiceStatusEnum } from '@/types/girilog';
 
@@ -28,7 +28,7 @@ export default function AnnualGoalTracker({ className }: AnnualGoalTrackerProps)
 
   const currentYear = new Date().getFullYear();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [invoiceData, settingsData] = await Promise.all([
         invoiceService.getYearlyInvoices(currentYear),
@@ -44,11 +44,11 @@ export default function AnnualGoalTracker({ className }: AnnualGoalTrackerProps)
       console.error('Error fetching tracker data:', err);
     }
     setLoading(false);
-  };
+  }, [currentYear]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const totalPaidInvoices = invoices
     .filter(i => {

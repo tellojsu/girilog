@@ -40,9 +40,14 @@ export default function AuthPage() {
       }
 
       if (mode === 'signup') {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setMessage({ text: 'Account created! Check your email to confirm.', ok: true });
+        
+        if (data.session) {
+          navigate(redirect, { replace: true });
+        } else {
+          setMessage({ text: 'Account created! Please check your email for a confirmation link.', ok: true });
+        }
         setLoading(false);
         return;
       }
@@ -59,7 +64,7 @@ export default function AuthPage() {
     }
   };
 
-  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-xl px-4 py-3 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors font-mono';
+  const inputClass = 'w-full bg-[#1E2330] border border-[#2A3040] rounded-xl px-4 py-3 text-sm text-white placeholder-[#6B7280] focus:outline-none focus:border-primary/50 transition-colors font-mono';
 
   const titles: Record<Mode, { heading: string; sub: string; btn: string }> = {
     login: { heading: 'Welcome back', sub: 'Sign in to your GiriLog workspace', btn: 'Sign in' },

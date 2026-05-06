@@ -4,7 +4,8 @@ import SettingsSection from './components/SettingsSection';
 import SettingsField from './components/SettingsField';
 import LogoUploader from './components/LogoUploader';
 import AddressAutocomplete from '@/components/common/AddressAutocomplete';
-import PhoneInput, { formatPhoneNumber } from '@/components/common/PhoneInput';
+import PhoneInput from '@/components/common/PhoneInput';
+import { formatPhoneNumber } from '@/utils/formatters';
 import { settingsService } from '@/services';
 import { Settings } from '@/types/girilog';
 
@@ -13,7 +14,7 @@ const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'INR', 'SGD', 'AED
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 function inputClass(focused?: boolean) {
-  return `w-full bg-[#0D0F14] border ${focused ? 'border-primary/50' : 'border-[#1E2330]'} rounded-lg px-3 py-2 text-sm text-white placeholder-secondary focus:outline-none focus:border-primary/50 transition-colors`;
+  return `w-full bg-[#0D0F14] border ${focused ? 'border-primary/50' : 'border-[#1E2330]'} rounded-lg px-3 py-2 text-sm text-white placeholder-[#6B7280] focus:outline-none focus:border-primary/50 transition-colors`;
 }
 
 
@@ -82,7 +83,7 @@ export default function SettingsPage() {
       } else {
         data = await settingsService.create(payload);
       }
-      
+
       if (data) {
         const settingsData = { ...data };
         if (settingsData.business_phone) {

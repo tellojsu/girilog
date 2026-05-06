@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS public.girilog_settings (
     default_tax_rate NUMERIC DEFAULT 0,
     currency TEXT DEFAULT 'USD',
     annual_revenue_goal NUMERIC DEFAULT 0,
+    onboarding_dismissed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -80,6 +81,9 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_settings' AND column_name='annual_revenue_goal') THEN
         ALTER TABLE public.girilog_settings ADD COLUMN annual_revenue_goal NUMERIC DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='girilog_settings' AND column_name='onboarding_dismissed') THEN
+        ALTER TABLE public.girilog_settings ADD COLUMN onboarding_dismissed BOOLEAN DEFAULT FALSE;
     END IF;
 
     -- Add missing columns to girilog_invoices

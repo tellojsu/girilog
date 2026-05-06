@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import SignupForm from './components/SignupForm';
 
 const FEATURES = [
   {
@@ -340,7 +341,7 @@ export default function HomePage() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:tall:flex flex-col items-center gap-2 opacity-40">
           <span className="text-xs text-secondary font-mono">scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-secondary to-transparent" />
         </div>
@@ -538,18 +539,9 @@ export default function HomePage() {
                 <i className="ri-rocket-line text-primary text-2xl" />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to get started?</h2>
-              <p className="text-[#8B9AB0] mb-8 text-lg">
-                Sign in and start creating invoices in under a minute.
-                Or drop your email to stay in the loop.
-              </p>
-
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-2 bg-primary hover:bg-[#059669] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors cursor-pointer whitespace-nowrap text-base"
-              >
-                <i className="ri-arrow-right-line" />
-                Open GiriLog
-              </Link>
+              <div className="mt-8">
+                <SignupForm />
+              </div>
             </div>
           </div>
         </div>

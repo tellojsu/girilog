@@ -129,8 +129,16 @@ export default function InvoiceList() {
               placeholder="Search invoices, clients..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-secondary font-mono focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full bg-[#1E2330] border border-[#2A3040] rounded-lg pl-9 pr-10 py-2 text-sm text-white placeholder-[#6B7280] font-mono focus:outline-none focus:border-primary/50 transition-colors"
             />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-[#6B7280] hover:text-white transition-colors cursor-pointer"
+              >
+                <i className="ri-close-line text-base" />
+              </button>
+            )}
           </div>
 
           {/* Status Filter Tabs */}

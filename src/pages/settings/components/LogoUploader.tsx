@@ -86,7 +86,7 @@ export default function LogoUploader({ value, onChange }: LogoUploaderProps) {
               value={draft}
               onChange={e => { setDraft(e.target.value); setImgError(false); }}
               placeholder="https://example.com/logo.png"
-              className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-secondary font-mono focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full bg-[#0D0F14] border border-[#1E2330] rounded-lg px-3 py-2 text-sm text-white placeholder-[#6B7280] font-mono focus:outline-none focus:border-primary/50 transition-colors"
             />
             <div className="flex items-center gap-2">
               <button
